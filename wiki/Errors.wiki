@@ -1,0 +1,15 @@
+= Decyphering errors =
+
+A lot of error messages that !EpubChecker generates come from the schema validation library, so they can be somewhat hard to understand. Below is a quick guide. Every error message is preceded by the resource name and the line number where an error occured.
+
+== required attributes missing ==
+
+Some elements have attributes that must be provided. For instance XHTML img element must have src and alt attributes.
+
+== required elements missing ==
+
+Some elements require certain child elements to be provided. For instance XHTML html element must contain body element.
+
+== bad value for attribute "xxx" ==
+
+An attribute is given a value that it cannot have.
