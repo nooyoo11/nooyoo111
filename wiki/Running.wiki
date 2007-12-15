@@ -1,0 +1,9 @@
+= Running !EpubCheck =
+
+To run the tool you need java (1.5 or above is recommended, but 1.4 should work as well). Run:
+
+{{{
+java -jar epubckeck-0.9.1.jar file.epub
+}}}
+
+All detected errors are simply printed to stderr.
