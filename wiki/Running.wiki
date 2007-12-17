@@ -1,6 +1,6 @@
 = Running !EpubCheck =
 
-To run the tool you need java (1.5 or above is recommended, but 1.4 should work as well). Run:
+To run the tool you need java (1.5 or above). Run:
 
 {{{
 java -jar epubcheck-0.9.1.jar file.epub
