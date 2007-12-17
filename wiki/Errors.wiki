@@ -12,4 +12,26 @@ Some elements require certain child elements to be provided. For instance XHTML 
 
 == bad value for attribute "xxx" ==
 
-An attribute is given a value that it cannot have.
+An attribute is given a value that it cannot have. For instance, id attribute's value must be an XML name and cannot start with digit or have spaces in it.
+
+== attribute "xxx" not allowed at this point; ignored ==
+
+An element cannot have an attribute with such name. Many commonly used HTML attributes cannot be used in XHTML. CSS should be used in most cases instead.
+
+== unknown element "xxx" from namespace "xxx" ==
+
+Unrecognized element. For instance, XHTML does not have font element, CSS should be used instead.
+
+== element "xxx" from namespace "xxx" not allowed in this context ==
+
+The element is used in the context which is not appropriate. For instance, XHTML tr element is used outside of the table.
+
+== unfinished element ==
+
+An element does not contain something that it must contain. For instance, XHTML head element which does not contain title element.
+
+== mimetype entry missing or not the first in archive ==
+
+A valid epub file must contain an uncompressed file named mimetype as a first entry in the zip archive. That file must contain epub mime type (application/epub+zip).
+
+
