@@ -1,4 +1,0 @@
-= Quick start =
-
-  * [Running Running EpubCheck]
-  * [Errors Decyphering Errors]
