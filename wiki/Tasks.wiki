@@ -1,0 +1,19 @@
+= Tasks =
+
+This is a list of development tasks to make !EpubCheck better.
+
+== CSS validation ==
+
+Right now !EpubCheck does not try to validate CSS stylesheet. While per CSS rules any sequence of characters is a parsable CSS stylesheet, we want to be stricter.
+
+== Image validation ==
+
+Currently only image signature is checked (to make sure that JPEGs are not mislabeled as GIFs). We can try to load the image to make sure it is not corrupted.
+
+== Common sense checks ==
+
+Create a comand-line flag to apply "rule of thumb" type of wisdom in addition to pure standard compliance (e.g. 300k chapters are probably too big and not going to look nice on handhelds, 1500dpi resolution images are probably excessive).
+
+== Developer APIs ===
+
+A set of stable APIs that people who want to integrate !EpubCheck in their code can rely on.
