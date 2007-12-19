@@ -2,4 +2,4 @@
 
 *!EpubCheck for Web* is a simple web interface for !EpubCheck. It can run by a servlet-compatible web server, such as [http://tomcat.apache.org Apache Tomcat]. Note that you need Java version of at least 1.5.
 
-To run !EpubCheck on the web server, select a download with .war extension. You may want to rename it. Drop the war file where your sever expects to find web applications (e.g. C:\\Program Files\\Apache Software Foundation\\Tomcat 6.0\\webapps). If your file was named epubcheck.war, you should be able to point your browser to !http://your-server/epubcheck and see a simple web page to upload epub file.
+To run !EpubCheck on the web server, select a download with .war extension. You may want to rename it. Drop the war file where your sever expects to find web applications (e.g. C:\Program Files\Apache Software Foundation\Tomcat 6.0\webapps). If your file was named epubcheck.war, you should be able to point your browser to http://your-server/epubcheck and see a simple web page to upload epub file.
