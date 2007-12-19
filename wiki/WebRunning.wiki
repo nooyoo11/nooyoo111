@@ -1,1 +1,3 @@
-= Running EpubCheck for Web =
+= Running !EpubCheck for Web =
+
+*EpubCheck for Web* is a simple web interface for !EpubCheck. It can run by a servlet-compatible web server, such as [http://tomcat.apache.org Apache Tomcat]. Note that you need Java version of at least 1.5.
