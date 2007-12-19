@@ -2,8 +2,8 @@
 
 == Developing !EpubCheck ==
 
-* [Tasks]
+ * [Tasks Development Tasks]
 
 == Using !EpubCheck in your development ==
 
-We do not have stable public interfaces yet. You certainly can start using it now, but expect things to change a little. The easiest place to start is to look at com.adobe.epubcheck.tool.Checker class.
+ * [Library Using EpubCheck as a library]
