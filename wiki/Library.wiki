@@ -1,3 +1,3 @@
 = Using !EpubCheck as a library =
 
-You can use !EpubCheck as a library in your Java application. !EpubCheck public interfaces can be found in com.adobe.epubcheck.api package. `EpubCheck` class can be used to instantiate a validation engine. Use one of its constructors and then call `validate()` method. `Report` is an interface that you can implement to get a list of the errors and warnings reported by the validation engine (instead of the error list being printed out).
+You can use !EpubCheck as a library in your Java application. !EpubCheck public interfaces can be found in `com.adobe.epubcheck.api` package. `EpubCheck` class can be used to instantiate a validation engine. Use one of its constructors and then call `validate()` method. `Report` is an interface that you can implement to get a list of the errors and warnings reported by the validation engine (instead of the error list being printed out).
