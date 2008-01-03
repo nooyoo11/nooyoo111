@@ -18,7 +18,7 @@ An attribute is given a value that it cannot have. For instance, id attribute's 
 
 An element cannot have an attribute with such name. Many commonly used HTML attributes cannot be used in XHTML. CSS should be used in most cases instead.
 
-Sometimes document does not use that attribute and this problem is still reported. This can happen if your document uses DTD and DTD implicitly adds unspecified attributes (e.g. XHTML 1.0 transitional places default value on clear attribute for br element, which is not allowed in XHTML 1.0 strict and XHTML 1.1). Epubcheck always uses XHTML 1.1 syntax (as specified in OPS 2.0) no matter which DTD is declared in the document (if any). 
+Sometimes a document does not use that attribute explicitly, yet this problem is still reported. This can happen if the document uses DTD and DTD implicitly adds an unspecified attribute (e.g. XHTML 1.0 transitional places default value on clear attribute for br element, which is not allowed in XHTML 1.1). Epubcheck always uses XHTML 1.1 syntax (as specified in OPS 2.0) no matter which DTD is declared in the document (if any). 
 
 == unknown element "xxx" from namespace "xxx" ==
 
