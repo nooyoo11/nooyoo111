@@ -39,3 +39,15 @@ A valid epub file must contain an uncompressed file named mimetype as a first en
 == mimetype contains wrong type (application/epub+zip expected) ==
 
 Either mimetype is wrong or mimetype does not start at the proper byte offset in the archive. (OCF spec requires it to start at offset 38).
+
+== empty media-type attribute ==
+
+The media-type attribute is empty (""), which is not allowed.
+
+== invalid content for media-type attribute ==
+
+The content of the media-type attribute does not conform to the requirements set fourth in RFC4288 Section 4.2. Usually, this is because it contains an invalid character or does not have type/subtype separated by forward slash.
+
+== 'XXX' is not a permissible spine media-type ==
+
+According to the OPF spec, only OCF Content Documents are allowed to be referenced in the spine (OPF Spec, Section 4.2). This error is reported when a non-OCF Content Document media-type is referenced in the spine.
