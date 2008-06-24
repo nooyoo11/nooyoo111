@@ -51,3 +51,11 @@ The content of the media-type attribute does not conform to the requirements set
 == 'XXX' is not a permissible spine media-type ==
 
 According to the OPF spec, only OCF Content Documents are allowed to be referenced in the spine (OPF Spec, Section 4.2). This error is reported when a non-OCF Content Document media-type is referenced in the spine.
+
+== warning: use of non-registered URI schema type in href: XXX ==
+
+The validator will generate a warning whenvere it finds an href that references a non-registered schema-type. The list of registered schema types is kept as a resource called registeredSchemas.txt in the com.adobe.epubcheck.ops package (you can add your own, but make sure to follow the format listed)
+
+== The "id" attribute does not have a unique value! ==
+
+This error is generated when the schematron assertion of unique id attribute values in the content OPF file fails.
