@@ -42,7 +42,7 @@ Either mimetype is wrong or mimetype does not start at the proper byte offset in
 
 == empty media-type attribute ==
 
-The media-type attribute is empty (""), which is not allowed.
+The media-type attribute is empty ("") or missing, which is not allowed.
 
 == invalid content for media-type attribute ==
 
@@ -59,3 +59,7 @@ The validator will generate a warning whenvere it finds an href that references 
 == The "id" attribute does not have a unique value! ==
 
 This error is generated when the schematron assertion of unique id attribute values in the content OPF file fails.
+
+== assertion failed: different playOrder values ... that refer to same target ==
+
+duplicate items in the TOC that point to the same piece of content, but have different playOrder assigned to them
