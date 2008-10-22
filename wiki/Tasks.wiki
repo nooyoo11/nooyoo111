@@ -1,3 +1,4 @@
+#summary Development opportunities
 = Tasks =
 
 This is a list of development tasks to make !EpubCheck better.
