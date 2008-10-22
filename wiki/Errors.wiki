@@ -1,3 +1,4 @@
+#summary Explanation of common errors seen when running epubcheck
 = Decyphering errors =
 
 A lot of error messages that !EpubChecker generates come from the schema validation library, so they can be somewhat hard to understand. Below is a quick guide. Every error message is preceded by the resource name and the line number where an error occured.
