@@ -14,3 +14,7 @@ Currently only image signature is checked (to make sure that JPEGs are not misla
 == Common sense checks ==
 
 Create a comand-line flag to apply "rule of thumb" type of wisdom in addition to pure standard compliance (e.g. 300k chapters are probably too big and not going to look nice on handhelds, 1500dpi resolution images are probably excessive).
+
+== Test cases ==
+
+A set of basic smoke tests, and a framework to run them, is needed.
