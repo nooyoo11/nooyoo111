@@ -1,0 +1,10 @@
+#summary User documentation for epubcheck.
+
+= Introduction =
+
+This page will eventually contain documentation for the epubcheck tool. 
+
+
+= Details =
+
+This page will include an outline of what the tool does, what it checks, what it doesn't check and the differences between WARNING, ERROR, and FATAL level problems.
