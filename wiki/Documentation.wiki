@@ -31,16 +31,16 @@ Validates the OPF against the schema
 Checks the 'unique-id' to ensure that it references an actual id in the OPF file.
 Checks the existence of the NCX file
 Checks each item in the manifest
-  - that they exist in the package
-  - for invalid content in the media-type attribute
-  - for text/html, which is not appropriate for epubs
-  - for deprecated media-types in OPS documents
-  - for newer media-types in OEBPS 1.2 documents
-  - for fallbacks for unknown media-types.
+  * that they exist in the package
+  * for invalid content in the media-type attribute
+  * for text/html, which is not appropriate for epubs
+  * for deprecated media-types in OPS documents
+  * for newer media-types in OEBPS 1.2 documents
+  * for fallbacks for unknown media-types.
 Opens each item and runs the appropriate checker (OPSChecker for XHTML, DTBookChecker for DTBook, BitmapChecker for images, etc.)
 Checks each item in the spine.
-  - must be valid for the spine
-  - must be a preferred type, or have a provided fallback.
+  * must be valid for the spine
+  * must be a preferred type, or have a provided fallback.
 
 == XHTML Files ==
 Validates the XHTML file against the schema files.
