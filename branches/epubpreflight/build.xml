@@ -8,6 +8,7 @@
 	
 	<!-- <property name="version" value="${ISO-TODAY}"/> -->
 	<property name="version" value="1.0.2"/>
+	<property name="preflight-version" value="0.1.0"/>
 	
 	<!--project directories -->
 
@@ -88,12 +89,59 @@
 			</manifest>
 		</jar>
 	</target>
+	<!-- 
+	****************************
+	*** binary epubpreflight.jar ***
+	****************************
+	-->
+	
+	<target name="buildPreflightJar" 
+			description="Creates binary epubpreflight.jar in the distribution folder" 
+			depends="compile,createDistributionDir">
+		<mkdir dir="${distribution.dir}"/>
+
+		<jar jarfile="${distribution.dir}/epubpreflight-${preflight-version}.jar">
+			<fileset dir="${build.dir}">
+				<include name="com/**/*.*"/> 
+				<include name="org/**/*.*"/> 
+			</fileset>
+			<metainf dir="${build.dir}/META-INF">
+				<include name="services/**/*.*"/>
+			</metainf>
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0"/>
+				<attribute name="Main-Class" value="com.adobe.epubpreflight.EpubPreflight"/>
+				<attribute name="Class-Path" value="lib/saxon.jar"/>
+			</manifest>
+		</jar>
+	</target>
 	
 
 	<!-- 
-	*******************************
+	***********************************
+	*** java binary for preflight zip ***
+	***********************************
+	-->
+	<target name="buildPreflightBinZip"
+		depends="buildPreflightJar"
+		description="Build a zip including epubpreflight.jar and 3d party dependencies in ./lib/*.jar"
+		>	
+		<delete file="${distribution.dir}/epubpreflight-${preflight-version}.zip"/>
+		<zip zipfile="${distribution.dir}/epubpreflight-${preflight-version}.zip">			
+			<fileset dir="${distribution.dir}">
+				<include name="epubpreflight-${preflight-version}.jar"/>
+			</fileset>
+			<fileset dir="${epubcheck.base.dir}">
+			    <include name="lib/*.jar"/>
+				<include name="*.txt"/> 
+			</fileset>
+		</zip>		
+	</target>
+
+	<!-- 
+	*************************************
 	*** java binary zip ***
-	*******************************
+	*************************************
 	-->
 	<target name="buildBinZip"
 		depends="buildJar"
@@ -133,7 +181,8 @@
 	<target name="buildEpubChecker"
 			description="Creates binary jar zip and source zip"
 			depends="buildSrcZip,
-					 buildBinZip
+					 buildBinZip,
+					 buildPreflightBinZip
 					"/>
 
 </project>
