@@ -67,4 +67,6 @@ duplicate items in the TOC that point to the same piece of content, but have dif
 
 == org.xml.sax.SAXParseException: no implementation available for schema language with namespace URI "http://www.ascc.net/xml/schematron" ==
 
-This is an epubcheck set-up error. It means that saxon.jar is missing from the class path. Typically there should be a folder named "lib" next to epubcheck jar and saxon.jar should be in that folder, but any other way to add it to the class path should be fine. Note that off-the-self saxon.jar does not work well with epubcheck, because it registers its own, deficient XML parser as default (e.g. XML 1.1 is not supported). Saxon.jar which comes in epubcheck distribution has this parser registration taken out.
+Epubcheck is quite strict about where its lib/ directory resides. In most configurations, "lib/saxon.jar" *must* be in the same directory as the epubcheck jar file. 
+
+Note that off-the-shelf saxon.jar does not work well with epubcheck  because it registers its own XML parser as default that does not support XML 1.1 is not supported. The version of saxon.jar which comes in epubcheck distribution has this parser registration taken out.
