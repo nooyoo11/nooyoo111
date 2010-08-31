@@ -69,4 +69,4 @@ duplicate items in the TOC that point to the same piece of content, but have dif
 
 Epubcheck is quite strict about where its lib/ directory resides. In most configurations, "lib/saxon.jar" *must* be in the same directory as the epubcheck jar file. 
 
-Note that off-the-shelf saxon.jar does not work well with epubcheck  because it registers its own XML parser without  XML 1.1 support. The version of saxon.jar which comes in epubcheck distribution has this parser registration taken out.
+Note that off-the-shelf saxon.jar does not work well with epubcheck  because it registers its own XML parser without  XML 1.1 support. The version of saxon.jar which comes in the epubcheck distribution has this parser registration taken out.
