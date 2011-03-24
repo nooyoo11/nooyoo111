@@ -4,7 +4,7 @@
          xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en" 
          datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
      
-	<include href="content.rng"/>
+	<include href="/rng/content.rng"/>
 	
 	<start>
 	  <ref name="html"/>

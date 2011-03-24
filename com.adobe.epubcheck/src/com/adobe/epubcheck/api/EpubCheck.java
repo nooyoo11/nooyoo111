@@ -38,7 +38,7 @@ import com.adobe.epubcheck.util.WriterReportImpl;
  */
 public class EpubCheck {
 	/* VERSION number is duplicated in the build.xml and war-build.xml files, so you'll need to change it in two additional places */
-	public static final String VERSION = "1.2";
+	public static final String VERSION = "1.1";
 
 	File epubFile;
 
@@ -103,18 +103,8 @@ public class EpubCheck {
 			FileInputStream epubIn = new FileInputStream(epubFile);
 
 			byte[] header = new byte[58];
-			
-			int readCount = epubIn.read(header);
-			if (readCount != -1) {
-				while (readCount < header.length) {
-					int read = epubIn.read(header, readCount, header.length-readCount);
-					// break on eof
-					if (read == -1) 
-						break;
-					readCount += read;
-				}
-			}
-			if (readCount != header.length) {
+
+			if (epubIn.read(header) != header.length) {
 				report.error(null, 0, "cannot read header");
 			} else {
 				int fnsize = getIntFromBytes(header, 26);
