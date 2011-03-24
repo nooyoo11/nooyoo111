@@ -1,4 +1,7 @@
-#summary Explanation of common errors seen when running epubcheck
+#summary Explanation of common errors seen when running epubcheck < 1.2
+
+*Note: These error messages apply to EpubCheck version 1.1 and below only. New error messages are provided in EpubCheck 1.2. This page should be updated to include EpubCheck 1.2 error descriptions, though those errors are much more clear.*
+
 = Decyphering errors =
 
 A lot of error messages that !EpubChecker generates come from the schema validation library, so they can be somewhat hard to understand. Below is a quick guide. Every error message is preceded by the resource name and the line number where an error occured.
