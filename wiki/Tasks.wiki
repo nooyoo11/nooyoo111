@@ -17,4 +17,4 @@ Create a comand-line flag to apply "rule of thumb" type of wisdom in addition to
 
 == Test cases ==
 
-A set of basic smoke tests, and a framework to run them, is needed.
+Additional test cases and regressions for issues are needed.
