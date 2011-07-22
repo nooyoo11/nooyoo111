@@ -23,9 +23,12 @@
 package com.adobe.epubcheck.opf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
@@ -39,308 +42,402 @@ import com.adobe.epubcheck.xml.XMLValidator;
 
 public class OPFChecker {
 
-        OCFPackage ocf;
+	OCFPackage ocf;
 
-        Report report;
+	Report report;
 
-        String path;
+	String path;
 
-        HashSet containerEntries;
+	HashSet containerEntries;
 
-        static XMLValidator opfValidator = new XMLValidator("rng/opf.rng");
+	float version;
 
-        static XMLValidator opfSchematronValidator = new XMLValidator("sch/opf.sch");
+	static XMLValidator opfValidator = new XMLValidator("rng/opf.rng");
 
-        XRefChecker xrefChecker;
+	static XMLValidator opfSchematronValidator = new XMLValidator("sch/opf.sch");
 
-        static Hashtable contentCheckerFactoryMap;
+	static XMLValidator opfValidator30 = new XMLValidator(
+			"epub30schemas/package-30.rnc");
+	//TODO
+	// static XMLValidator opfSchematronValidator30 = new
+	// XMLValidator("schemas30/package-30.sch");
 
-        static {
-                Hashtable map = new Hashtable();
-                map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
-                map.put("text/html", OPSCheckerFactory.getInstance());
-                map.put("text/x-oeb1-document", OPSCheckerFactory.getInstance());
-                map.put("image/jpeg", BitmapCheckerFactory.getInstance());
-                map.put("image/gif", BitmapCheckerFactory.getInstance());
-                map.put("image/png", BitmapCheckerFactory.getInstance());
-                map.put("image/svg+xml", OPSCheckerFactory.getInstance());
-                map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
+	XRefChecker xrefChecker;
 
-                contentCheckerFactoryMap = map;
-        }
+	static Hashtable contentCheckerFactoryMap;
 
-        public OPFChecker(OCFPackage ocf, Report report, String path, HashSet containerEntries) {
-                this.ocf = ocf;
-                this.report = report;
-                this.path = path;
-                this.containerEntries = containerEntries;
-                this.xrefChecker = new XRefChecker(ocf, report);
-        }
+	static {
+		Hashtable map = new Hashtable();
+		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
+		map.put("text/html", OPSCheckerFactory.getInstance());
+		map.put("text/x-oeb1-document", OPSCheckerFactory.getInstance());
+		map.put("image/jpeg", BitmapCheckerFactory.getInstance());
+		map.put("image/gif", BitmapCheckerFactory.getInstance());
+		map.put("image/png", BitmapCheckerFactory.getInstance());
+		map.put("image/svg+xml", OPSCheckerFactory.getInstance());
+		map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
 
-        public void runChecks() {
-                if (!ocf.hasEntry(path))
-                        report.error(null, 0, "OPF file " + path + " is missing");
-                else {
-                        XMLParser opfParser = new XMLParser(ocf, path, report);
-                        OPFHandler opfHandler = new OPFHandler(opfParser, ocf, path);
-                        opfParser.addXMLHandler(opfHandler);
+		contentCheckerFactoryMap = map;
+	}
 
-                        // add relaxNG validator
-                        opfParser.addValidator(opfValidator);
+	public OPFChecker(OCFPackage ocf, Report report, String path,
+			HashSet containerEntries) {
+		this.ocf = ocf;
+		this.report = report;
+		this.path = path;
+		this.containerEntries = containerEntries;
+		this.xrefChecker = new XRefChecker(ocf, report);
+	}
 
-                        // add schematron validator
-                        opfParser.addValidator(opfSchematronValidator);
+	public void runChecks() {
+		if (!ocf.hasEntry(path))
+			report.error(null, 0, "OPF file " + path + " is missing");
+		else {
+			XMLParser opfParser = new XMLParser(ocf, path, report);
+			OPFHandler opfHandler = new OPFHandler(opfParser, ocf, path);
+			opfParser.addXMLHandler(opfHandler);
+			String stringVersion = "";
 
-                        try {
-                                // validate according to relaxNG + schematron
-                                opfParser.process();
-                        } catch (Throwable t) {
-                                report.error(path, -1,
-                                        "Failed performing OPF Schematron tests: " + t.getMessage());
-                        }
+			try {
+				stringVersion = getVersion();
+				System.out.println("Epub file version: " + stringVersion);
+			} catch (InvalidVersionException e) {
+				report.error(path, -1,
+						"Failed obtaining OPF version: " + e.getMessage());
+			}
 
-                        if (!opfHandler.checkUniqueIdentExists()) {
-                                report.error(path, -1,
-                                        "unique-identifier attribute in package element must reference an existing identifier element id");
-                        }
+			if (stringVersion.equals("2.0")) {
+				opfParser.addValidator(opfValidator); // add relaxNG
+														// validator
+				opfParser.addValidator(opfSchematronValidator); // add
+																// schematron
+																// validator
+				version = 2;
+			} else if (stringVersion.equals("3.0")) {
+				opfParser.addValidator(opfValidator30); // add relaxNG
+														// validator
+				// opfParser.addValidator(opfSchematronValidator30); // add
+				// schematron validator
+				version = 3;
+			}
 
-                        int refCount = opfHandler.getReferenceCount();
-                        for (int i = 0; i < refCount; i++) {
-                                OPFReference ref = opfHandler.getReference(i);
-                                String itemPath = PathUtil.removeAnchor(ref.getHref());
-                                if (opfHandler.getItemByPath(itemPath) == null) {
-                                    report.error(path, ref.getLineNumber(), "File listed in reference element in guide was not declared in OPF manifest: " + ref.getHref());
-                                }
-                        }
+			try {
+				// validate according to relaxNG + schematron
+				opfParser.process();
+			} catch (Throwable t) {
+				report.error(
+						path,
+						-1,
+						"Failed performing OPF Schematron tests: "
+								+ t.getMessage());
+			}
 
-                        int itemCount = opfHandler.getItemCount();
-                        for (int i = 0; i < itemCount; i++) {
-                                OPFItem item = opfHandler.getItem(i);
-                                try {
-                                        xrefChecker.registerResource(item.getPath(), item.getMimeType(), item.isInSpine(),
-                                                                     checkItemFallbacks(item, opfHandler), checkImageFallbacks(item, opfHandler));
-                                } catch (IllegalArgumentException e) {
-                                        report.error(path, item.getLineNumber(), e.getMessage());
-                                }
-                                checkItem(item, opfHandler);
-                        }
+			
+			opfHandler.validateMetaIdRefs();
 
-                        int spineItemCount = opfHandler.getSpineItemCount();
-                        for (int i = 0; i < spineItemCount; i++) {
-                                OPFItem item = opfHandler.getSpineItem(i);
-                                checkSpineItem(item, opfHandler);
-                        }
+			if (!opfHandler.checkUniqueIdentExists()) {
+				report.error(
+						path,
+						-1,
+						"unique-identifier attribute in package element must reference an existing identifier element id");
+			}
 
-                        for (int i = 0; i < itemCount; i++) {
-                                OPFItem item = opfHandler.getItem(i);
-                                checkItemContent(item, opfHandler);
-                        }
+			int refCount = opfHandler.getReferenceCount();
+			for (int i = 0; i < refCount; i++) {
+				OPFReference ref = opfHandler.getReference(i);
+				String itemPath = PathUtil.removeAnchor(ref.getHref());
+				if (opfHandler.getItemByPath(itemPath) == null) {
+					report.error(path, ref.getLineNumber(),
+							"File listed in reference element in guide was not declared in OPF manifest: "
+									+ ref.getHref());
+				}
+			}
 
-                        try {
-                            Iterator filesIter = ocf.getFileEntries().iterator();
-                            while (filesIter.hasNext()) {
-                                String entry = (String)filesIter.next();
+			int itemCount = opfHandler.getItemCount();
+			for (int i = 0; i < itemCount; i++) {
+				OPFItem item = opfHandler.getItem(i);
+				try {
+					xrefChecker.registerResource(item.getPath(),
+							item.getMimeType(), item.isInSpine(),
+							checkItemFallbacks(item, opfHandler),
+							checkImageFallbacks(item, opfHandler));
+				} catch (IllegalArgumentException e) {
+					report.error(path, item.getLineNumber(), e.getMessage());
+				}
+				checkItem(item, opfHandler);
+			}
 
-                                if (opfHandler.getItemByPath(entry) == null && ! entry.startsWith("META-INF/") && ! entry.startsWith("META-INF\\") &&  ! entry.equals("mimetype") && ! containerEntries.contains(entry)) {
-                                    report.warning(null, -1,
-                                                   "item (" + entry + ") exists in the zip file, but is not declared in the OPF file");
-                                }
-                            }
+			int spineItemCount = opfHandler.getSpineItemCount();
+			for (int i = 0; i < spineItemCount; i++) {
+				OPFItem item = opfHandler.getSpineItem(i);
+				checkSpineItem(item, opfHandler);
+			}
 
-                            Iterator directoriesIter = ocf.getDirectoryEntries().iterator();
-                            while (directoriesIter.hasNext()) {
-                                String directory = (String)directoriesIter.next();
-                                boolean hasContents = false;
-                                filesIter = ocf.getFileEntries().iterator();
-                                while (filesIter.hasNext()) {
-                                    String file = (String)filesIter.next();
-                                    if (file.startsWith(directory)) {
-                                        hasContents = true;
-                                    }
-                                }
-                                if (! hasContents) {
-                                    report.warning(null, -1,
-                                                   "zip file contains empty directory " + directory);
-                                }
+			for (int i = 0; i < itemCount; i++) {
+				OPFItem item = opfHandler.getItem(i);
+				checkItemContent(item, opfHandler);
+			}
 
-                            }
+			try {
+				Iterator filesIter = ocf.getFileEntries().iterator();
+				while (filesIter.hasNext()) {
+					String entry = (String) filesIter.next();
 
-                        } catch (IOException e) {
-                            report.error(null, -1, "Unable to read zip file entries.");
-                        }
+					if (opfHandler.getItemByPath(entry) == null
+							&& !entry.startsWith("META-INF/")
+							&& !entry.startsWith("META-INF\\")
+							&& !entry.equals("mimetype")
+							&& !containerEntries.contains(entry)) {
+						report.warning(
+								null,
+								-1,
+								"item ("
+										+ entry
+										+ ") exists in the zip file, but is not declared in the OPF file");
+					}
+				}
 
-                        xrefChecker.checkReferences();
-                }
-        }
+				Iterator directoriesIter = ocf.getDirectoryEntries().iterator();
+				while (directoriesIter.hasNext()) {
+					String directory = (String) directoriesIter.next();
+					boolean hasContents = false;
+					filesIter = ocf.getFileEntries().iterator();
+					while (filesIter.hasNext()) {
+						String file = (String) filesIter.next();
+						if (file.startsWith(directory)) {
+							hasContents = true;
+						}
+					}
+					if (!hasContents) {
+						report.warning(null, -1,
+								"zip file contains empty directory "
+										+ directory);
+					}
 
-        static boolean isBlessedItemType(String type) {
-                return type.equals("application/xhtml+xml")
-                                || type.equals("application/x-dtbook+xml");
+				}
 
-        }
+			} catch (IOException e) {
+				report.error(null, -1, "Unable to read zip file entries.");
+			}
 
-        static boolean isDeprecatedBlessedItemType(String type) {
-                return type.equals("text/x-oeb1-document") || type.equals("text/html");
-        }
+			xrefChecker.checkReferences();
+		}
+	}
 
-        static boolean isBlessedStyleType(String type) {
-                return type.equals("text/css");
-        }
+	public String getVersion() throws InvalidVersionException {
 
-        static boolean isDeprecatedBlessedStyleType(String type) {
-                return type.equals("text/x-oeb1-css");
-        }
+		try {
+			InputStream opfIn = ocf.getInputStream(path);
+			StringBuffer stringbuffer = new StringBuffer();
+			int ch = opfIn.read();
 
-        static boolean isBlessedImageType(String type) {
-                return type.equals("image/gif") || type.equals("image/png")
-                                || type.equals("image/jpeg") || type.equals("image/svg+xml");
-        }
+			while (ch != -1) {
+				stringbuffer.append((char) ch);
+				ch = opfIn.read();
+			}
 
-        private void checkItem(OPFItem item, OPFHandler opfHandler) {
-                String mimeType = item.getMimeType();
-                String fallback = item.getFallback();
-                if (mimeType == null || mimeType.equals("")) {
-                        // Ensures that media-type attribute is not empty
-                        report.error(path, item.getLineNumber(),
-                                        "empty media-type attribute");
-                } else if (!mimeType.matches("[a-zA-Z0-9!#$&+-^_]+/[a-zA-Z0-9!#$&+-^_]+")) {
-                        /*
-                         * Ensures that media-type attribute has correct content. The
-                         * media-type must have a type and a sub-type divided by '/' The
-                         * allowable content for the media-type attribute is defined in
-                         * RFC4288 section 4.2
-                         */
-                        report.error(path, item.getLineNumber(),
-                                        "invalid content for media-type attribute");
-                } else if (isDeprecatedBlessedItemType(mimeType)
-                                || isDeprecatedBlessedStyleType(mimeType)) {
-                        if (opfHandler.getOpf20PackageFile()
-                                        && mimeType.equals("text/html"))
-                                report.warning(path, item.getLineNumber(),
-                                        "text/html is not appropriate for XHTML/OPS, use application/xhtml+xml instead");
-                        else if (opfHandler.getOpf12PackageFile() && mimeType.equals("text/html"))
-                                report.warning(path, item.getLineNumber(),
-                                        "text/html is not appropriate for OEBPS 1.2, use text/x-oeb1-document instead");
-                        else if (opfHandler.getOpf20PackageFile())
-                                report.warning(path, item.getLineNumber(),
-                                                "deprecated media-type '" + mimeType + "'");
-                }
-                if (opfHandler.getOpf12PackageFile() && fallback == null) {
-                        if (isBlessedItemType(mimeType))
-                                report.warning(path, item.getLineNumber(), "use of OPS media-type '"
-                                        + mimeType + "' in OEBPS 1.2 context; use text/x-oeb1-document instead");
-                        else if (isBlessedStyleType(mimeType))
-                                report.warning(path, item.getLineNumber(), "use of OPS media-type '"
-                                                + mimeType + "' in OEBPS 1.2 context; use text/x-oeb1-css instead");
-                }
-                if (fallback != null) {
-                        OPFItem fallbackItem = opfHandler.getItemById(fallback);
-                        if (fallbackItem == null)
-                                report.error(path, item.getLineNumber(),
-                                                "fallback item could not be found");
-                }
-                String fallbackStyle = item.getFallbackStyle();
-                if (fallbackStyle != null) {
-                        OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
-                        if (fallbackStyleItem == null)
-                                report.error(path, item.getLineNumber(),
-                                        "fallback-style item could not be found");
-                }
-        }
+			String regex = "<package[^>]*version\\s*=\\s*\"([\\d]+\\.[\\d]+)\".*>";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(stringbuffer);
 
-        private void checkItemContent(OPFItem item, OPFHandler opfHandler) {
-                String mimeType = item.getMimeType();
-                String path = item.getPath();
-                if (mimeType != null) {
-                        ContentCheckerFactory checkerFactory;
-                        if (item.isNcx())
-                                checkerFactory = NCXCheckerFactory.getInstance();
-                        else
-                                checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
-                                                .get(mimeType);
-                        if (checkerFactory == null)
-                                checkerFactory = GenericContentCheckerFactory.getInstance();
-                        if (checkerFactory != null) {
-                                ContentChecker checker = checkerFactory.newInstance(ocf,
-                                                report, path, mimeType, xrefChecker);
-                                checker.runChecks();
-                        }
-                }
-        }
+			if (matcher.find()) {
+				String version = matcher.group(1);
+				if ((version.equals("2.0") || version.equals("3.0")))
+					return version;
+				else
+					throw new InvalidVersionException(InvalidVersionException.UNSUPPORTED_VERSION);
+			}
+			throw new InvalidVersionException(InvalidVersionException.VERSION_NOT_FOUND);
 
-        private void checkSpineItem(OPFItem item, OPFHandler opfHandler) {
-                // These checks are okay to be done on <spine> items, but they really should be done on all
-                // <manifest> items instead.  I am avoiding making this change now pending a few issue
-                // resolutions in the EPUB Maint Working Group (e.g. embedded fonts not needing fallbacks).
-                // [GC 11/15/09]
-                String mimeType = item.getMimeType();
-                if (mimeType != null) {
-                        if (isBlessedStyleType(mimeType)
-                                        || isDeprecatedBlessedStyleType(mimeType)
-                                        || isBlessedImageType(mimeType))
-                                report.error(path, item.getLineNumber(), "'" + mimeType
-                                                + "' is not a permissible spine media-type");
-                        else if (!isBlessedItemType(mimeType)
-                                        && !isDeprecatedBlessedItemType(mimeType)
-                                        && item.getFallback() == null)
-                                report.error(path, item.getLineNumber(),
-                                                "non-standard media-type '" + mimeType
-                                                                + "' with no fallback");
-                        else if (!isBlessedItemType(mimeType)
-                                        && !isDeprecatedBlessedItemType(mimeType)
-                                        && !checkItemFallbacks(item, opfHandler))
-                                report.error(path, item.getLineNumber(),
-                                                "non-standard media-type '" + mimeType
-                                                                + "' with fallback to non-spine-allowed media-type");
-                }
-        }
+		} catch (IOException e) {
+			// Never happens
+		}
+		throw new InvalidVersionException(InvalidVersionException.VERSION_NOT_FOUND);
+	}
 
-        private boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
-                String fallback = item.getFallback();
-                if (fallback != null) {
-                        OPFItem fallbackItem = opfHandler.getItemById(fallback);
-                        if (fallbackItem != null) {
-                                String mimeType = fallbackItem.getMimeType();
-                                if (mimeType != null) {
-                                        if (isBlessedItemType(mimeType)
-                                                        || isDeprecatedBlessedItemType(mimeType))
-                                                return true;
-                                        if (checkItemFallbacks(fallbackItem, opfHandler))
-                                                return true;
-                                }
-                        }
-                }
-                String fallbackStyle = item.getFallbackStyle();
-                if (fallbackStyle != null) {
-                        OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
-                        if (fallbackStyleItem != null) {
-                                String mimeType = fallbackStyleItem.getMimeType();
-                                if (mimeType != null) {
-                                        if (isBlessedStyleType(mimeType)
-                                                        || isDeprecatedBlessedStyleType(mimeType))
-                                                return true;
-                                }
-                        }
-                }
-                return false;
-        }
+	static boolean isBlessedItemType(String type) {
+		return type.equals("application/xhtml+xml")
+				|| type.equals("application/x-dtbook+xml");
 
-        private boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
-                String fallback = item.getFallback();
-                if (fallback != null) {
-                        OPFItem fallbackItem = opfHandler.getItemById(fallback);
-                        if (fallbackItem != null) {
-                                String mimeType = fallbackItem.getMimeType();
-                                if (mimeType != null) {
-                                        if (isBlessedImageType(mimeType))
-                                                return true;
-                                        if (checkImageFallbacks(fallbackItem, opfHandler))
-                                                return true;
-                                }
-                        }
-                }
-                return false;
-        }
+	}
 
+	static boolean isDeprecatedBlessedItemType(String type) {
+		return type.equals("text/x-oeb1-document") || type.equals("text/html");
+	}
+
+	static boolean isBlessedStyleType(String type) {
+		return type.equals("text/css");
+	}
+
+	static boolean isDeprecatedBlessedStyleType(String type) {
+		return type.equals("text/x-oeb1-css");
+	}
+
+	static boolean isBlessedImageType(String type) {
+		return type.equals("image/gif") || type.equals("image/png")
+				|| type.equals("image/jpeg") || type.equals("image/svg+xml");
+	}
+
+	private void checkItem(OPFItem item, OPFHandler opfHandler) {
+		String mimeType = item.getMimeType();
+		String fallback = item.getFallback();
+		if (mimeType == null || mimeType.equals("")) {
+			// Ensures that media-type attribute is not empty
+			report.error(path, item.getLineNumber(),
+					"empty media-type attribute");
+		} else if (!mimeType
+				.matches("[a-zA-Z0-9!#$&+-^_]+/[a-zA-Z0-9!#$&+-^_]+")) {
+			/*
+			 * Ensures that media-type attribute has correct content. The
+			 * media-type must have a type and a sub-type divided by '/' The
+			 * allowable content for the media-type attribute is defined in
+			 * RFC4288 section 4.2
+			 */
+			report.error(path, item.getLineNumber(),
+					"invalid content for media-type attribute");
+		} else if (isDeprecatedBlessedItemType(mimeType)
+				|| isDeprecatedBlessedStyleType(mimeType)) {
+			if (opfHandler.getOpf20PackageFile()
+					&& mimeType.equals("text/html"))
+				report.warning(path, item.getLineNumber(),
+						"text/html is not appropriate for XHTML/OPS, use application/xhtml+xml instead");
+			else if (opfHandler.getOpf12PackageFile()
+					&& mimeType.equals("text/html"))
+				report.warning(path, item.getLineNumber(),
+						"text/html is not appropriate for OEBPS 1.2, use text/x-oeb1-document instead");
+			else if (opfHandler.getOpf20PackageFile())
+				report.warning(path, item.getLineNumber(),
+						"deprecated media-type '" + mimeType + "'");
+		}
+		if (opfHandler.getOpf12PackageFile() && fallback == null) {
+			if (isBlessedItemType(mimeType))
+				report.warning(
+						path,
+						item.getLineNumber(),
+						"use of OPS media-type '"
+								+ mimeType
+								+ "' in OEBPS 1.2 context; use text/x-oeb1-document instead");
+			else if (isBlessedStyleType(mimeType))
+				report.warning(
+						path,
+						item.getLineNumber(),
+						"use of OPS media-type '"
+								+ mimeType
+								+ "' in OEBPS 1.2 context; use text/x-oeb1-css instead");
+		}
+		if (fallback != null) {
+			OPFItem fallbackItem = opfHandler.getItemById(fallback);
+			if (fallbackItem == null)
+				report.error(path, item.getLineNumber(),
+						"fallback item could not be found");
+		}
+		String fallbackStyle = item.getFallbackStyle();
+		if (fallbackStyle != null) {
+			OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
+			if (fallbackStyleItem == null)
+				report.error(path, item.getLineNumber(),
+						"fallback-style item could not be found");
+		}
+	}
+
+	private void checkItemContent(OPFItem item, OPFHandler opfHandler) {
+		String mimeType = item.getMimeType();
+		String path = item.getPath();
+		if (mimeType != null) {
+			ContentCheckerFactory checkerFactory;
+			if (item.isNcx())
+				checkerFactory = NCXCheckerFactory.getInstance();
+			else
+				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
+						.get(mimeType);
+			if (checkerFactory == null)
+				checkerFactory = GenericContentCheckerFactory.getInstance();
+			if (checkerFactory != null) {
+				ContentChecker checker = checkerFactory.newInstance(ocf,
+						report, path, mimeType, xrefChecker, version);
+				checker.runChecks();
+			}
+		}
+	}
+
+	private void checkSpineItem(OPFItem item, OPFHandler opfHandler) {
+		// These checks are okay to be done on <spine> items, but they really
+		// should be done on all
+		// <manifest> items instead. I am avoiding making this change now
+		// pending a few issue
+		// resolutions in the EPUB Maint Working Group (e.g. embedded fonts not
+		// needing fallbacks).
+		// [GC 11/15/09]
+		String mimeType = item.getMimeType();
+		if (mimeType != null) {
+			if (isBlessedStyleType(mimeType)
+					|| isDeprecatedBlessedStyleType(mimeType)
+					|| isBlessedImageType(mimeType))
+				report.error(path, item.getLineNumber(), "'" + mimeType
+						+ "' is not a permissible spine media-type");
+			else if (!isBlessedItemType(mimeType)
+					&& !isDeprecatedBlessedItemType(mimeType)
+					&& item.getFallback() == null)
+				report.error(path, item.getLineNumber(),
+						"non-standard media-type '" + mimeType
+								+ "' with no fallback");
+			else if (!isBlessedItemType(mimeType)
+					&& !isDeprecatedBlessedItemType(mimeType)
+					&& !checkItemFallbacks(item, opfHandler))
+				report.error(
+						path,
+						item.getLineNumber(),
+						"non-standard media-type '"
+								+ mimeType
+								+ "' with fallback to non-spine-allowed media-type");
+		}
+	}
+
+	private boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
+		String fallback = item.getFallback();
+		if (fallback != null) {
+			OPFItem fallbackItem = opfHandler.getItemById(fallback);
+			if (fallbackItem != null) {
+				String mimeType = fallbackItem.getMimeType();
+				if (mimeType != null) {
+					if (isBlessedItemType(mimeType)
+							|| isDeprecatedBlessedItemType(mimeType))
+						return true;
+					if (checkItemFallbacks(fallbackItem, opfHandler))
+						return true;
+				}
+			}
+		}
+		String fallbackStyle = item.getFallbackStyle();
+		if (fallbackStyle != null) {
+			OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
+			if (fallbackStyleItem != null) {
+				String mimeType = fallbackStyleItem.getMimeType();
+				if (mimeType != null) {
+					if (isBlessedStyleType(mimeType)
+							|| isDeprecatedBlessedStyleType(mimeType))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
+		String fallback = item.getFallback();
+		if (fallback != null) {
+			OPFItem fallbackItem = opfHandler.getItemById(fallback);
+			if (fallbackItem != null) {
+				String mimeType = fallbackItem.getMimeType();
+				if (mimeType != null) {
+					if (isBlessedImageType(mimeType))
+						return true;
+					if (checkImageFallbacks(fallbackItem, opfHandler))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
 
 }

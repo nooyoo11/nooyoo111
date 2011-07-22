@@ -41,15 +41,19 @@ public class OPSChecker implements ContentChecker {
 	
 	XRefChecker xrefChecker;
 	
+	float version;
+	
 	static XMLValidator xhtmlValidator = new XMLValidator("rng/ops20.nvdl");
 	static XMLValidator svgValidator = new XMLValidator("rng/svg11.rng");
+	static XMLValidator xhtmlValidator30 = new XMLValidator("epub30schemas/epub-xhtml-30.rnc");
 	
-	public OPSChecker(OCFPackage ocf, Report report, String path, String mimeType, XRefChecker xrefChecker) {
+	public OPSChecker(OCFPackage ocf, Report report, String path, String mimeType, XRefChecker xrefChecker,float version) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 		this.mimeType = mimeType;
+		this.version = version;
 	}
 	
 	public void runChecks() {
@@ -63,6 +67,8 @@ public class OPSChecker implements ContentChecker {
 			opsParser.addXMLHandler(opsHandler);
 			if( mimeType.equals("image/svg+xml") )
 				opsParser.addValidator(svgValidator);
+			else if(version == 3.0)
+					opsParser.addValidator(xhtmlValidator30);
 			else
 				opsParser.addValidator(xhtmlValidator);
 			opsParser.process();
