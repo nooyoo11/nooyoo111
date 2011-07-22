@@ -28,7 +28,7 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 public class GenericContentCheckerFactory implements ContentCheckerFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker) {
+			String mimeType, XRefChecker xrefChecker, float version) {
 		return new GenericContentChecker(ocf, report, path);
 	}
 

@@ -31,8 +31,8 @@ import com.adobe.epubcheck.opf.XRefChecker;
 public class OPSCheckerFactory implements ContentCheckerFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker) {
-		return new OPSChecker(ocf, report, path, mimeType, xrefChecker);
+			String mimeType, XRefChecker xrefChecker, float version) {
+		return new OPSChecker(ocf, report, path, mimeType, xrefChecker, version);
 	}
 
 	static private OPSCheckerFactory instance = new OPSCheckerFactory();

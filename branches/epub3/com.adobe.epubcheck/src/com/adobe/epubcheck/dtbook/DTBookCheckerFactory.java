@@ -31,7 +31,7 @@ import com.adobe.epubcheck.opf.XRefChecker;
 public class DTBookCheckerFactory implements ContentCheckerFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker) {
+			String mimeType, XRefChecker xrefChecker, float version) {
 		return new DTBookChecker( ocf, report, path, xrefChecker );
 	}
 	

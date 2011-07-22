@@ -32,14 +32,12 @@ import com.adobe.epubcheck.util.DefaultReportImpl;
 public class Checker {
 
 	public static void main(String[] args) {
-		/*if (args.length != 1) {
-			System.err.println("single argument expected");
-			return;
-		}*/
-		//String epubName = args[0];
+
 		String epubName = processArguments(args);
 		
 		Report report = new DefaultReportImpl(epubName);
+		System.setProperty("javax.xml.transform.TransformerFactory",
+				"net.sf.saxon.TransformerFactoryImpl");
 
 		if (!epubName.endsWith(".epub"))
 			report.warning(null, 0, "filename does not include '.epub' suffix");
