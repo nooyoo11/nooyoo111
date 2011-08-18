@@ -29,7 +29,6 @@ import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
 
-
 public class DTBookHandler implements XMLHandler {
 
 	XMLParser parser;
@@ -43,24 +42,26 @@ public class DTBookHandler implements XMLHandler {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 	}
-	
-	public void characters(char[] chars, int arg1, int arg2) {
+
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line) {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line) {
 	}
 
-	public void startElement() {
-		XMLElement e = parser.getCurrentElement();
+	public void startElement(XMLElement e, int line) {
 		String ns = e.getNamespace();
 		String name = e.getName();
 		String id = e.getAttribute("id");
 		if (ns.equals("http://www.daisy.org/z3986/2005/dtbook/")) {
-			//link@href, a@href, img@src
+			// link@href, a@href, img@src
 			String uri = null;
-			/* This section checks to see if the references used are registered
+			/*
+			 * This section checks to see if the references used are registered
 			 * schema-types and whether they point to external resources. The
-			 * resources are only allowed to be external if the attribute 
+			 * resources are only allowed to be external if the attribute
 			 * "external" is set to true.
 			 */
 			if (name.equals("a")) {
@@ -70,31 +71,36 @@ public class DTBookHandler implements XMLHandler {
 					if (OPSHandler.isRegisteredSchemaType(uri))
 						uri = null;
 					else if (uri.indexOf(':') > 0) {
-						parser.getReport().warning(path, parser.getLineNumber(), 
-									   "use of non-registered URI schema type in href: " + uri);
+						parser.getReport().warning(
+								path,
+								parser.getLineNumber(),
+								"use of non-registered URI schema type in href: "
+										+ uri);
 						uri = null;
 					}
 				}
 			} else if (name.equals("link")) {
-				uri = e.getAttribute("href");		
-			}else if(name.equals("img")) {
+				uri = e.getAttribute("href");
+			} else if (name.equals("img")) {
 				uri = e.getAttribute("src");
 			}
 			if (uri != null) {
 				uri = PathUtil.resolveRelativeReference(path, uri);
-				xrefChecker.registerReference(path, parser.getLineNumber(), uri,
-						name.equals("img") ? XRefChecker.RT_IMAGE : XRefChecker.RT_HYPERLINK );						
+				xrefChecker.registerReference(path, parser.getLineNumber(),
+						uri, name.equals("img") ? XRefChecker.RT_IMAGE
+								: XRefChecker.RT_HYPERLINK);
 			}
 			if (id != null)
-				xrefChecker.registerAnchor(path, parser.getLineNumber(), id, XRefChecker.RT_HYPERLINK);
-			
+				xrefChecker.registerAnchor(path, parser.getLineNumber(), id,
+						XRefChecker.RT_HYPERLINK);
+
 		}
 	}
 
-	public void endElement() {
+	public void endElement(XMLElement e, int line) {
 	}
 
-	public void processingInstruction(String arg0, String arg1) {
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line) {
 	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorpoated
+ * Copyright (c) 2007 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,6 @@ package com.adobe.epubcheck.opf;
 
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import com.adobe.epubcheck.api.Report;
@@ -35,13 +33,10 @@ import com.adobe.epubcheck.util.InvalidDateException;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
-import com.adobe.epubcheck.xml.XMLParser;
 
 public class OPFHandler implements XMLHandler {
 
 	OCFPackage ocf;
-
-	XMLParser parser;
 
 	Hashtable itemMapById = new Hashtable();
 
@@ -53,13 +48,7 @@ public class OPFHandler implements XMLHandler {
 	Vector items = new Vector();
 	Vector refs = new Vector();
 
-	// This vector stores the ids declared by meta elements
-	TreeSet metaId = new TreeSet();
-
-	// because it is not mentioned that it is necessary to point to an id after
-	// it's declared
-	// I will check that the references are valid
-	TreeSet metaIdref = new TreeSet();
+	Report report;
 
 	static HashSet validRoles = new HashSet();
 
@@ -112,10 +101,10 @@ public class OPFHandler implements XMLHandler {
 			validRoles.add(list[i]);
 	}
 
-	OPFHandler(XMLParser parser, OCFPackage ocf, String path) {
+	OPFHandler(OCFPackage ocf, String path, Report report) {
 		this.ocf = ocf;
-		this.parser = parser;
 		this.path = path;
+		this.report = report;
 	}
 
 	public boolean getOpf12PackageFile() {
@@ -139,7 +128,8 @@ public class OPFHandler implements XMLHandler {
 	}
 
 	public int getSpineItemCount() {
-		return spine.size();	}
+		return spine.size();
+	}
 
 	public OPFItem getSpineItem(int index) {
 		return (OPFItem) spine.elementAt(index);
@@ -181,9 +171,9 @@ public class OPFHandler implements XMLHandler {
 		return validRoles.contains(role) || role.startsWith("oth.");
 	}
 
-	public void startElement() {
+	public void startElement(XMLElement e, int line) {
 		boolean registerEntry = true;
-		XMLElement e = parser.getCurrentElement();
+
 		String ns = e.getNamespace();
 		if (ns == null
 				|| ns.equals("")
@@ -192,9 +182,8 @@ public class OPFHandler implements XMLHandler {
 			String name = e.getName();
 			if (name.equals("package")) {
 				if (!ns.equals("http://www.idpf.org/2007/opf")) {
-					parser.getReport()
-							.warning(path, parser.getLineNumber(),
-									"OPF file is using OEBPS 1.2 syntax allowing backwards compatibility");
+					report.warning(path, line,
+							"OPF file is using OEBPS 1.2 syntax allowing backwards compatibility");
 					opf12PackageFile = true;
 				}
 				/*
@@ -206,31 +195,12 @@ public class OPFHandler implements XMLHandler {
 				String uniqueIdentAttr = e.getAttribute("unique-identifier");
 				if (uniqueIdentAttr != null && !uniqueIdentAttr.equals("")) {
 					uniqueIdent = uniqueIdentAttr;
-					//TODO
-					metaId.add("#"+uniqueIdent);
 				} else {
-					parser.getReport()
-							.error(path,
-									parser.getLineNumber(),
-									"unique-identifier attribute in package element must be present and have a value");
+					report.error(
+							path,
+							line,
+							"unique-identifier attribute in package element must be present and have a value");
 				}
-			} else if (name.equals("meta")) {
-				// TODO aici am scris cod si eu..
-				//care e trb cu #  ?!?!?!?!?
-				
-				String id = e.getAttribute("id");
-				if (id != null)
-					if (itemMapById.containsKey(id) || metaId.contains("#"+id))
-						parser.getReport().error(path, parser.getLineNumber(),
-								"dublicate id: " + id);
-					else
-						metaId.add("#"+id);
-
-				String about = e.getAttribute("about");
-				if (about != null)
-					if (!metaIdref.contains(about))
-						metaIdref.add(about);
-				// if(about != null)System.out.println(about.substring(1));
 			} else if (name.equals("item")) {
 				String id = e.getAttribute("id");
 				String href = e.getAttribute("href");
@@ -238,26 +208,22 @@ public class OPFHandler implements XMLHandler {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
-						parser.getReport().error(path, parser.getLineNumber(),
-								ex.getMessage());
+						report.error(path, line, ex.getMessage());
 						href = null;
 					}
 				}
 				String mimeType = e.getAttribute("media-type");
 				String fallback = e.getAttribute("fallback");
 				String fallbackStyle = e.getAttribute("fallback-style");
-				//TODO
-				if(mimeType.equals("application/smil+xml") && id != null && !metaId.contains("#"+id))metaId.add("#"+id);
-				
-				String mediaOverlay = e.getAttribute("media-overlay");
-				if(mediaOverlay != null && !metaIdref.contains("#"+mediaOverlay))metaIdref.add("#"+mediaOverlay);
-				
-				
 				String namespace = e.getAttribute("island-type");
+				String properties = e.getAttribute("properties");
+
 				OPFItem item = new OPFItem(id, href, mimeType, fallback,
-						fallbackStyle, namespace, parser.getLineNumber());
+						fallbackStyle, namespace, line);
 				if (id != null)
 					itemMapById.put(id, item);
+				if (properties != null && properties.equals("nav"))
+					item.setNav(true);
 				if (href != null && registerEntry) {
 					itemMapByPath.put(href, item);
 					items.add(item);
@@ -270,30 +236,28 @@ public class OPFHandler implements XMLHandler {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
-						parser.getReport().error(path, parser.getLineNumber(),
-								ex.getMessage());
+						report.error(path, line, ex.getMessage());
 						href = null;
 					}
 				}
-				OPFReference ref = new OPFReference(type, title, href,
-						parser.getLineNumber());
+				OPFReference ref = new OPFReference(type, title, href, line);
 				refs.add(ref);
 			} else if (name.equals("spine")) {
 				String idref = e.getAttribute("toc");
 				if (idref != null) {
 					toc = (OPFItem) itemMapById.get(idref);
 					if (toc == null)
-						parser.getReport().error(path, parser.getLineNumber(),
-								"item with id '" + idref + "' not found");
+						report.error(path, line, "item with id '" + idref
+								+ "' not found");
 					else {
 						toc.setNcx(true);
 						if (toc.getMimeType() != null
 								&& !toc.getMimeType().equals(
 										"application/x-dtbncx+xml"))
-							parser.getReport()
-									.error(path,
-											parser.getLineNumber(),
-											"toc attribute references resource with non-NCX mime type; \"application/x-dtbncx+xml\" is expected");
+							report.error(
+									path,
+									line,
+									"toc attribute references resource with non-NCX mime type; \"application/x-dtbncx+xml\" is expected");
 					}
 				}
 			} else if (name.equals("itemref")) {
@@ -304,14 +268,14 @@ public class OPFHandler implements XMLHandler {
 						spine.add(item);
 						item.setInSpine(true);
 					} else {
-						parser.getReport().error(path, parser.getLineNumber(),
-								"item with id '" + idref + "' not found");
+						report.error(path, line, "item with id '" + idref
+								+ "' not found");
 					}
 				}
 			} else if (name.equals("dc-metadata") || name.equals("x-metadata")) {
 				if (!opf12PackageFile)
-					parser.getReport().error(path, parser.getLineNumber(),
-							"use of deprecated element '" + name + "'");
+					report.error(path, line, "use of deprecated element '"
+							+ name + "'");
 			}
 		} else if (ns.equals("http://purl.org/dc/elements/1.1/")) {
 			// in the DC metadata, when the <identifier> element is parsed, if
@@ -320,9 +284,7 @@ public class OPFHandler implements XMLHandler {
 			// package element, set uniqueIdentExists = true (to make sure that
 			// the unique-identifier attribute references an existing
 			// <identifier> id attribute
-
 			String name = e.getName();
-
 			if (name.equals("identifier")) {
 				String idAttr = e.getAttribute("id");
 				if (idAttr != null && !idAttr.equals("")
@@ -333,8 +295,8 @@ public class OPFHandler implements XMLHandler {
 						"role");
 				if (role != null && !role.equals("")) {
 					if (!isValidRole(role))
-						parser.getReport().error(path, parser.getLineNumber(),
-								"role value '" + role + "' is not valid");
+						report.error(path, line, "role value '" + role
+								+ "' is not valid");
 				}
 			}
 		}
@@ -365,8 +327,8 @@ public class OPFHandler implements XMLHandler {
 
 	}
 
-	public void endElement() {
-		XMLElement e = parser.getCurrentElement();
+	public void endElement(XMLElement e, int line) {
+
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
 			if (name.equals("identifier")) {
@@ -391,10 +353,9 @@ public class OPFHandler implements XMLHandler {
 				}
 
 				if (!iso8601) {
-					Report report = parser.getReport();
 					report.error(
 							path,
-							parser.getLineNumber(),
+							line,
 							"date value '"
 									+ (dateval == null ? "" : dateval)
 									+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
@@ -403,11 +364,13 @@ public class OPFHandler implements XMLHandler {
 		}
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line) {
 	}
 
-	public void characters(char[] chars, int start, int len) {
-		XMLElement e = parser.getCurrentElement();
+	public void characters(char[] chars, int start, int len, XMLElement e,
+			int line) {
+
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
 			if (name.equals("identifier") || name.equals("date")) {
@@ -422,20 +385,7 @@ public class OPFHandler implements XMLHandler {
 		}
 	}
 
-	public void processingInstruction(String arg0, String arg1) {
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line) {
 	}
-
-	//this function will be removed as this verification will be done by schematron
-	public void validateMetaIdRefs() {
-
-		Iterator itr = metaIdref.iterator();
-		while (itr.hasNext()) {
-			String idToCheck = (String) itr.next();
-			if (!metaId.contains(idToCheck))
-				parser.getReport().error(path, -1,
-						"the id: " + idToCheck.substring(1) + " is not defined");
-		}
-
-	}
-
 }

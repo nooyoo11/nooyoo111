@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
@@ -37,6 +35,9 @@ import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.util.PathUtil;
+import com.adobe.epubcheck.util.ResourceUtil;
+import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
+import com.adobe.epubcheck.xml.SvrlParser;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -58,9 +59,9 @@ public class OPFChecker {
 
 	static XMLValidator opfValidator30 = new XMLValidator(
 			"epub30schemas/package-30.rnc");
-	//TODO
-	// static XMLValidator opfSchematronValidator30 = new
-	// XMLValidator("schemas30/package-30.sch");
+
+	static String opfSchematronValidator30 = new String(
+			"epub30schemas/package-30.sch");
 
 	XRefChecker xrefChecker;
 
@@ -76,6 +77,7 @@ public class OPFChecker {
 		map.put("image/png", BitmapCheckerFactory.getInstance());
 		map.put("image/svg+xml", OPSCheckerFactory.getInstance());
 		map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
+		map.put("application/smil+xml", OPSCheckerFactory.getInstance());
 
 		contentCheckerFactoryMap = map;
 	}
@@ -90,40 +92,141 @@ public class OPFChecker {
 	}
 
 	public void runChecks() {
-		if (!ocf.hasEntry(path))
+		if (!ocf.hasEntry(path)) {
 			report.error(null, 0, "OPF file " + path + " is missing");
-		else {
-			XMLParser opfParser = new XMLParser(ocf, path, report);
-			OPFHandler opfHandler = new OPFHandler(opfParser, ocf, path);
-			opfParser.addXMLHandler(opfHandler);
-			String stringVersion = "";
+			return;
+		}
 
+		OPFHandler opfHandler = new OPFHandler(ocf, path, report);
+
+		String stringVersion = "";
+
+		try {
+			stringVersion = ResourceUtil.retrieveOpfVersion(ocf
+					.getInputStream(path));
+			System.out.println("Epub file version: " + stringVersion);
+		} catch (Throwable t) {
+			report.error(path, -1,
+					"Failed obtaining OPF version: " + t.getMessage());
+		}
+
+		if (stringVersion.equals("2.0"))
+			version = 2;
+		else if (stringVersion.equals("3.0"))
+			version = 3;
+
+		try {
+			validateDocument(opfHandler, ocf.getInputStream(path),
+					ocf.getInputStream(path), report, version);
+		} catch (IOException e1) {
+			report.error(path, -1, e1.getMessage());
+		}
+
+		if (!opfHandler.checkUniqueIdentExists()) {
+			report.error(
+					path,
+					-1,
+					"unique-identifier attribute in package element must reference an existing identifier element id");
+		}
+
+		int refCount = opfHandler.getReferenceCount();
+		for (int i = 0; i < refCount; i++) {
+			OPFReference ref = opfHandler.getReference(i);
+			String itemPath = PathUtil.removeAnchor(ref.getHref());
+			if (opfHandler.getItemByPath(itemPath) == null) {
+				report.error(path, ref.getLineNumber(),
+						"File listed in reference element in guide was not declared in OPF manifest: "
+								+ ref.getHref());
+			}
+		}
+
+		int itemCount = opfHandler.getItemCount();
+		for (int i = 0; i < itemCount; i++) {
+			OPFItem item = opfHandler.getItem(i);
 			try {
-				stringVersion = getVersion();
-				System.out.println("Epub file version: " + stringVersion);
-			} catch (InvalidVersionException e) {
-				report.error(path, -1,
-						"Failed obtaining OPF version: " + e.getMessage());
+				xrefChecker.registerResource(item.getPath(),
+						item.getMimeType(), item.isInSpine(),
+						checkItemFallbacks(item, opfHandler),
+						checkImageFallbacks(item, opfHandler));
+			} catch (IllegalArgumentException e) {
+				report.error(path, item.getLineNumber(), e.getMessage());
+			}
+			checkItem(item, opfHandler);
+		}
+
+		int spineItemCount = opfHandler.getSpineItemCount();
+		for (int i = 0; i < spineItemCount; i++) {
+			OPFItem item = opfHandler.getSpineItem(i);
+			checkSpineItem(item, opfHandler);
+		}
+
+		for (int i = 0; i < itemCount; i++) {
+			OPFItem item = opfHandler.getItem(i);
+			checkItemContent(item, opfHandler);
+		}
+
+		try {
+			Iterator filesIter = ocf.getFileEntries().iterator();
+			while (filesIter.hasNext()) {
+				String entry = (String) filesIter.next();
+
+				if (opfHandler.getItemByPath(entry) == null
+						&& !entry.startsWith("META-INF/")
+						&& !entry.startsWith("META-INF\\")
+						&& !entry.equals("mimetype")
+						&& !containerEntries.contains(entry)) {
+					report.warning(
+							null,
+							-1,
+							"item ("
+									+ entry
+									+ ") exists in the zip file, but is not declared in the OPF file");
+				}
 			}
 
-			if (stringVersion.equals("2.0")) {
-				opfParser.addValidator(opfValidator); // add relaxNG
-														// validator
-				opfParser.addValidator(opfSchematronValidator); // add
-																// schematron
-																// validator
-				version = 2;
-			} else if (stringVersion.equals("3.0")) {
-				opfParser.addValidator(opfValidator30); // add relaxNG
-														// validator
-				// opfParser.addValidator(opfSchematronValidator30); // add
-				// schematron validator
-				version = 3;
+			Iterator directoriesIter = ocf.getDirectoryEntries().iterator();
+			while (directoriesIter.hasNext()) {
+				String directory = (String) directoriesIter.next();
+				boolean hasContents = false;
+				filesIter = ocf.getFileEntries().iterator();
+				while (filesIter.hasNext()) {
+					String file = (String) filesIter.next();
+					if (file.startsWith(directory)) {
+						hasContents = true;
+					}
+				}
+				if (!hasContents) {
+					report.warning(null, -1,
+							"zip file contains empty directory " + directory);
+				}
+
 			}
 
+		} catch (IOException e) {
+			report.error(null, -1, "Unable to read zip file entries.");
+		}
+
+		xrefChecker.checkReferences();
+	}
+
+	public void validateDocument(OPFHandler opfHandler, InputStream input,
+			InputStream input2, Report report, float version) {
+		XMLParser opfParser = null;
+		opfParser = new XMLParser(input, path, report);
+		// add xml-validators and content handlers
+		opfParser.addXMLHandler(opfHandler);
+
+		if (version == 2) {
+			opfParser.addValidator(opfValidator);
+			opfParser.addValidator(opfSchematronValidator);
+		} else if (version == 3) {
+
+			opfParser.addValidator(opfValidator30);
 			try {
-				// validate according to relaxNG + schematron
-				opfParser.process();
+				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+						input2, opfSchematronValidator30, report);
+				schematronXSLT2Validator.compile();
+				new SvrlParser(schematronXSLT2Validator.generateSVRL(), report);
 			} catch (Throwable t) {
 				report.error(
 						path,
@@ -131,128 +234,8 @@ public class OPFChecker {
 						"Failed performing OPF Schematron tests: "
 								+ t.getMessage());
 			}
-
-			
-			opfHandler.validateMetaIdRefs();
-
-			if (!opfHandler.checkUniqueIdentExists()) {
-				report.error(
-						path,
-						-1,
-						"unique-identifier attribute in package element must reference an existing identifier element id");
-			}
-
-			int refCount = opfHandler.getReferenceCount();
-			for (int i = 0; i < refCount; i++) {
-				OPFReference ref = opfHandler.getReference(i);
-				String itemPath = PathUtil.removeAnchor(ref.getHref());
-				if (opfHandler.getItemByPath(itemPath) == null) {
-					report.error(path, ref.getLineNumber(),
-							"File listed in reference element in guide was not declared in OPF manifest: "
-									+ ref.getHref());
-				}
-			}
-
-			int itemCount = opfHandler.getItemCount();
-			for (int i = 0; i < itemCount; i++) {
-				OPFItem item = opfHandler.getItem(i);
-				try {
-					xrefChecker.registerResource(item.getPath(),
-							item.getMimeType(), item.isInSpine(),
-							checkItemFallbacks(item, opfHandler),
-							checkImageFallbacks(item, opfHandler));
-				} catch (IllegalArgumentException e) {
-					report.error(path, item.getLineNumber(), e.getMessage());
-				}
-				checkItem(item, opfHandler);
-			}
-
-			int spineItemCount = opfHandler.getSpineItemCount();
-			for (int i = 0; i < spineItemCount; i++) {
-				OPFItem item = opfHandler.getSpineItem(i);
-				checkSpineItem(item, opfHandler);
-			}
-
-			for (int i = 0; i < itemCount; i++) {
-				OPFItem item = opfHandler.getItem(i);
-				checkItemContent(item, opfHandler);
-			}
-
-			try {
-				Iterator filesIter = ocf.getFileEntries().iterator();
-				while (filesIter.hasNext()) {
-					String entry = (String) filesIter.next();
-
-					if (opfHandler.getItemByPath(entry) == null
-							&& !entry.startsWith("META-INF/")
-							&& !entry.startsWith("META-INF\\")
-							&& !entry.equals("mimetype")
-							&& !containerEntries.contains(entry)) {
-						report.warning(
-								null,
-								-1,
-								"item ("
-										+ entry
-										+ ") exists in the zip file, but is not declared in the OPF file");
-					}
-				}
-
-				Iterator directoriesIter = ocf.getDirectoryEntries().iterator();
-				while (directoriesIter.hasNext()) {
-					String directory = (String) directoriesIter.next();
-					boolean hasContents = false;
-					filesIter = ocf.getFileEntries().iterator();
-					while (filesIter.hasNext()) {
-						String file = (String) filesIter.next();
-						if (file.startsWith(directory)) {
-							hasContents = true;
-						}
-					}
-					if (!hasContents) {
-						report.warning(null, -1,
-								"zip file contains empty directory "
-										+ directory);
-					}
-
-				}
-
-			} catch (IOException e) {
-				report.error(null, -1, "Unable to read zip file entries.");
-			}
-
-			xrefChecker.checkReferences();
 		}
-	}
-
-	public String getVersion() throws InvalidVersionException {
-
-		try {
-			InputStream opfIn = ocf.getInputStream(path);
-			StringBuffer stringbuffer = new StringBuffer();
-			int ch = opfIn.read();
-
-			while (ch != -1) {
-				stringbuffer.append((char) ch);
-				ch = opfIn.read();
-			}
-
-			String regex = "<package[^>]*version\\s*=\\s*\"([\\d]+\\.[\\d]+)\".*>";
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(stringbuffer);
-
-			if (matcher.find()) {
-				String version = matcher.group(1);
-				if ((version.equals("2.0") || version.equals("3.0")))
-					return version;
-				else
-					throw new InvalidVersionException(InvalidVersionException.UNSUPPORTED_VERSION);
-			}
-			throw new InvalidVersionException(InvalidVersionException.VERSION_NOT_FOUND);
-
-		} catch (IOException e) {
-			// Never happens
-		}
-		throw new InvalidVersionException(InvalidVersionException.VERSION_NOT_FOUND);
+		opfParser.process();
 	}
 
 	static boolean isBlessedItemType(String type) {
@@ -353,8 +336,13 @@ public class OPFChecker {
 			if (checkerFactory == null)
 				checkerFactory = GenericContentCheckerFactory.getInstance();
 			if (checkerFactory != null) {
-				ContentChecker checker = checkerFactory.newInstance(ocf,
-						report, path, mimeType, xrefChecker, version);
+				ContentChecker checker;
+				if (item.isNav())
+					checker = checkerFactory.newInstance(ocf, report, path,
+							"nav", xrefChecker, version);
+				else
+					checker = checkerFactory.newInstance(ocf, report, path,
+							mimeType, xrefChecker, version);
 				checker.runChecks();
 			}
 		}

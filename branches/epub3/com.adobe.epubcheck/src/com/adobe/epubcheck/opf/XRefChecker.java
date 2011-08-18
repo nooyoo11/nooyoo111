@@ -99,9 +99,9 @@ public class XRefChecker {
 		boolean hasValidItemFallback;
 
 		boolean hasValidImageFallback;
-		
-		Resource(String resource, String type, boolean inSpine, boolean hasValidItemFallback,
-			 boolean hasValidImageFallback) {
+
+		Resource(String resource, String type, boolean inSpine,
+				boolean hasValidItemFallback, boolean hasValidImageFallback) {
 			this.mimeType = type;
 			this.resource = resource;
 			this.inSpine = inSpine;
@@ -126,12 +126,14 @@ public class XRefChecker {
 		this.report = report;
 	}
 
-	public void registerResource(String resource, String mimeType, boolean inSpine, boolean hasValidItemFallback,
-				     boolean hasValidImageFallback) {
+	public void registerResource(String resource, String mimeType,
+			boolean inSpine, boolean hasValidItemFallback,
+			boolean hasValidImageFallback) {
 		if (resources.get(resource) != null)
 			throw new IllegalArgumentException("duplicate resource: "
 					+ resource);
-		resources.put(resource, new Resource(resource, mimeType, inSpine, hasValidItemFallback, hasValidImageFallback));
+		resources.put(resource, new Resource(resource, mimeType, inSpine,
+				hasValidItemFallback, hasValidImageFallback));
 	}
 
 	public void registerAnchor(String resource, int lineNumber, String id,
@@ -147,7 +149,7 @@ public class XRefChecker {
 
 	public void registerReference(String srcResource, int srcLineNumber,
 			String refResource, String refFragment, int type) {
-		if( refResource.startsWith("data:") )
+		if (refResource.startsWith("data:"))
 			return;
 		references.add(new Reference(srcResource, srcLineNumber, refResource,
 				refFragment, type));
@@ -155,7 +157,7 @@ public class XRefChecker {
 
 	public void registerReference(String srcResource, int srcLineNumber,
 			String ref, int type) {
-		if( ref.startsWith("data:") )
+		if (ref.startsWith("data:"))
 			return;
 		int hash = ref.indexOf("#");
 		String refResource;
@@ -188,13 +190,12 @@ public class XRefChecker {
 						+ "': referenced resource missing in the package");
 			else if (!undeclared.contains(ref.refResource)) {
 				undeclared.add(ref.refResource);
-				report
-						.error(
-								ref.resource,
-								ref.lineNumber,
-								"'"
-										+ ref.refResource
-										+ "': referenced resource exists, but not declared in the OPF file");
+				report.error(
+						ref.resource,
+						ref.lineNumber,
+						"'"
+								+ ref.refResource
+								+ "': referenced resource exists, but not declared in the OPF file");
 			}
 			return;
 		}
@@ -211,14 +212,16 @@ public class XRefChecker {
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
 						&& !OPFChecker.isBlessedItemType(res.mimeType)
-						&& !OPFChecker.isDeprecatedBlessedItemType(res.mimeType)
+						&& !OPFChecker
+								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
 					report.error(ref.resource, ref.lineNumber,
 							"hyperlink to non-standard resource '"
 									+ ref.refResource + "' of type '"
 									+ res.mimeType + "'");
-				if(!res.inSpine)
-					report.warning(ref.resource, ref.lineNumber, "hyperlink to resource outside spine '"
+				if (!res.inSpine)
+					report.warning(ref.resource, ref.lineNumber,
+							"hyperlink to resource outside spine '"
 									+ ref.refResource + "'");
 				break;
 			case RT_IMAGE:
@@ -233,22 +236,29 @@ public class XRefChecker {
 			case RT_STYLESHEET:
 				// if mimeType is null, we should have reported an error already
 
-				// The original code is below, but we were never collecting references to RT_STYLESHEETs; now we are.
-				// Implementations are allowed to process any stylesheet language they desire; so this is clearly not an
-				// error.  Making this a warning with "(might be ignored)" could be okay.  However, related, the OPF
-				// Checker currently looks at only the <spine> to make sure referneced items have appropiate fallbacks;
-				// it should really be checking the <manifest>.  If this was corrected, these alternate stylesheet 
-				// items (with non-blessed MIME types) would likely get flagged as missing requried fallbacks.  Flagging
-				// this during manifest processing seems the right choice, so, commenting out for now.  [GC 11/15/09]
+				// The original code is below, but we were never collecting
+				// references to RT_STYLESHEETs; now we are.
+				// Implementations are allowed to process any stylesheet
+				// language they desire; so this is clearly not an
+				// error. Making this a warning with "(might be ignored)" could
+				// be okay. However, related, the OPF
+				// Checker currently looks at only the <spine> to make sure
+				// referneced items have appropiate fallbacks;
+				// it should really be checking the <manifest>. If this was
+				// corrected, these alternate stylesheet
+				// items (with non-blessed MIME types) would likely get flagged
+				// as missing requried fallbacks. Flagging
+				// this during manifest processing seems the right choice, so,
+				// commenting out for now. [GC 11/15/09]
 
-				//if (res.mimeType != null
-				//		&& !OPFChecker.isBlessedStyleType(res.mimeType)
-				//		&& !OPFChecker
-				//				.isDeprecatedBlessedStyleType(res.mimeType))
-				//	report.error(ref.resource, ref.lineNumber,
-				//			"non-standard stylesheet resource '"
-				//					+ ref.refResource + "' of type '"
-				//					+ res.mimeType + "'");
+				// if (res.mimeType != null
+				// && !OPFChecker.isBlessedStyleType(res.mimeType)
+				// && !OPFChecker
+				// .isDeprecatedBlessedStyleType(res.mimeType))
+				// report.error(ref.resource, ref.lineNumber,
+				// "non-standard stylesheet resource '"
+				// + ref.refResource + "' of type '"
+				// + res.mimeType + "'");
 				break;
 			}
 		} else {
@@ -257,14 +267,16 @@ public class XRefChecker {
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
 						&& !OPFChecker.isBlessedItemType(res.mimeType)
-						&& !OPFChecker.isDeprecatedBlessedItemType(res.mimeType)
+						&& !OPFChecker
+								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
 					report.error(ref.resource, ref.lineNumber,
 							"hyperlink to non-standard resource '"
 									+ ref.refResource + "' of type '"
 									+ res.mimeType + "'");
-				if(!res.inSpine)
-					report.warning(ref.resource, ref.lineNumber, "hyperlink to resource outside spine '"
+				if (!res.inSpine)
+					report.warning(ref.resource, ref.lineNumber,
+							"hyperlink to resource outside spine '"
 									+ ref.refResource + "'");
 				break;
 			case RT_IMAGE:
@@ -289,26 +301,24 @@ public class XRefChecker {
 				case RT_SVG_PAINT:
 				case RT_SVG_CLIP_PATH:
 					if (anchor.type != ref.type)
-						report
-								.error(
-										ref.resource,
-										ref.lineNumber,
-										"fragment identifier '"
-												+ ref.fragment
-												+ "' defines incompatible resource type in '"
-												+ ref.refResource + "'");
+						report.error(
+								ref.resource,
+								ref.lineNumber,
+								"fragment identifier '"
+										+ ref.fragment
+										+ "' defines incompatible resource type in '"
+										+ ref.refResource + "'");
 					break;
 				case RT_SVG_SYMBOL:
 				case RT_HYPERLINK:
 					if (anchor.type != ref.type && anchor.type != RT_GENERIC)
-						report
-								.error(
-										ref.resource,
-										ref.lineNumber,
-										"fragment identifier '"
-												+ ref.fragment
-												+ "' defines incompatible resource type in '"
-												+ ref.refResource + "'");
+						report.error(
+								ref.resource,
+								ref.lineNumber,
+								"fragment identifier '"
+										+ ref.fragment
+										+ "' defines incompatible resource type in '"
+										+ ref.refResource + "'");
 					break;
 				}
 			}

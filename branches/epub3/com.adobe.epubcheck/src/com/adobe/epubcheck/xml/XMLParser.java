@@ -50,7 +50,6 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
-import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
 import com.thaiopensource.util.PropertyMapBuilder;
@@ -60,13 +59,13 @@ import com.thaiopensource.validate.Validator;
 public class XMLParser extends DefaultHandler implements LexicalHandler,
 		DeclHandler {
 
-	OCFPackage ocf;
-
 	SAXParser parser;
 
 	Report report;
 
 	String resource;
+
+	InputStream resourceIn;
 
 	Vector contentHandlers = new Vector();
 
@@ -90,56 +89,57 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		Hashtable map = new Hashtable();
 
 		// fully-resolved names
-		map.put("http://www.idpf.org/dtds/2007/opf.dtd", ResourceUtil
-				.getResourcePath("dtd/opf20.dtd"));
-		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent", ResourceUtil
-				.getResourcePath("dtd/oeb12.dtdinc"));
+		map.put("http://www.idpf.org/dtds/2007/opf.dtd",
+				ResourceUtil.getResourcePath("dtd/opf20.dtd"));
+		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent",
+				ResourceUtil.getResourcePath("dtd/oeb12.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd",
 				ResourceUtil.getResourcePath("dtd/xhtml1-transitional.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd",
 				ResourceUtil.getResourcePath("dtd/xhtml1-strict.dtd"));
-		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-lat1.dtdinc"));
+		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-lat1.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent",
 				ResourceUtil.getResourcePath("dtd/xhtml-symbol.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent",
 				ResourceUtil.getResourcePath("dtd/xhtml-special.dtdinc"));
 		map.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd",
 				ResourceUtil.getResourcePath("dtd/svg11.dtd"));
-		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", ResourceUtil
-				.getResourcePath("dtd/opf20.dtd"));
+		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd",
+				ResourceUtil.getResourcePath("dtd/opf20.dtd"));
 		map.put("http://www.daisy.org/z3986/2005/dtbook-2005-2.dtd",
 				ResourceUtil.getResourcePath("dtd/dtbook-2005-2.dtd"));
-		map.put("http://www.daisy.org/z3986/2005/ncx-2005-1.dtd", ResourceUtil
-				.getResourcePath("dtd/ncx-2005-1.dtd"));
+		map.put("http://www.daisy.org/z3986/2005/ncx-2005-1.dtd",
+				ResourceUtil.getResourcePath("dtd/ncx-2005-1.dtd"));
 
 		// non-resolved names; Saxon (which schematron requires and registers as
 		// preferred parser, it seems)
 		// passes us those (bad, bad!), work around it
-		map.put("xhtml-lat1.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-lat1.dtdinc"));
-		map.put("xhtml-symbol.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-symbol.dtdinc"));
-		map.put("xhtml-special.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-special.dtdinc"));
+		map.put("xhtml-lat1.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-lat1.dtdinc"));
+		map.put("xhtml-symbol.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-symbol.dtdinc"));
+		map.put("xhtml-special.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-special.dtdinc"));
 
 		systemIdMap = map;
 	}
 
-	public XMLParser(OCFPackage ocf, String entryName, Report report) {
+	public XMLParser(InputStream resourceIn, String entryName, Report report) {
 		this.report = report;
 		this.resource = entryName;
-		this.ocf = ocf;
+		this.resourceIn = resourceIn;
+
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		boolean hasXML11 = false;
-		
+
 		// XML predefined
 		entities.add("gt");
 		entities.add("lt");
 		entities.add("amp");
 		entities.add("quot");
-		
+
 		try {
 			hasXML11 = factory
 					.getFeature("http://xml.org/sax/features/xml-1.1");
@@ -186,7 +186,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	}
 
 	public void addXMLHandler(XMLHandler handler) {
-		contentHandlers.add(handler);
+		if (handler != null)
+			contentHandlers.add(handler);
 	}
 
 	public void addValidator(XMLValidator xv) {
@@ -276,9 +277,10 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void process() {
 		try {
-			InputStream in = ocf.getInputStream(resource);
+			InputStream in = resourceIn;
 			if (!in.markSupported())
 				in = new BufferedInputStream(in);
+
 			String encoding = sniffEncoding(in);
 			if (encoding != null && !encoding.equals("UTF-8")
 					&& !encoding.equals("UTF-16")) {
@@ -290,13 +292,15 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			ins.setSystemId(zipRoot + resource);
 			parser.parse(ins, this);
 			in.close();
-		} catch( MalformedByteSequenceException e ) {
-			report.error(resource, 0, "Malformed byte sequence: " + e.getMessage() + " Check encoding");
+		} catch (MalformedByteSequenceException e) {
+			report.error(resource, 0,
+					"Malformed byte sequence: " + e.getMessage()
+							+ " Check encoding");
 		} catch (IOException e) {
 			report.error(null, 0, "I/O error reading " + resource);
 		} catch (IllegalArgumentException e) {
-			report.error(null, 0, "could not parse " + resource + ": "
-					+ e.getMessage());
+			report.error(null, 0,
+					"could not parse " + resource + ": " + e.getMessage());
 		} catch (SAXException e) {
 			report.error(resource, 0, e.getMessage());
 		}
@@ -304,6 +308,10 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws SAXException, IOException {
+		// System.out.println("se apeleaza functia");
+		// System.out.println(publicId);
+		// System.out.println(systemId);
+
 		String resourcePath = (String) systemIdMap.get(systemId);
 		if (resourcePath != null) {
 			InputStream resourceStream = ResourceUtil
@@ -323,19 +331,21 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			source.setSystemId(systemId);
 			return source;
 		} else if (systemId.startsWith(zipRoot)) {
-			String rname = systemId.substring(zipRoot.length());
-			if (!ocf.hasEntry(rname))
-				throw new SAXException("Could not resolve local XML entity '"
-						+ rname + "'");
-			if (!ocf.canDecrypt(rname))
-				throw new SAXException("Could not decrypt local XML entity '"
-						+ rname + "'");
-			InputStream resourceStream = ocf.getInputStream(rname);
-			InputSource source = new InputSource(resourceStream);
-			source.setPublicId(publicId);
-			source.setSystemId(systemId);
-			return source;
+			System.out.println("se intra pe cazul 1!!!!!!!!EROARE!!!!");
+			/*
+			 * String rname = systemId.substring(zipRoot.length()); if
+			 * (!ocf.hasEntry(rname)) throw new
+			 * SAXException("Could not resolve local XML entity '" + rname +
+			 * "'"); if (!ocf.canDecrypt(rname)) throw new
+			 * SAXException("Could not decrypt local XML entity '" + rname +
+			 * "'"); InputStream resourceStream = ocf.getInputStream(rname);
+			 * InputSource source = new InputSource(resourceStream);
+			 * source.setPublicId(publicId); source.setSystemId(systemId);
+			 * return source;
+			 */
+			return null;
 		} else {
+			System.out.println("se intra pe cazul 2");
 			report.warning(resource, 0, "Unresolved external XML entity '"
 					+ systemId + "'");
 			InputStream urlStream = new URL(systemId).openStream();
@@ -387,7 +397,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).characters(arg0, arg1,
-					arg2);
+					arg2, currentElement, getLineNumber());
 	}
 
 	public void endDocument() throws SAXException {
@@ -407,7 +417,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		}
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
-			((XMLHandler) contentHandlers.elementAt(i)).endElement();
+			((XMLHandler) contentHandlers.elementAt(i)).endElement(
+					currentElement, getLineNumber());
 		currentElement = currentElement.getParent();
 	}
 
@@ -429,7 +440,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).ignorableWhitespace(
-					arg0, arg1, arg2);
+					arg0, arg1, arg2, currentElement, getLineNumber());
 	}
 
 	public void processingInstruction(String arg0, String arg1)
@@ -442,7 +453,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).processingInstruction(
-					arg0, arg1);
+					arg0, arg1, currentElement, getLineNumber());
 	}
 
 	public void setDocumentLocator(Locator locator) {
@@ -509,7 +520,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 				currentElement);
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
-			((XMLHandler) contentHandlers.elementAt(i)).startElement();
+			((XMLHandler) contentHandlers.elementAt(i)).startElement(
+					currentElement, getLineNumber());
 	}
 
 	public void startPrefixMapping(String arg0, String arg1)

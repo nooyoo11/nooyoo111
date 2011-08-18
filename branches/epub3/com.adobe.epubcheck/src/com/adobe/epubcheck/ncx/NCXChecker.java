@@ -22,6 +22,8 @@
 
 package com.adobe.epubcheck.ncx;
 
+import java.io.IOException;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
@@ -58,7 +60,13 @@ public class NCXChecker implements ContentChecker {
 			report.error(null, 0, "NCX file " + path + " cannot be decrypted");
 		else {
 			// relaxng
-			XMLParser ncxParser = new XMLParser(ocf, path, report);
+			XMLParser ncxParser = null;
+			try {
+				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+						report);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			ncxParser.addValidator(ncxValidator);
 			NCXHandler ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 			ncxParser.addXMLHandler(ncxHandler);
@@ -68,12 +76,15 @@ public class NCXChecker implements ContentChecker {
 			// below
 			// TODO: do it in a single step
 			try {
-				ncxParser = new XMLParser(ocf, path, report);
+				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+						report);
 				ncxParser.addValidator(ncxSchematronValidator);
 				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 				ncxParser.process();
 			} catch (Throwable t) {
-				report.error(path, -1,
+				report.error(
+						path,
+						-1,
 						"Failed performing NCX Schematron tests: "
 								+ t.getMessage());
 			}
