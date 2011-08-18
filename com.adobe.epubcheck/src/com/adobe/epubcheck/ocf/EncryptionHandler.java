@@ -40,8 +40,8 @@ public class EncryptionHandler implements XMLHandler {
 		this.ocf = ocf;
 	}
 
-	public void startElement() {
-		XMLElement e = parser.getCurrentElement();
+	public void startElement(XMLElement e, int line) {
+
 		// if the element is <CipherReference>, then the element name
 		// is stripped of rootBase, and URLDecoded, and finally put into
 		// encryptedItemsSet.
@@ -81,16 +81,19 @@ public class EncryptionHandler implements XMLHandler {
 		}
 	}
 
-	public void endElement() {
+	public void endElement(XMLElement e, int line) {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line) {
 	}
 
-	public void characters(char[] chars, int arg1, int arg2) {
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line) {
 	}
 
-	public void processingInstruction(String arg0, String arg1) {
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line) {
 	}
 
 }

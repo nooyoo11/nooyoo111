@@ -41,15 +41,17 @@ public class NCXHandler implements XMLHandler {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 	}
-	
-	public void characters(char[] chars, int arg1, int arg2) {
+
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line) {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line) {
 	}
 
-	public void startElement() {
-		XMLElement e = parser.getCurrentElement();
+	public void startElement(XMLElement e, int line) {
+
 		String ns = e.getNamespace();
 		String name = e.getName();
 		if (ns.equals("http://www.daisy.org/z3986/2005/ncx/")) {
@@ -57,18 +59,18 @@ public class NCXHandler implements XMLHandler {
 				String href = e.getAttribute("src");
 				if (href != null) {
 					href = PathUtil.resolveRelativeReference(path, href);
-					xrefChecker.registerReference(path, parser.getLineNumber(), href,
-							XRefChecker.RT_HYPERLINK);
+					xrefChecker.registerReference(path, parser.getLineNumber(),
+							href, XRefChecker.RT_HYPERLINK);
 				}
-		
+
 			}
 		}
 	}
 
-	public void endElement() {
+	public void endElement(XMLElement e, int line) {
 	}
 
-	public void processingInstruction(String arg0, String arg1) {
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line) {
 	}
-
 }

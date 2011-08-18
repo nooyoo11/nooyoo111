@@ -24,10 +24,16 @@ package com.adobe.epubcheck.xml;
 
 public interface XMLHandler {
 
-	public void characters(char[] chars, int arg1, int arg2);
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2);
-	public void startElement();
-	public void endElement();
-	public void processingInstruction(String arg0, String arg1);
-	
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line);
+
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line);
+
+	public void startElement(XMLElement e, int line);
+
+	public void endElement(XMLElement e, int line);
+
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line);
 }

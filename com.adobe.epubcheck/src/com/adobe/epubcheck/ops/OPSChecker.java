@@ -22,10 +22,13 @@
 
 package com.adobe.epubcheck.ops;
 
+import java.io.IOException;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -38,16 +41,34 @@ public class OPSChecker implements ContentChecker {
 	String path;
 
 	String mimeType;
-	
+
 	XRefChecker xrefChecker;
-	
+
 	float version;
-	
+
 	static XMLValidator xhtmlValidator = new XMLValidator("rng/ops20.nvdl");
 	static XMLValidator svgValidator = new XMLValidator("rng/svg11.rng");
-	static XMLValidator xhtmlValidator30 = new XMLValidator("epub30schemas/epub-xhtml-30.rnc");
-	
-	public OPSChecker(OCFPackage ocf, Report report, String path, String mimeType, XRefChecker xrefChecker,float version) {
+
+	static XMLValidator xhtmlValidator30 = new XMLValidator(
+			"epub30schemas/epub-xhtml-30.rnc");
+	static XMLValidator svgValidator30 = new XMLValidator(
+			"epub30schemas/epub-svg-30.rnc");
+	static XMLValidator mediaOverlayValidator30 = new XMLValidator(
+			"epub30schemas/media-overlay-30.rnc");
+	static XMLValidator navValidator30 = new XMLValidator(
+			"epub30schemas/epub-nav-30.rnc");
+
+	static String xhtmlSchematronValidator30 = new String(
+			"epub30schemas/epub-xhtml-30.sch");
+	static String svgSchematronValidator30 = new String(
+			"epub30schemas/epub-svg-30.sch");
+	static String mediaOverlaySchematronValidator30 = new String(
+			"epub30schemas/media-overlay-30.sch");
+	static String navSchematronValidator30 = new String(
+			"epub30schemas/epub-nav-30.sch");
+
+	public OPSChecker(OCFPackage ocf, Report report, String path,
+			String mimeType, XRefChecker xrefChecker, float version) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
@@ -55,24 +76,74 @@ public class OPSChecker implements ContentChecker {
 		this.mimeType = mimeType;
 		this.version = version;
 	}
-	
+
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
 			report.error(null, 0, "OPS/XHTML file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "OPS/XHTML file " + path + " cannot be decrypted");
+			report.error(null, 0, "OPS/XHTML file " + path
+					+ " cannot be decrypted");
 		else {
-			XMLParser opsParser = new XMLParser(ocf, path, report);
+			XMLParser opsParser = null;
+			try {
+				opsParser = new XMLParser(ocf.getInputStream(path), path,
+						report);
+			} catch (IOException e) {
+				report.error(path, -10, e.getMessage());
+			}
 			OPSHandler opsHandler = new OPSHandler(opsParser, path, xrefChecker);
 			opsParser.addXMLHandler(opsHandler);
-			if( mimeType.equals("image/svg+xml") )
-				opsParser.addValidator(svgValidator);
-			else if(version == 3.0)
+			if (version == 2.0) {
+				if (mimeType.equals("image/svg+xml"))
+					opsParser.addValidator(svgValidator);
+				else if (mimeType.equals("application/xhtml+xml"))
+					opsParser.addValidator(xhtmlValidator);
+			} else if (version == 3.0) {
+				if (mimeType.equals("image/svg+xml")) {
+					opsParser.addValidator(svgValidator30);
+					try {
+						new SchematronXSLT2Validator(ocf.getInputStream(path),
+								svgSchematronValidator30, report);
+					} catch (Throwable t) {
+						report.error(
+								path,
+								-1,
+								"Failed performing OPF Schematron tests: "
+										+ t.getMessage());
+					}
+				} else if (mimeType.equals("application/xhtml+xml")) {
 					opsParser.addValidator(xhtmlValidator30);
-			else
-				opsParser.addValidator(xhtmlValidator);
+					// there might be smth wrong with the schematron schema for
+					// xhtml 5 TODO correct html5.sch
+				} else if (mimeType.equals("application/smil+xml")) {
+					opsParser.addValidator(mediaOverlayValidator30);
+					try {
+						new SchematronXSLT2Validator(ocf.getInputStream(path),
+								mediaOverlaySchematronValidator30, report);
+					} catch (Throwable t) {
+						report.error(
+								path,
+								-1,
+								"Failed performing OPF Schematron tests: "
+										+ t.getMessage());
+					}
+				} else if (mimeType.equals("nav")) {
+
+					opsParser.addValidator(navValidator30);
+					try {
+						new SchematronXSLT2Validator(ocf.getInputStream(path),
+								navSchematronValidator30, report);
+					} catch (Throwable t) {
+						report.error(
+								path,
+								-1,
+								"Failed performing OPF Schematron tests: "
+										+ t.getMessage());
+					}
+				}
+			}
 			opsParser.process();
-		}		
+		}
 	}
 
 }

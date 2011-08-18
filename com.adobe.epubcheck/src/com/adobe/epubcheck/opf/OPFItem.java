@@ -42,6 +42,8 @@ public class OPFItem {
 
 	boolean inSpine;
 
+	boolean nav;
+
 	OPFItem(String id, String path, String mimeType, String fallback,
 			String fallbackStyle, String namespace, int lineNumber) {
 		this.fallback = fallback;
@@ -87,6 +89,14 @@ public class OPFItem {
 
 	public void setNcx(boolean ncx) {
 		this.ncx = ncx;
+	}
+
+	public boolean isNav() {
+		return nav;
+	}
+
+	public void setNav(boolean nav) {
+		this.nav = nav;
 	}
 
 	public boolean isInSpine() {
