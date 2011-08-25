@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -47,12 +47,18 @@ public class SvrlParser extends DefaultHandler {
 
 	String errorsLocation;
 
-	public SvrlParser(InputStream is, Report report)
+	String path;
+
+	StringBuffer message;
+
+	public SvrlParser(String path, InputStream is, Report report)
 			throws ParserConfigurationException, SAXException, IOException {
 
 		this.report = report;
+		this.path = path;
 		failed = false;
 		text = false;
+
 		saxParser = SAXParserFactory.newInstance().newSAXParser();
 		saxParser.parse(is, this);
 	}
@@ -61,7 +67,8 @@ public class SvrlParser extends DefaultHandler {
 			Attributes attributes) throws SAXException {
 		if (qName.equals("svrl:failed-assert")) {
 			failed = true;
-			errorsLocation = attributes.getValue("location");
+			errorsLocation = attributes.getValue("location") + ": ";
+			message = new StringBuffer();
 		} else if (qName.equals("svrl:text"))
 			text = true;
 	}
@@ -69,14 +76,18 @@ public class SvrlParser extends DefaultHandler {
 	public void characters(char ch[], int start, int length)
 			throws SAXException {
 		if (failed && text)
-			report.error(errorsLocation, -1, new String(ch, start, length));
+			message.append(new String(ch, start, length));
+
 	}
 
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		if (qName.equals("svrl:failed-assert"))
 			failed = false;
-		else if (qName.equals("svrl:text"))
+		else if (qName.equals("svrl:text")) {
 			text = false;
+			report.error(path + ": " + errorsLocation, -1, message.toString());
+			message = new StringBuffer();
+		}
 	}
 }

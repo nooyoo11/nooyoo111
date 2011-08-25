@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 
 import javax.xml.transform.ErrorListener;
@@ -43,6 +42,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.util.ResourceUtil;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 
 public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
@@ -56,8 +56,8 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	StreamSource compiledSchema = null;
 
-	TransformerFactory transformerFactory;
-
+	TransformerFactory transformerFactory = TransformerFactoryImpl
+			.newInstance();
 	Transformer saxonTransformer;
 
 	public void compile() throws TransformerException, IOException {
@@ -122,26 +122,9 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 		schematronSchema = schemaName;
 
-		try {
-			String resourcePath = ResourceUtil
-					.getResourcePath("lib/saxon9he.jar");
-			URL systemIdURL = ResourceUtil.getResourceURL(resourcePath);
+		transformerFactory.setURIResolver(this);
+		transformerFactory.setErrorListener(this);
 
-			URL saxon9Url[] = new URL[] { systemIdURL };
-
-			ClassLoader saxon9ClassLoader = new URLClassLoader(saxon9Url);
-			Class TransformerFactoryClass = saxon9ClassLoader
-					.loadClass("net.sf.saxon.TransformerFactoryImpl");
-
-			transformerFactory = (TransformerFactory) TransformerFactoryClass
-					.newInstance();
-			transformerFactory.setURIResolver(this);
-			transformerFactory.setErrorListener(this);
-		} catch (Throwable t) {
-			report.error("saxon9he.jar", -1,
-					"Failed to load net.sf.saxon.TransformerFactoryImpl class: "
-							+ t.getMessage());
-		}
 	}
 
 	// @Override
