@@ -226,7 +226,8 @@ public class OPFChecker {
 				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
 						input2, opfSchematronValidator30, report);
 				schematronXSLT2Validator.compile();
-				new SvrlParser(schematronXSLT2Validator.generateSVRL(), report);
+				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+						report);
 			} catch (Throwable t) {
 				report.error(
 						path,

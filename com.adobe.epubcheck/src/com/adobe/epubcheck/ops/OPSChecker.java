@@ -29,6 +29,7 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
+import com.adobe.epubcheck.xml.SvrlParser;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -102,8 +103,12 @@ public class OPSChecker implements ContentChecker {
 				if (mimeType.equals("image/svg+xml")) {
 					opsParser.addValidator(svgValidator30);
 					try {
-						new SchematronXSLT2Validator(ocf.getInputStream(path),
+						SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+								ocf.getInputStream(path),
 								svgSchematronValidator30, report);
+						schematronXSLT2Validator.compile();
+						new SvrlParser(path,
+								schematronXSLT2Validator.generateSVRL(), report);
 					} catch (Throwable t) {
 						report.error(
 								path,
@@ -118,8 +123,12 @@ public class OPSChecker implements ContentChecker {
 				} else if (mimeType.equals("application/smil+xml")) {
 					opsParser.addValidator(mediaOverlayValidator30);
 					try {
-						new SchematronXSLT2Validator(ocf.getInputStream(path),
+						SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+								ocf.getInputStream(path),
 								mediaOverlaySchematronValidator30, report);
+						schematronXSLT2Validator.compile();
+						new SvrlParser(path,
+								schematronXSLT2Validator.generateSVRL(), report);
 					} catch (Throwable t) {
 						report.error(
 								path,
@@ -131,8 +140,13 @@ public class OPSChecker implements ContentChecker {
 
 					opsParser.addValidator(navValidator30);
 					try {
-						new SchematronXSLT2Validator(ocf.getInputStream(path),
+						SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+								ocf.getInputStream(path),
 								navSchematronValidator30, report);
+						schematronXSLT2Validator.compile();
+						new SvrlParser(path,
+								schematronXSLT2Validator.generateSVRL(), report);
+
 					} catch (Throwable t) {
 						report.error(
 								path,

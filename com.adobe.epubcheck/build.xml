@@ -42,7 +42,7 @@
 
 	<fileset dir="${epubcheck.base.dir}/lib" id="libs">
 		<include name="jing.jar" />
-		<include name="saxon.jar" />
+	<!--	<include name="saxon.jar" /> -->
 	</fileset>
 
 	<path id="classpath">
@@ -53,6 +53,18 @@
 	</path>
 
 	<target name="init">
+		<delete dir="${distribution.dir}" />
+		<delete dir="${junit.xml.dir}" />
+		<delete dir="${junit.html.dir}" />
+		<delete dir="${instrumented.dir}" />
+		<delete dir="${coverage.xml.dir}" />
+		<delete dir="${coverage.summaryxml.dir}" />
+		<delete dir="${coverage.html.dir}" />
+		<delete dir="${distribution.dir}" />
+		<delete dir="${build.dir}" />
+		<delete dir="${test.build.dir}" />
+		<delete dir="${build.dir}/META-INF" />
+		
 		<mkdir dir="${junit.xml.dir}" />
 		<mkdir dir="${junit.html.dir}" />
 		<mkdir dir="${instrumented.dir}" />
@@ -196,7 +208,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.adobe.epubcheck.tool.Checker" />
-				<attribute name="Class-Path" value="lib/jing.jar lib/saxon.jar" />
+				<attribute name="Class-Path" value="lib/jing.jar" />
 			</manifest>
 		</jar>
 	</target>
