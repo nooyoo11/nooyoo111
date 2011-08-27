@@ -13,6 +13,9 @@
 	<!--cobertura directory -->
 	<property name="cobertura.dir" value="../tools/cobertura-1.9.4.1" />
 
+	<!--junit directory -->
+	<property name="junit.dir" value="../tools/JUnit" />
+
 	<!--project directories -->
 	<property name="epubcheck.base.dir" value="./" />
 	<property name="src.dir" value="${epubcheck.base.dir}/src" />
@@ -40,9 +43,17 @@
 
 	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 
+
+	<fileset dir="${junit.dir}" id="junit.libs">
+		<include name="*.jar" />
+	</fileset>
+
+
 	<fileset dir="${epubcheck.base.dir}/lib" id="libs">
 		<include name="jing.jar" />
-	<!--	<include name="saxon.jar" /> -->
+		<include name="saxon.jar" />
+		<include name="sac.jar" />
+		<include name="flute.jar" />
 	</fileset>
 
 	<path id="classpath">
@@ -52,19 +63,7 @@
 		<fileset refid="libs" />
 	</path>
 
-	<target name="init">
-		<delete dir="${distribution.dir}" />
-		<delete dir="${junit.xml.dir}" />
-		<delete dir="${junit.html.dir}" />
-		<delete dir="${instrumented.dir}" />
-		<delete dir="${coverage.xml.dir}" />
-		<delete dir="${coverage.summaryxml.dir}" />
-		<delete dir="${coverage.html.dir}" />
-		<delete dir="${distribution.dir}" />
-		<delete dir="${build.dir}" />
-		<delete dir="${test.build.dir}" />
-		<delete dir="${build.dir}/META-INF" />
-		
+	<target name="init" depends="clean-all">
 		<mkdir dir="${junit.xml.dir}" />
 		<mkdir dir="${junit.html.dir}" />
 		<mkdir dir="${instrumented.dir}" />
@@ -105,6 +104,7 @@
 		<pathelement location="${test.build.dir}" />
 		<pathelement location="${epubcheck.test.dir}" />
 		<fileset refid="libs" />
+		<fileset refid="junit.libs" />
 	</path>
 
 	<target name="compile-Epubcheck-test" description="Compiles all src classes" depends="remove-classes">
@@ -259,6 +259,9 @@
 		<delete dir="${instrumented.dir}" />
 		<delete dir="${test.build.dir}" />
 		<delete dir="${reports.dir}" />
+	</target>
+	<target name="clean-all" depends="clean">
+		<delete dir="${distribution.dir}" />
 	</target>
 
 
