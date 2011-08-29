@@ -53,6 +53,8 @@ public class XRefChecker {
 
 		int lineNumber;
 
+		int columnNumber;
+
 		String refResource;
 
 		String fragment;
@@ -60,9 +62,11 @@ public class XRefChecker {
 		int type;
 
 		public Reference(String srcResource, int srcLineNumber,
-				String refResource, String fragment, int type) {
+				int srcColumnNumber, String refResource, String fragment,
+				int type) {
 			this.fragment = fragment;
 			this.lineNumber = srcLineNumber;
+			this.columnNumber = srcColumnNumber;
 			this.refResource = refResource;
 			this.resource = srcResource;
 			this.type = type;
@@ -76,11 +80,14 @@ public class XRefChecker {
 
 		int lineNumber;
 
+		int columnNumber;
+
 		int type;
 
-		public Anchor(String id, int lineNumber, int type) {
+		public Anchor(String id, int lineNumber, int columnNumber, int type) {
 			this.id = id;
 			this.lineNumber = lineNumber;
+			this.columnNumber = columnNumber;
 			this.type = type;
 		}
 
@@ -136,27 +143,28 @@ public class XRefChecker {
 				hasValidItemFallback, hasValidImageFallback));
 	}
 
-	public void registerAnchor(String resource, int lineNumber, String id,
-			int type) {
+	public void registerAnchor(String resource, int lineNumber,
+			int columnNumber, String id, int type) {
 		Resource res = (Resource) resources.get(resource);
 		if (res == null)
 			throw new IllegalArgumentException("unregistered resource: "
 					+ resource);
 		if (res.anchors.get(id) != null)
 			throw new IllegalArgumentException("duplicate id: " + id);
-		res.anchors.put(id, new Anchor(id, lineNumber, type));
+		res.anchors.put(id, new Anchor(id, lineNumber, columnNumber, type));
 	}
 
 	public void registerReference(String srcResource, int srcLineNumber,
-			String refResource, String refFragment, int type) {
+			int srcColumnNumber, String refResource, String refFragment,
+			int type) {
 		if (refResource.startsWith("data:"))
 			return;
-		references.add(new Reference(srcResource, srcLineNumber, refResource,
-				refFragment, type));
+		references.add(new Reference(srcResource, srcLineNumber,
+				srcColumnNumber, refResource, refFragment, type));
 	}
 
 	public void registerReference(String srcResource, int srcLineNumber,
-			String ref, int type) {
+			int srcColumnNumber, String ref, int type) {
 		if (ref.startsWith("data:"))
 			return;
 		int hash = ref.indexOf("#");
@@ -169,8 +177,8 @@ public class XRefChecker {
 			refResource = ref;
 			refFragment = null;
 		}
-		registerReference(srcResource, srcLineNumber, refResource, refFragment,
-				type);
+		registerReference(srcResource, srcLineNumber, srcColumnNumber,
+				refResource, refFragment, type);
 	}
 
 	public void checkReferences() {
@@ -185,14 +193,19 @@ public class XRefChecker {
 		Resource res = (Resource) resources.get(ref.refResource);
 		if (res == null) {
 			if (!ocf.hasEntry(ref.refResource))
-				report.error(ref.resource, ref.lineNumber, "'"
-						+ ref.refResource
-						+ "': referenced resource missing in the package");
+				report.error(
+						ref.resource,
+						ref.lineNumber,
+						ref.columnNumber,
+						"'"
+								+ ref.refResource
+								+ "': referenced resource missing in the package");
 			else if (!undeclared.contains(ref.refResource)) {
 				undeclared.add(ref.refResource);
 				report.error(
 						ref.resource,
 						ref.lineNumber,
+						ref.columnNumber,
 						"'"
 								+ ref.refResource
 								+ "': referenced resource exists, but not declared in the OPF file");
@@ -204,7 +217,7 @@ public class XRefChecker {
 			case RT_SVG_PAINT:
 			case RT_SVG_CLIP_PATH:
 			case RT_SVG_SYMBOL:
-				report.error(ref.resource, ref.lineNumber,
+				report.error(ref.resource, ref.lineNumber, ref.columnNumber,
 						"fragment identifier missing in reference to '"
 								+ ref.refResource + "'");
 				break;
@@ -216,11 +229,13 @@ public class XRefChecker {
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
 					report.error(ref.resource, ref.lineNumber,
+							ref.columnNumber,
 							"hyperlink to non-standard resource '"
 									+ ref.refResource + "' of type '"
 									+ res.mimeType + "'");
-				if (!res.inSpine)
+				if (!res.mimeType.equals("font/opentype") && !res.inSpine)
 					report.warning(ref.resource, ref.lineNumber,
+							ref.columnNumber,
 							"hyperlink to resource outside spine '"
 									+ ref.refResource + "'");
 				break;
@@ -230,8 +245,9 @@ public class XRefChecker {
 						&& !OPFChecker.isBlessedImageType(res.mimeType)
 						&& !res.hasValidImageFallback)
 					report.error(ref.resource, ref.lineNumber,
-							"non-standard image resource '" + ref.refResource
-									+ "' of type '" + res.mimeType + "'");
+							ref.columnNumber, "non-standard image resource '"
+									+ ref.refResource + "' of type '"
+									+ res.mimeType + "'");
 				break;
 			case RT_STYLESHEET:
 				// if mimeType is null, we should have reported an error already
@@ -271,30 +287,33 @@ public class XRefChecker {
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
 					report.error(ref.resource, ref.lineNumber,
+							ref.columnNumber,
 							"hyperlink to non-standard resource '"
 									+ ref.refResource + "' of type '"
 									+ res.mimeType + "'");
 				if (!res.inSpine)
 					report.warning(ref.resource, ref.lineNumber,
+							ref.columnNumber,
 							"hyperlink to resource outside spine '"
 									+ ref.refResource + "'");
 				break;
 			case RT_IMAGE:
-				report.error(ref.resource, ref.lineNumber,
+				report.error(ref.resource, ref.lineNumber, ref.columnNumber,
 						"fragment identifier used for image resource '"
 								+ ref.refResource + "'");
 				break;
 			case RT_STYLESHEET:
-				report.error(ref.resource, ref.lineNumber,
+				report.error(ref.resource, ref.lineNumber, ref.columnNumber,
 						"fragment identifier used for stylesheet resource '"
 								+ ref.refResource + "'");
 				break;
 			}
 			Anchor anchor = (Anchor) res.anchors.get(ref.fragment);
 			if (anchor == null) {
-				report.error(ref.resource, ref.lineNumber, "'" + ref.fragment
-						+ "': fragment identifier is not defined in '"
-						+ ref.refResource + "'");
+				report.error(ref.resource, ref.lineNumber, ref.columnNumber,
+						"'" + ref.fragment
+								+ "': fragment identifier is not defined in '"
+								+ ref.refResource + "'");
 				return;
 			} else {
 				switch (ref.type) {
@@ -304,6 +323,7 @@ public class XRefChecker {
 						report.error(
 								ref.resource,
 								ref.lineNumber,
+								ref.columnNumber,
 								"fragment identifier '"
 										+ ref.fragment
 										+ "' defines incompatible resource type in '"
@@ -315,6 +335,7 @@ public class XRefChecker {
 						report.error(
 								ref.resource,
 								ref.lineNumber,
+								ref.columnNumber,
 								"fragment identifier '"
 										+ ref.fragment
 										+ "' defines incompatible resource type in '"

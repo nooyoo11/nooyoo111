@@ -54,9 +54,9 @@ public class DTBookChecker implements ContentChecker {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "DTBook file " + path + " is missing");
+			report.error(null, 0, 0, "DTBook file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "DTBook file " + path
+			report.error(null, 0, 0, "DTBook file " + path
 					+ " cannot be decrypted");
 		else {
 			XMLParser dtbookParser = null;

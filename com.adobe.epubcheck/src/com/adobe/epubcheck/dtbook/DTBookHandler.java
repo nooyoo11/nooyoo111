@@ -44,14 +44,14 @@ public class DTBookHandler implements XMLHandler {
 	}
 
 	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line) {
+			XMLElement e, int line, int column) {
 	}
 
-	public void startElement(XMLElement e, int line) {
+	public void startElement(XMLElement e, int line, int column) {
 		String ns = e.getNamespace();
 		String name = e.getName();
 		String id = e.getAttribute("id");
@@ -74,6 +74,7 @@ public class DTBookHandler implements XMLHandler {
 						parser.getReport().warning(
 								path,
 								parser.getLineNumber(),
+								parser.getColumnNumber(),
 								"use of non-registered URI schema type in href: "
 										+ uri);
 						uri = null;
@@ -87,20 +88,21 @@ public class DTBookHandler implements XMLHandler {
 			if (uri != null) {
 				uri = PathUtil.resolveRelativeReference(path, uri);
 				xrefChecker.registerReference(path, parser.getLineNumber(),
-						uri, name.equals("img") ? XRefChecker.RT_IMAGE
+						parser.getColumnNumber(), uri,
+						name.equals("img") ? XRefChecker.RT_IMAGE
 								: XRefChecker.RT_HYPERLINK);
 			}
 			if (id != null)
-				xrefChecker.registerAnchor(path, parser.getLineNumber(), id,
-						XRefChecker.RT_HYPERLINK);
+				xrefChecker.registerAnchor(path, parser.getLineNumber(),
+						parser.getColumnNumber(), id, XRefChecker.RT_HYPERLINK);
 
 		}
 	}
 
-	public void endElement(XMLElement e, int line) {
+	public void endElement(XMLElement e, int line, int column) {
 	}
 
 	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 }

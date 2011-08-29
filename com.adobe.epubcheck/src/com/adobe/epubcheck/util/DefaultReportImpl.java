@@ -26,18 +26,46 @@ import com.adobe.epubcheck.api.Report;
 public class DefaultReportImpl implements Report {
 
 	private String ePubName;
-		
-	public DefaultReportImpl( String ePubName ) {
+	private int errorCount, warningCount;
+
+	public DefaultReportImpl(String ePubName) {
 		this.ePubName = ePubName;
+		errorCount = 0;
+		warningCount = 0;
 	}
-	
-	public void error( String resource, int line, String message ) {
-		System.err.println("ERROR: "+ ePubName + (resource == null ? "" : "/" + resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );		
+
+	private String fixMessage(String message) {
+		if(message == null)return "";
+		return message.replaceAll("[\\s]+", " ");
 	}
-	
-	public void warning( String resource, int line, String message ) {
-		System.err.println("WARNING: " + ePubName + (resource == null ? "" : "/" + resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );
+
+	public void error(String resource, int line, int column, String message) {
+		errorCount++;
+		message = fixMessage(message);
+		System.err.println("ERROR: "
+				+ ePubName
+				+ (resource == null ? "" : "/" + resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public void warning(String resource, int line, int column, String message) {
+		warningCount++;
+		message = fixMessage(message);
+		System.err.println("WARNING: "
+				+ ePubName
+				+ (resource == null ? "" : "/" + resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public int getErrorCount() {
+		return errorCount;
+	}
+
+	public int getWarningCount() {
+		return warningCount;
 	}
 }

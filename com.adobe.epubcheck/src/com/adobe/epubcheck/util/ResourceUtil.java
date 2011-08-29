@@ -55,7 +55,7 @@ public class ResourceUtil {
 			return loader.getResource(resourcePath);
 	}
 
-	public static String retrieveOpfVersion(InputStream inputStream)
+	public static float retrieveOpfVersion(InputStream inputStream)
 			throws InvalidVersionException {
 		try {
 			StringBuffer stringBuffer = new StringBuffer();
@@ -65,19 +65,21 @@ public class ResourceUtil {
 				stringBuffer.append((char) ch);
 				ch = inputStream.read();
 			}
-			String regex = "<package[^>]*version\\s*=\\s*\"([\\d]+\\.[\\d]+)\".*>";
+			String regex = "<package[^>]*version\\s*=\\s*\"([\\d]+\\.[\\d]+)\"";//\\s*.*>";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(stringBuffer);
 			if (matcher.find()) {
 				String version = matcher.group(1);
-				if ((version.equals("2.0") || version.equals("3.0")))
-					return version;
+				if (version.equals("2.0"))
+					return 2;
+				else if (version.equals("3.0"))
+					return 3;
 				else
 					throw new InvalidVersionException(
 							InvalidVersionException.UNSUPPORTED_VERSION);
-			}
-			throw new InvalidVersionException(
-					InvalidVersionException.VERSION_NOT_FOUND);
+			} else
+				throw new InvalidVersionException(
+						InvalidVersionException.VERSION_NOT_FOUND);
 		} catch (IOException e) {// Never happens
 		}
 		throw new InvalidVersionException(

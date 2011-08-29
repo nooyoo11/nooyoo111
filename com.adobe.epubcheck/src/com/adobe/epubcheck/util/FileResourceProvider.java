@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,26 @@
  *
  */
 
-package com.adobe.epubcheck.opf;
+package com.adobe.epubcheck.util;
 
-import com.adobe.epubcheck.api.Report;
-import com.adobe.epubcheck.ocf.OCFPackage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
-public class GenericContentChecker implements ContentChecker {
+public class FileResourceProvider implements GenericResourceProvider {
 
-	OCFPackage ocf;
-	Report report;
-	String path;
+	private String fileName;
 
-	GenericContentChecker(OCFPackage ocf, Report report, String path) {
-		this.ocf = ocf;
-		this.report = report;
-		this.path = path;
+	public FileResourceProvider(String fileName) {
+		this.fileName = fileName;
+		File file = new File(fileName);
+		if(!file.exists())
+			throw new RuntimeException("File " + fileName + " does not exist!");
 	}
 
-	public void runChecks() {
-		if (!ocf.hasEntry(path))
-			report.error(null, 0, 0, "resource " + path + " is missing");
-		else if (!ocf.canDecrypt(path))
-			report
-					.warning(null, 0, 0,"resource " + path
-							+ " cannot be decrypted");
+	public InputStream getInputStream(String ignore) throws FileNotFoundException {
+			return new FileInputStream(new File(fileName));
 	}
 
 }

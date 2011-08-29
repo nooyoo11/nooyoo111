@@ -49,7 +49,7 @@ public class OCFHandler implements XMLHandler {
 		return containerEntries;
 	}
 
-	public void startElement(XMLElement e, int line) {
+	public void startElement(XMLElement e, int line, int column) {
 
 		String ns = e.getNamespace();
 		if (e.getName().equals("rootfile") && ns != null
@@ -65,18 +65,18 @@ public class OCFHandler implements XMLHandler {
 		}
 	}
 
-	public void endElement(XMLElement e, int line) {
+	public void endElement(XMLElement e, int line, int column) {
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line) {
+			XMLElement e, int line, int column) {
 	}
 
 	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 
 	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 }

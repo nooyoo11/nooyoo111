@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -58,6 +58,7 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	TransformerFactory transformerFactory = TransformerFactoryImpl
 			.newInstance();
+
 	Transformer saxonTransformer;
 
 	public void compile() throws TransformerException, IOException {
@@ -129,19 +130,19 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	// @Override
 	public void error(TransformerException e) throws TransformerException {
-		report.error(schematronSchema, -1,
+		report.error(schematronSchema, -1, -1,
 				"TransformerException: " + e.getMessage());
 	}
 
 	// @Override
 	public void fatalError(TransformerException e) throws TransformerException {
-		report.error(schematronSchema, -1,
+		report.error(schematronSchema, -1, -1,
 				"TransformerException: " + e.getMessage());
 	}
 
 	// @Override
 	public void warning(TransformerException e) throws TransformerException {
-		report.error(schematronSchema, -1,
+		report.error(schematronSchema, -1, -1,
 				"TransformerException: " + e.getMessage());
 	}
 

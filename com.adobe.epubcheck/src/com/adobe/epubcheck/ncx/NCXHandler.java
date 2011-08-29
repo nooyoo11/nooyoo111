@@ -43,14 +43,14 @@ public class NCXHandler implements XMLHandler {
 	}
 
 	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line) {
+			XMLElement e, int line, int column) {
 	}
 
-	public void startElement(XMLElement e, int line) {
+	public void startElement(XMLElement e, int line, int column) {
 
 		String ns = e.getNamespace();
 		String name = e.getName();
@@ -60,17 +60,18 @@ public class NCXHandler implements XMLHandler {
 				if (href != null) {
 					href = PathUtil.resolveRelativeReference(path, href);
 					xrefChecker.registerReference(path, parser.getLineNumber(),
-							href, XRefChecker.RT_HYPERLINK);
+							parser.getColumnNumber(), href,
+							XRefChecker.RT_HYPERLINK);
 				}
 
 			}
 		}
 	}
 
-	public void endElement(XMLElement e, int line) {
+	public void endElement(XMLElement e, int line, int column) {
 	}
 
 	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 }

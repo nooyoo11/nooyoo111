@@ -86,7 +86,7 @@ public class SvrlParser extends DefaultHandler {
 			failed = false;
 		else if (qName.equals("svrl:text")) {
 			text = false;
-			report.error(path + ": " + errorsLocation, -1, message.toString());
+			report.error(path + ": " + errorsLocation, -1, -1, message.toString());
 			message = new StringBuffer();
 		}
 	}
