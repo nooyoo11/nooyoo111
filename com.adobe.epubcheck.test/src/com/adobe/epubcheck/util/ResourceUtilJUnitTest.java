@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -24,37 +24,56 @@ package com.adobe.epubcheck.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.IOException;
 
 import org.junit.Test;
 
-import com.adobe.epubcheck.report.CustomTestReport;
 
-public class ResourceUtilJUnitTest {
+public class ResourceUtilJunitTest {
 
-	private CustomTestReport testReport;
+	private ValidationReport testReport;
 
 	private String path = "testdocs/general/OPF/retrieveVersion/";
 
+	private GenericResourceProvider resourceProvider;
+
+	private boolean verbose;
+
+	/*
+	 * TEST DEBUG FUNCTION
+	 */
+	public void testVersion(String fileName, int errors, int warnings,
+			boolean verbose) {
+		if (verbose)
+			this.verbose = verbose;
+		testVersion(fileName, errors, warnings);
+	}
+
 	public void testVersion(String fileName, int errors, int warnings) {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(new File(path + fileName));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		testReport = new CustomTestReport(fileName);
+
+		testReport = new ValidationReport(fileName);
+
+		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
+			resourceProvider = new URLResourceProvider(fileName);
+		else
+			resourceProvider = new FileResourceProvider(path + fileName);
 
 		try {
-			ResourceUtil.retrieveOpfVersion(is);
+			ResourceUtil.retrieveOpfVersion(resourceProvider
+					.getInputStream(path + fileName));
 		} catch (InvalidVersionException e) {
-			testReport.error(fileName, -1, e.getMessage());
+			testReport.error(fileName, -1, -1, e.getMessage());
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		assertEquals(errors, testReport.errorCount);
-		assertEquals(warnings, testReport.warningCount);
+
+		if (verbose) {
+			verbose = false;
+			System.out.println(testReport);
+		}
+
+		assertEquals(errors, testReport.getErrorCount());
+		assertEquals(warnings, testReport.getWarningCount());
 	}
 
 	@Test
