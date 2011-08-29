@@ -59,7 +59,7 @@ public class OCFChecker {
 		// Validate container.xml
 		String containerEntry = "META-INF/container.xml";
 		if (!ocf.hasEntry(containerEntry)) {
-			report.error(null, 0,
+			report.error(null, 0, 0,
 					"Required META-INF/container.xml resource is missing");
 			return;
 		}

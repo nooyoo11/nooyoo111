@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,28 @@
  *
  */
 
-package com.adobe.epubcheck.opf;
+package com.adobe.epubcheck.util;
 
-import com.adobe.epubcheck.api.Report;
-import com.adobe.epubcheck.ocf.OCFPackage;
+public class OPSType {
+	private float version;
+	private String mimeType;
 
-public class GenericContentChecker implements ContentChecker {
-
-	OCFPackage ocf;
-	Report report;
-	String path;
-
-	GenericContentChecker(OCFPackage ocf, Report report, String path) {
-		this.ocf = ocf;
-		this.report = report;
-		this.path = path;
+	public OPSType(String mimeType, float version) {
+		this.mimeType = mimeType;
+		this.version = version;
 	}
 
-	public void runChecks() {
-		if (!ocf.hasEntry(path))
-			report.error(null, 0, 0, "resource " + path + " is missing");
-		else if (!ocf.canDecrypt(path))
-			report
-					.warning(null, 0, 0,"resource " + path
-							+ " cannot be decrypted");
+	public boolean equals(Object obj) {
+		if (!(obj instanceof OPSType))
+			System.out.println("nu e instance of");
+
+		OPSType Obj = (OPSType) obj;
+
+		return this.version == Obj.version
+				&& this.mimeType.equals(Obj.mimeType);
 	}
 
+	public int hashCode() {
+		return (int) (mimeType.hashCode() * version);
+	}
 }

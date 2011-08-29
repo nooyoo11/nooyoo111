@@ -284,7 +284,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			String encoding = sniffEncoding(in);
 			if (encoding != null && !encoding.equals("UTF-8")
 					&& !encoding.equals("UTF-16")) {
-				report.error(resource, 0,
+				report.error(resource, 0, 0,
 						"Only UTF-8 and UTF-16 encodings are allowed for XML, detected "
 								+ encoding);
 			}
@@ -293,16 +293,16 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			parser.parse(ins, this);
 			in.close();
 		} catch (MalformedByteSequenceException e) {
-			report.error(resource, 0,
+			report.error(resource, 0, 0,
 					"Malformed byte sequence: " + e.getMessage()
 							+ " Check encoding");
 		} catch (IOException e) {
-			report.error(null, 0, "I/O error reading " + resource);
+			report.error(null, 0, 0, "I/O error reading " + resource);
 		} catch (IllegalArgumentException e) {
-			report.error(null, 0,
+			report.error(null, 0, 0,
 					"could not parse " + resource + ": " + e.getMessage());
 		} catch (SAXException e) {
-			report.error(resource, 0, e.getMessage());
+			report.error(resource, 0, 0, e.getMessage());
 		}
 	}
 
@@ -331,7 +331,6 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			source.setSystemId(systemId);
 			return source;
 		} else if (systemId.startsWith(zipRoot)) {
-			System.out.println("se intra pe cazul 1!!!!!!!!EROARE!!!!");
 			/*
 			 * String rname = systemId.substring(zipRoot.length()); if
 			 * (!ocf.hasEntry(rname)) throw new
@@ -345,8 +344,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			 */
 			return null;
 		} else {
-			System.out.println("se intra pe cazul 2");
-			report.warning(resource, 0, "Unresolved external XML entity '"
+			report.warning(resource, 0, 0, "Unresolved external XML entity '"
 					+ systemId + "'");
 			InputStream urlStream = new URL(systemId).openStream();
 			InputSource source = new InputSource(urlStream);
@@ -376,15 +374,18 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	}
 
 	public void error(SAXParseException ex) throws SAXException {
-		report.error(resource, ex.getLineNumber(), ex.getMessage());
+		report.error(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void fatalError(SAXParseException ex) throws SAXException {
-		report.error(resource, ex.getLineNumber(), ex.getMessage());
+		report.error(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void warning(SAXParseException ex) throws SAXException {
-		report.warning(resource, ex.getLineNumber(), ex.getMessage());
+		report.warning(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
@@ -397,7 +398,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).characters(arg0, arg1,
-					arg2, currentElement, getLineNumber());
+					arg2, currentElement, getLineNumber(), getColumnNumber());
 	}
 
 	public void endDocument() throws SAXException {
@@ -418,7 +419,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).endElement(
-					currentElement, getLineNumber());
+					currentElement, getLineNumber(), getColumnNumber());
 		currentElement = currentElement.getParent();
 	}
 
@@ -440,7 +441,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).ignorableWhitespace(
-					arg0, arg1, arg2, currentElement, getLineNumber());
+					arg0, arg1, arg2, currentElement, getLineNumber(), getColumnNumber());
 	}
 
 	public void processingInstruction(String arg0, String arg1)
@@ -453,7 +454,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).processingInstruction(
-					arg0, arg1, currentElement, getLineNumber());
+					arg0, arg1, currentElement, getLineNumber(), getColumnNumber());
 	}
 
 	public void setDocumentLocator(Locator locator) {
@@ -521,7 +522,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).startElement(
-					currentElement, getLineNumber());
+					currentElement, getLineNumber(), getColumnNumber());
 	}
 
 	public void startPrefixMapping(String arg0, String arg1)
@@ -554,8 +555,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void startEntity(String ent) throws SAXException {
 		if (!entities.contains(ent) && !ent.equals("[dtd]"))
-			report.error(resource, getLineNumber(), "Entity '" + ent
-					+ "' is undeclared");
+			report.error(resource, getLineNumber(), getColumnNumber(),
+					"Entity '" + ent + "' is undeclared");
 	}
 
 	public void attributeDecl(String name, String name2, String type,
@@ -585,6 +586,10 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public int getLineNumber() {
 		return documentLocator.getLineNumber();
+	}
+
+	public int getColumnNumber() {
+		return documentLocator.getColumnNumber();
 	}
 
 }

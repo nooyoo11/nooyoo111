@@ -171,7 +171,7 @@ public class OPFHandler implements XMLHandler {
 		return validRoles.contains(role) || role.startsWith("oth.");
 	}
 
-	public void startElement(XMLElement e, int line) {
+	public void startElement(XMLElement e, int line, int column) {
 		boolean registerEntry = true;
 
 		String ns = e.getNamespace();
@@ -182,7 +182,7 @@ public class OPFHandler implements XMLHandler {
 			String name = e.getName();
 			if (name.equals("package")) {
 				if (!ns.equals("http://www.idpf.org/2007/opf")) {
-					report.warning(path, line,
+					report.warning(path, line, column,
 							"OPF file is using OEBPS 1.2 syntax allowing backwards compatibility");
 					opf12PackageFile = true;
 				}
@@ -199,6 +199,7 @@ public class OPFHandler implements XMLHandler {
 					report.error(
 							path,
 							line,
+							column,
 							"unique-identifier attribute in package element must be present and have a value");
 				}
 			} else if (name.equals("item")) {
@@ -208,7 +209,7 @@ public class OPFHandler implements XMLHandler {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
-						report.error(path, line, ex.getMessage());
+						report.error(path, line, column, ex.getMessage());
 						href = null;
 					}
 				}
@@ -219,7 +220,7 @@ public class OPFHandler implements XMLHandler {
 				String properties = e.getAttribute("properties");
 
 				OPFItem item = new OPFItem(id, href, mimeType, fallback,
-						fallbackStyle, namespace, line);
+						fallbackStyle, namespace, line, column);
 				if (id != null)
 					itemMapById.put(id, item);
 				if (properties != null && properties.equals("nav"))
@@ -236,19 +237,20 @@ public class OPFHandler implements XMLHandler {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
-						report.error(path, line, ex.getMessage());
+						report.error(path, line, column, ex.getMessage());
 						href = null;
 					}
 				}
-				OPFReference ref = new OPFReference(type, title, href, line);
+				OPFReference ref = new OPFReference(type, title, href, line,
+						column);
 				refs.add(ref);
 			} else if (name.equals("spine")) {
 				String idref = e.getAttribute("toc");
 				if (idref != null) {
 					toc = (OPFItem) itemMapById.get(idref);
 					if (toc == null)
-						report.error(path, line, "item with id '" + idref
-								+ "' not found");
+						report.error(path, line, column, "item with id '"
+								+ idref + "' not found");
 					else {
 						toc.setNcx(true);
 						if (toc.getMimeType() != null
@@ -257,6 +259,7 @@ public class OPFHandler implements XMLHandler {
 							report.error(
 									path,
 									line,
+									column,
 									"toc attribute references resource with non-NCX mime type; \"application/x-dtbncx+xml\" is expected");
 					}
 				}
@@ -268,14 +271,14 @@ public class OPFHandler implements XMLHandler {
 						spine.add(item);
 						item.setInSpine(true);
 					} else {
-						report.error(path, line, "item with id '" + idref
-								+ "' not found");
+						report.error(path, line, column, "item with id '"
+								+ idref + "' not found");
 					}
 				}
 			} else if (name.equals("dc-metadata") || name.equals("x-metadata")) {
 				if (!opf12PackageFile)
-					report.error(path, line, "use of deprecated element '"
-							+ name + "'");
+					report.error(path, line, column,
+							"use of deprecated element '" + name + "'");
 			}
 		} else if (ns.equals("http://purl.org/dc/elements/1.1/")) {
 			// in the DC metadata, when the <identifier> element is parsed, if
@@ -295,7 +298,7 @@ public class OPFHandler implements XMLHandler {
 						"role");
 				if (role != null && !role.equals("")) {
 					if (!isValidRole(role))
-						report.error(path, line, "role value '" + role
+						report.error(path, line, column, "role value '" + role
 								+ "' is not valid");
 				}
 			}
@@ -327,7 +330,7 @@ public class OPFHandler implements XMLHandler {
 
 	}
 
-	public void endElement(XMLElement e, int line) {
+	public void endElement(XMLElement e, int line, int column) {
 
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
@@ -356,6 +359,7 @@ public class OPFHandler implements XMLHandler {
 					report.error(
 							path,
 							line,
+							column,
 							"date value '"
 									+ (dateval == null ? "" : dateval)
 									+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
@@ -365,11 +369,11 @@ public class OPFHandler implements XMLHandler {
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line) {
+			XMLElement e, int line, int column) {
 	}
 
 	public void characters(char[] chars, int start, int len, XMLElement e,
-			int line) {
+			int line, int column) {
 
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
@@ -386,6 +390,6 @@ public class OPFHandler implements XMLHandler {
 	}
 
 	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line) {
+			int line, int column) {
 	}
 }

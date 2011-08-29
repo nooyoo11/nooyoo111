@@ -23,12 +23,16 @@ package com.adobe.epubcheck.api;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.zip.ZipFile;
 
 import com.adobe.epubcheck.ocf.OCFChecker;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.WriterReportImpl;
@@ -36,37 +40,17 @@ import com.adobe.epubcheck.util.WriterReportImpl;
 /**
  * Public interface to epub validator.
  */
-public class EpubCheck {
-	/* VERSION number is duplicated in the build.xml and war-build.xml files, so you'll need to change it in two additional places */
-	//TODO change it in the other places
+public class EpubCheck implements DocumentValidator {
+	/*
+	 * VERSION number is duplicated in the build.xml and war-build.xml files, so
+	 * you'll need to change it in two additional places
+	 */
+	// TODO change it in the other places
 	public static final String VERSION = "3.0a";
 
 	File epubFile;
 
-	Report userReport;
-
-	public int warningCount;
-
-	public int errorCount;
-
-	static String fixMessage(String message) {
-		return message.replaceAll("\r\n", " ").replaceAll("\r", " ")
-				.replaceAll("\n", " ");
-	}
-
-	class ProxyReport implements Report {
-
-		public void error(String resource, int line, String message) {
-			errorCount++;
-			userReport.error(resource, line, fixMessage(message));
-		}
-
-		public void warning(String resource, int line, String message) {
-			warningCount++;
-			userReport.warning(resource, line, fixMessage(message));
-		}
-
-	}
+	Report report;
 
 	/*
 	 * Create an epub validator to validate the given file. Issues will be
@@ -74,7 +58,7 @@ public class EpubCheck {
 	 */
 	public EpubCheck(File epubFile) {
 		this.epubFile = epubFile;
-		this.userReport = new DefaultReportImpl(epubFile.getName());
+		this.report = new DefaultReportImpl(epubFile.getName());
 	}
 
 	/*
@@ -83,7 +67,7 @@ public class EpubCheck {
 	 */
 	public EpubCheck(File epubFile, PrintWriter out) {
 		this.epubFile = epubFile;
-		this.userReport = new WriterReportImpl(out);
+		this.report = new WriterReportImpl(out);
 	}
 
 	/*
@@ -92,54 +76,76 @@ public class EpubCheck {
 	 */
 	public EpubCheck(File epubFile, Report report) {
 		this.epubFile = epubFile;
-		this.userReport = report;
+		this.report = report;
+	}
+
+	public EpubCheck(InputStream inputStream, Report report) {
+		File epubFile;
+		try {
+			epubFile = File.createTempFile("epub.epub", null);
+			epubFile.deleteOnExit();
+			OutputStream out = new FileOutputStream(epubFile);
+
+			byte[] bytes = new byte[1024];
+			int read;
+			while ((read = inputStream.read(bytes)) != -1) {
+				out.write(bytes, 0, read);
+			}
+			inputStream.close();
+			out.flush();
+			out.close();
+
+			this.epubFile = epubFile;
+			this.report = report;
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * Validate the file. Return true if no errors or warnings found.
 	 */
 	public boolean validate() {
-		Report report = new ProxyReport();
 		try {
 			FileInputStream epubIn = new FileInputStream(epubFile);
 
 			byte[] header = new byte[58];
-			
+
 			int readCount = epubIn.read(header);
 			if (readCount != -1) {
 				while (readCount < header.length) {
-					int read = epubIn.read(header, readCount, header.length-readCount);
+					int read = epubIn.read(header, readCount, header.length
+							- readCount);
 					// break on eof
-					if (read == -1) 
+					if (read == -1)
 						break;
 					readCount += read;
 				}
 			}
 			if (readCount != header.length) {
-				report.error(null, 0, "cannot read header");
+				report.error(null, 0, 0, "cannot read header");
 			} else {
 				int fnsize = getIntFromBytes(header, 26);
 				int extsize = getIntFromBytes(header, 28);
 
 				if (header[0] != 'P' && header[1] != 'K') {
-					report.error(null, 0, "corrupted ZIP header");
+					report.error(null, 0, 0, "corrupted ZIP header");
 				} else if (fnsize != 8) {
-					report
-					.error(null, 0,
-							"length of first filename in archive must be 8, but was " + fnsize);
+					report.error(null, 0, 0,
+							"length of first filename in archive must be 8, but was "
+									+ fnsize);
 				} else if (extsize != 0) {
-					report
-					.error(null, 0,
-							"extra field length for first filename must be 0, but was " + extsize);
+					report.error(null, 0, 0,
+							"extra field length for first filename must be 0, but was "
+									+ extsize);
 				} else if (!CheckUtil.checkString(header, 30, "mimetype")) {
-					report
-							.error(null, 0,
-									"mimetype entry missing or not the first in archive");
+					report.error(null, 0, 0,
+							"mimetype entry missing or not the first in archive");
 				} else if (!CheckUtil.checkString(header, 38,
 						"application/epub+zip")) {
-					report
-							.error(null, 0,
-									"mimetype contains wrong type (application/epub+zip expected)");
+					report.error(null, 0, 0,
+							"mimetype contains wrong type (application/epub+zip expected)");
 				}
 			}
 
@@ -148,7 +154,7 @@ public class EpubCheck {
 			ZipFile zip = new ZipFile(epubFile);
 
 			OCFPackage ocf = new OCFPackage(zip);
-			
+
 			OCFChecker checker = new OCFChecker(ocf, report);
 
 			checker.runChecks();
@@ -156,9 +162,9 @@ public class EpubCheck {
 			zip.close();
 
 		} catch (IOException e) {
-			report.error(null, 0, "I/O error: " + e.getMessage());
+			report.error(null, 0, 0, "I/O error: " + e.getMessage());
 		}
-		return warningCount == 0 && errorCount == 0;
+		return report.getWarningCount() == 0 && report.getErrorCount() == 0;
 	}
 
 	private int getIntFromBytes(byte[] bytes, int offset) {

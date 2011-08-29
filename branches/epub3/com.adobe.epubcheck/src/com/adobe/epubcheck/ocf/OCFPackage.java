@@ -8,7 +8,9 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class OCFPackage {
+import com.adobe.epubcheck.util.GenericResourceProvider;
+
+public class OCFPackage implements GenericResourceProvider{
 
         ZipFile zip;
         Hashtable enc;

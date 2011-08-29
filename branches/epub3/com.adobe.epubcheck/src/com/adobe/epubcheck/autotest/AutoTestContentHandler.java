@@ -122,8 +122,8 @@ public class AutoTestContentHandler implements ContentHandler {
 			Report report = new DefaultReportImpl(zipFile);
 			EpubCheck check = new EpubCheck(new File(zipFile), report);
 			result.setValid(check.validate());
-			result.setErrors(check.errorCount);
-			result.setWarnings(check.warningCount);
+			result.setErrors(report.getErrorCount());
+			result.setWarnings(report.getWarningCount());
 			if (result.isValid() == expectedResult.isValid()
 					&& result.getErrors() == expectedResult.getErrors()
 					&& result.getWarnings() == expectedResult.getWarnings()) {

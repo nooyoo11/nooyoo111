@@ -55,9 +55,10 @@ public class NCXChecker implements ContentChecker {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "NCX file " + path + " is missing");
+			report.error(null, 0, 0, "NCX file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "NCX file " + path + " cannot be decrypted");
+			report.error(null, 0, 0, "NCX file " + path
+					+ " cannot be decrypted");
 		else {
 			// relaxng
 			XMLParser ncxParser = null;
@@ -85,6 +86,7 @@ public class NCXChecker implements ContentChecker {
 				report.error(
 						path,
 						-1,
+						0,
 						"Failed performing NCX Schematron tests: "
 								+ t.getMessage());
 			}

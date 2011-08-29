@@ -37,6 +37,8 @@ public class OPFItem {
 	String namespace;
 
 	int lineNumber;
+	
+	int columnNumber;
 
 	boolean ncx;
 
@@ -45,11 +47,12 @@ public class OPFItem {
 	boolean nav;
 
 	OPFItem(String id, String path, String mimeType, String fallback,
-			String fallbackStyle, String namespace, int lineNumber) {
+			String fallbackStyle, String namespace, int lineNumber, int columnNumber) {
 		this.fallback = fallback;
 		this.fallbackStyle = fallbackStyle;
 		this.id = id;
 		this.lineNumber = lineNumber;
+		this.columnNumber = columnNumber;
 		this.mimeType = mimeType;
 		this.namespace = namespace;
 		this.path = path;
@@ -81,6 +84,10 @@ public class OPFItem {
 
 	public int getLineNumber() {
 		return lineNumber;
+	}
+	
+	public int getColumnNumber(){
+		return columnNumber;
 	}
 
 	public boolean isNcx() {
