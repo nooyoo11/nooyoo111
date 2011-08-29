@@ -223,8 +223,14 @@ public class OPFHandler implements XMLHandler {
 						fallbackStyle, namespace, line, column);
 				if (id != null)
 					itemMapById.put(id, item);
-				if (properties != null && properties.equals("nav"))
-					item.setNav(true);
+				if (properties != null) {
+					String propertyArray[] = properties.split(" ");
+					for (int i = 0; i < propertyArray.length; i++)
+						if (propertyArray[i].equals("nav")) {
+							item.setNav(true);
+							break;
+						}
+				}
 				if (href != null && registerEntry) {
 					itemMapByPath.put(href, item);
 					items.add(item);
