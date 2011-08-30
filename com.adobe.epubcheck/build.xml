@@ -25,7 +25,8 @@
 
 	<property name="epubcheck.test.dir" location="../com.adobe.epubcheck.test" />
 	<property name="tests.dir" location="${epubcheck.test.dir}/src/com/adobe/epubcheck" />
-	<property name="reports.dir" location="${epubcheck.base.dir}/reports" />
+	<property name="temp.dir" location="${epubcheck.base.dir}/temp" />
+	<property name="reports.dir" location="${temp.dir}/reports" />
 	<property name="test.build.dir" value="${epubcheck.test.dir}/bin" />
 	<property name="junit.xml.dir" location="${reports.dir}/JunitXml" />
 	<property name="junit.html.dir" location="${reports.dir}/JunitHtml" />
@@ -250,16 +251,27 @@
 	********************
 	-->
 	<target name="build-Epubchecker" description="Creates binary jar zip and source zip" depends="buildSrcZip,
-					 buildBinZip
+					 buildBinZip,clean-build-final
 					" />
-	<target name="clean">
-		<delete file="cobertura.ser" />
 
+	<target name="clean-build">
 		<delete dir="${build.dir}" />
 		<delete dir="${instrumented.dir}" />
+		<delete file="cobertura.ser" />
 		<delete dir="${test.build.dir}" />
-		<delete dir="${reports.dir}" />
 	</target>
+
+	<target name="clean-build-final">
+		<delete dir="${build.dir}" />
+		<delete dir="${instrumented.dir}" />
+		<delete file="cobertura.ser" />
+		<delete dir="${test.build.dir}" />
+	</target>
+	
+	<target name="clean" depends="clean-build">
+		<delete dir="${temp.dir}" />
+	</target>
+	
 	<target name="clean-all" depends="clean">
 		<delete dir="${distribution.dir}" />
 	</target>
