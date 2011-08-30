@@ -27,6 +27,8 @@ public class OPSType {
 	private String mimeType;
 
 	public OPSType(String mimeType, float version) {
+		if (mimeType == null)
+			mimeType = "";
 		this.mimeType = mimeType;
 		this.version = version;
 	}

@@ -23,15 +23,15 @@
 
 package com.adobe.epubcheck.tool;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 import com.adobe.epubcheck.api.EpubCheck;
+import com.adobe.epubcheck.api.EpubCheckFactory;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.DocumentValidator;
-import com.adobe.epubcheck.opf.OPFChecker;
-import com.adobe.epubcheck.ops.OPSChecker;
+import com.adobe.epubcheck.opf.DocumentValidatorFactory;
+import com.adobe.epubcheck.opf.OPFCheckerFactory;
+import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
@@ -40,42 +40,68 @@ import com.adobe.epubcheck.util.URLResourceProvider;
 
 public class Checker {
 
-	private static String path = null, mimeType = null;
+	private static String path = null, mode = null;
 	private static float version = 3;
+	private static OPSType opsType;
 
-	private static void validateArguments(String fileName, String mimeType,
-			float version) {
-		if (fileName.endsWith(".epub") || fileName.endsWith(".opf"))
-			return;
+	private static HashMap modeMimeTypeMap;
 
-		if (!verifyMimeTypeAndVersion()) {
-			System.out.println("-help displays help ");
-			throw new RuntimeException(
-					"The checker doesn't validate media-Type " + mimeType
-							+ " and version " + version
-							+ "!\nThe tool will exit!");
-		}
-		return;
+	static {
+		HashMap map = new HashMap();
+
+		map.put(new OPSType("xhtml", 2), "application/xhtml+xml");
+		map.put(new OPSType("xhtml", 3), "application/xhtml+xml");
+
+		map.put(new OPSType("svg", 2), "image/svg+xml");
+		map.put(new OPSType("svg", 3), "image/svg+xml");
+
+		map.put(new OPSType("mo", 3), "application/smil+xml");
+		map.put(new OPSType("nav", 3), "nav");
+		// TODO expanded epubs
+		// map.put(new OPSType("exp", 3), );
+		modeMimeTypeMap = map;
+	}
+
+	private static HashMap documentValidatorFactoryMap;
+
+	static {
+		HashMap map = new HashMap();
+		map.put(new OPSType(null, 2), EpubCheckFactory.getInstance());
+		map.put(new OPSType(null, 3), EpubCheckFactory.getInstance());
+
+		map.put(new OPSType("opf", 2), OPFCheckerFactory.getInstance());
+		map.put(new OPSType("opf", 3), OPFCheckerFactory.getInstance());
+
+		map.put(new OPSType("xhtml", 2), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("xhtml", 3), OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("svg", 2), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("svg", 3), OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("mo", 3), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("nav", 3), OPSCheckerFactory.getInstance());
+		// TODO expanded epubs
+		// map.put(new OPSType("exp", 3), );
+		documentValidatorFactoryMap = map;
 	}
 
 	public static void validateFile(GenericResourceProvider resourceProvider,
 			String fileName, String mimeType, float version, Report report) {
 
-		validateArguments(fileName, mimeType, version);
+		opsType = new OPSType(mode, version);
 
-		DocumentValidator check = null;
-		if (fileName.endsWith(".epub")) {
-			try {
-				check = new EpubCheck(
-						resourceProvider.getInputStream(fileName), report);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		} else if (fileName.endsWith(".opf")) {
-			check = new OPFChecker(fileName, resourceProvider, report);
-		} else
-			check = new OPSChecker(fileName, mimeType, resourceProvider,
-					report, version);
+		DocumentValidatorFactory factory = (DocumentValidatorFactory) documentValidatorFactoryMap
+				.get(opsType);
+
+		if (factory == null) {
+			System.out.println("-help displays help ");
+			throw new RuntimeException("The checker doesn't validate type "
+					+ mimeType + " and version " + version + "!");
+		}
+
+		DocumentValidator check = factory.newInstance(report, path,
+				resourceProvider, (String) modeMimeTypeMap.get(opsType),
+				version);
 
 		if (check.validate())
 			System.out.println("No errors or warnings detected");
@@ -87,38 +113,27 @@ public class Checker {
 	public static void validateFile(String path, String mimeType,
 			float version, Report report) {
 
-		boolean fromFile = false;
-
-		String fileName = path.substring(path.lastIndexOf('/') + 1,
-				path.length());
-
-		validateArguments(fileName, mimeType, version);
-
 		GenericResourceProvider resourceProvider;
-		DocumentValidator check;
 
 		if (path.startsWith("http://") || path.startsWith("https://"))
 			resourceProvider = new URLResourceProvider(path);
-		else {
+		else
 			resourceProvider = new FileResourceProvider(path);
-			fromFile = true;
+
+		opsType = new OPSType(mode, version);
+
+		DocumentValidatorFactory factory = (DocumentValidatorFactory) documentValidatorFactoryMap
+				.get(opsType);
+
+		if (factory == null) {
+			System.out.println("-help displays help ");
+			throw new RuntimeException("The checker doesn't validate type "
+					+ mimeType + " and version " + version + "!");
 		}
 
-		if (fileName.endsWith(".epub")) {
-			if (fromFile)
-				check = new EpubCheck(new File(path), report);
-			else
-				try {
-					check = new EpubCheck(
-							resourceProvider.getInputStream(path), report);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-		} else if (fileName.endsWith(".opf")) {
-			check = new OPFChecker(fileName, resourceProvider, report);
-		} else
-			check = new OPSChecker(fileName, mimeType, resourceProvider,
-					report, version);
+		DocumentValidator check = factory.newInstance(report, path,
+				resourceProvider, (String) modeMimeTypeMap.get(opsType),
+				version);
 
 		if (check.validate())
 			System.out.println("No errors or warnings detected");
@@ -127,30 +142,13 @@ public class Checker {
 		}
 	}
 
-	private static HashMap mimeTypeValidatorMap;
-
-	static {
-		HashMap map = new HashMap();
-		String TRUE = "true";
-		map.put(new OPSType("application/xhtml+xml", 2), TRUE);
-		map.put(new OPSType("application/xhtml+xml", 3), TRUE);
-
-		map.put(new OPSType("image/svg+xml", 2), TRUE);
-		map.put(new OPSType("image/svg+xml", 3), TRUE);
-
-		map.put(new OPSType("application/smil+xml", 3), TRUE);
-		map.put(new OPSType("nav", 3), TRUE);
-
-		mimeTypeValidatorMap = map;
-	}
-
 	public static void main(String[] args) {
 
 		processArguments(args);
 
 		Report report = new DefaultReportImpl(path);
 
-		validateFile(path, mimeType, version, report);
+		validateFile(path, mode, version, report);
 	}
 
 	/**
@@ -193,14 +191,14 @@ public class Checker {
 					throw new RuntimeException(
 							"After the argument -v or -version, the actual version of the file to be checked is expected");
 				}
-			else if (args[i].equals("-type") || args[i].equals("-t"))
+			else if (args[i].equals("-mode"))
 				if (i + 1 < args.length) {
-					mimeType = args[++i];
+					mode = args[++i];
 					continue;
 				} else {
 					System.out.println("-help displays help ");
 					throw new RuntimeException(
-							"After the argument -t or -type, the type of the file to be checked is expected");
+							"After the argument -mode, the type of the file to be checked is expected");
 				}
 			else if (args[i].equals("-help") || args[i].equals("-?"))
 				displayHelp(); // display help message
@@ -222,18 +220,16 @@ public class Checker {
 			System.err.println("No file to check was specified in arguments!");
 			System.err.println("The tool will EXIT!");
 			System.exit(1);
-		} else if (path.endsWith(".epub") || path.endsWith(".opf")) {
-			if (mimeType != null)
+		} else if (path.endsWith(".epub")) {
+			if (mode != null || version != 3) {
 				System.err
-						.println("The mimeType and version arguments are ignored for epubs and opfs!"
+						.println("The mode and version arguments are ignored for epubs!"
 								+ "(They are retrieved from the files.)");
-		} else if (mimeType == null)
+				mode = null;
+			}
+		} else if (mode == null)
 			throw new RuntimeException(
-					"For files other than epubs and opfs, type must be specified! Default version is 3.0.");
-	}
-
-	private static boolean verifyMimeTypeAndVersion() {
-		return mimeTypeValidatorMap.get(new OPSType(mimeType, version)) != null;
+					"For files other than epubs, mode must be specified! Default version is 3.0.");
 	}
 
 	/**
@@ -246,19 +242,22 @@ public class Checker {
 		System.out.println("When running this tool, the first argument "
 				+ "should be the name (with the path) of the file to check.");
 		System.out
-				.println("If checking a non-epub or a non-opf "
+				.println("If checking a non-epub "
 						+ "file, the epub version of the file must be specified using -v "
-						+ "and the mimeType of the file using -t.");
+						+ "and the type of the file using -mode.");
 		System.out.println("The default version is: 3.0.");
-		System.out.println("Types and versions supported: ");
-		System.out.println("-t application/xhtml+xml -v 2.0");
-		System.out.println("-t application/xhtml+xml -v 3.0");
+		System.out.println("Modes and versions supported: ");
+		System.out.println("-mode opf -v 2.0");
+		System.out.println("-mode opf -v 3.0");
 
-		System.out.println("-t image/svg+xml -v 2.0");
-		System.out.println("-t image/svg+xml -v 3.0");
+		System.out.println("-mode xhtml -v 2.0");
+		System.out.println("-mode xhtml -v 3.0");
 
-		System.out.println("-t application/smil+xml -v 3.0");
-		System.out.println("-t nav -v 3.0");
+		System.out.println("-mode svg -v 2.0");
+		System.out.println("-mode svg -v 3.0");
+
+		System.out.println("-mode mo -v 3.0 // For MediaOverlay validation");
+		System.out.println("-mode nav -v 3.0");
 
 		System.out.println("This tool also accepts the following flags:");
 		System.out.println("-? or -help 	= displays this help message");
