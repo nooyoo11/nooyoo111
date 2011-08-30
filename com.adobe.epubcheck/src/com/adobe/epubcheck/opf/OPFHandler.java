@@ -54,6 +54,8 @@ public class OPFHandler implements XMLHandler {
 
 	String path;
 
+	XRefChecker xrefChecker;
+
 	// This string holds the value of the <package> element's unique-identifier
 	// attribute
 	// that will be used to make sure that the unique-identifier references an
@@ -101,10 +103,12 @@ public class OPFHandler implements XMLHandler {
 			validRoles.add(list[i]);
 	}
 
-	OPFHandler(OCFPackage ocf, String path, Report report) {
+	OPFHandler(OCFPackage ocf, String path, Report report,
+			XRefChecker xrefChecker) {
 		this.ocf = ocf;
 		this.path = path;
 		this.report = report;
+		this.xrefChecker = xrefChecker;
 	}
 
 	public boolean getOpf12PackageFile() {
@@ -242,6 +246,8 @@ public class OPFHandler implements XMLHandler {
 				if (href != null) {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
+						xrefChecker.registerReference(path, line, column, href,
+								XRefChecker.RT_HYPERLINK);
 					} catch (IllegalArgumentException ex) {
 						report.error(path, line, column, ex.getMessage());
 						href = null;

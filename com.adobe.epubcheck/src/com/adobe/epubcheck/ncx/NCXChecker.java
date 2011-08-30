@@ -41,9 +41,9 @@ public class NCXChecker implements ContentChecker {
 
 	XRefChecker xrefChecker;
 
-	static XMLValidator ncxValidator = new XMLValidator("rng/ncx.rng");
+	static XMLValidator ncxValidator = new XMLValidator("schema/20/rng/ncx.rng");
 
-	static XMLValidator ncxSchematronValidator = new XMLValidator("sch/ncx.sch");
+	static XMLValidator ncxSchematronValidator = new XMLValidator("schema/20/sch/ncx.sch");
 
 	public NCXChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker) {

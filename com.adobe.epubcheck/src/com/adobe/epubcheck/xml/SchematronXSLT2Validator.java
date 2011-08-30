@@ -108,15 +108,15 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("epub30schemas/iso-schematron-xslt2/iso_dsdl_include.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_dsdl_include.xsl"))));
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("epub30schemas/iso-schematron-xslt2/iso_abstract_expand.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_abstract_expand.xsl"))));
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("epub30schemas/iso-schematron-xslt2/iso_svrl_for_xslt2.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_svrl_for_xslt2.xsl"))));
 
 		fileToValidate = file;
 		this.report = report;
@@ -149,10 +149,10 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 	public Source resolve(String href, String base) throws TransformerException {
 		if (href.startsWith("./mod/"))
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("epub30schemas/" + href.substring(2))));
+					.getResourcePath("schema/30/" + href.substring(2))));
 		else if (href.endsWith(".xsl"))
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("epub30schemas/iso-schematron-xslt2/"
+					.getResourcePath("schema/30/iso-schematron-xslt2/"
 							+ href)));
 		return null;
 	}

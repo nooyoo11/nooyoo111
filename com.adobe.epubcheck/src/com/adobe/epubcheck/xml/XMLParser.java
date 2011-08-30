@@ -90,27 +90,27 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 		// fully-resolved names
 		map.put("http://www.idpf.org/dtds/2007/opf.dtd",
-				ResourceUtil.getResourcePath("dtd/opf20.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/opf20.dtd"));
 		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent",
-				ResourceUtil.getResourcePath("dtd/oeb12.dtdinc"));
+				ResourceUtil.getResourcePath("schema/20/dtd/oeb12.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd",
-				ResourceUtil.getResourcePath("dtd/xhtml1-transitional.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml1-transitional.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd",
-				ResourceUtil.getResourcePath("dtd/xhtml1-strict.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml1-strict.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent",
-				ResourceUtil.getResourcePath("dtd/xhtml-lat1.dtdinc"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-lat1.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent",
-				ResourceUtil.getResourcePath("dtd/xhtml-symbol.dtdinc"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-symbol.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent",
-				ResourceUtil.getResourcePath("dtd/xhtml-special.dtdinc"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-special.dtdinc"));
 		map.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd",
-				ResourceUtil.getResourcePath("dtd/svg11.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/svg11.dtd"));
 		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd",
-				ResourceUtil.getResourcePath("dtd/opf20.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/opf20.dtd"));
 		map.put("http://www.daisy.org/z3986/2005/dtbook-2005-2.dtd",
-				ResourceUtil.getResourcePath("dtd/dtbook-2005-2.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/dtbook-2005-2.dtd"));
 		map.put("http://www.daisy.org/z3986/2005/ncx-2005-1.dtd",
-				ResourceUtil.getResourcePath("dtd/ncx-2005-1.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/ncx-2005-1.dtd"));
 
 		// non-resolved names; Saxon (which schematron requires and registers as
 		// preferred parser, it seems)
