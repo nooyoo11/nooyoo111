@@ -152,7 +152,7 @@
 
 			<batchtest todir="${junit.xml.dir}">
 				<fileset dir="${test.build.dir}">
-					<include name="**/*JUnitTest*" />
+					<include name="**/*Test*" />
 				</fileset>
 			</batchtest>
 

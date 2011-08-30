@@ -32,7 +32,7 @@ import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
-public class OPSCheckerJUnitTest {
+public class OPSCheckerTest {
 
 	private String path = "testdocs/";
 

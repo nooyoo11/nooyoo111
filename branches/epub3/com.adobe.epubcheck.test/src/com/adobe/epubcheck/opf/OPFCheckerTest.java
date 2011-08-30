@@ -31,7 +31,7 @@ import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
-public class OPFCheckerJUnitTest {
+public class OPFCheckerTest {
 
 	private String path = "testdocs/";
 
