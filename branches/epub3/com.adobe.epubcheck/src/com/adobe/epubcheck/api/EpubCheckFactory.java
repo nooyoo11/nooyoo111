@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Adobe Systems Incorporated
+ * Copyright (c) 2011 Adobe Systems Incorporated
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy of
  *  this software and associated documentation files (the "Software"), to deal in
@@ -20,36 +20,36 @@
  *
  */
 
-package com.adobe.epubcheck.ops;
+package com.adobe.epubcheck.api;
+
+import java.io.File;
+import java.io.IOException;
 
 import com.adobe.epubcheck.api.Report;
-import com.adobe.epubcheck.ocf.OCFPackage;
-import com.adobe.epubcheck.opf.ContentChecker;
-import com.adobe.epubcheck.opf.ContentCheckerFactory;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.DocumentValidatorFactory;
-import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 
-public class OPSCheckerFactory implements ContentCheckerFactory,
-		DocumentValidatorFactory {
+public class EpubCheckFactory implements DocumentValidatorFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report,
-			String path, String mimeType, XRefChecker xrefChecker, float version) {
-		return new OPSChecker(ocf, report, path, mimeType, xrefChecker, version);
-	}
+	static private EpubCheckFactory instance = new EpubCheckFactory();
 
-	static private OPSCheckerFactory instance = new OPSCheckerFactory();
-
-	static public OPSCheckerFactory getInstance() {
+	static public EpubCheckFactory getInstance() {
 		return instance;
 	}
 
 	public DocumentValidator newInstance(Report report, String path,
 			GenericResourceProvider resourceProvider, String mimeType,
 			float version) {
-
-		return new OPSChecker(path, mimeType, resourceProvider, report, version);
+		if (path.startsWith("http://") || path.startsWith("https://"))
+			try {
+				return new EpubCheck(resourceProvider.getInputStream(path),
+						report);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		else
+			return new EpubCheck(new File(path), report);
 	}
 
 }

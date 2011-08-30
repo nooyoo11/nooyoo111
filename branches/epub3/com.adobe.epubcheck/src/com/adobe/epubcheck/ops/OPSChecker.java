@@ -65,8 +65,10 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
-	static XMLValidator xhtmlValidator = new XMLValidator("schema/20/rng/ops20.nvdl");
-	static XMLValidator svgValidator = new XMLValidator("schema/20/rng/svg11.rng");
+	static XMLValidator xhtmlValidator = new XMLValidator(
+			"schema/20/rng/ops20.nvdl");
+	static XMLValidator svgValidator = new XMLValidator(
+			"schema/20/rng/svg11.rng");
 
 	static XMLValidator xhtmlValidator30 = new XMLValidator(
 			"schema/30/epub-xhtml-30.rnc");
