@@ -35,7 +35,7 @@ import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
-public class EpubCheckJUnitTest20 {
+public class Epub20CheckTest {
 
 	private ValidationReport testReport;
 

@@ -20,52 +20,68 @@
  *
  */
 
-package com.adobe.epubcheck.util;
+package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
 
+import com.adobe.epubcheck.opf.DocumentValidator;
+import com.adobe.epubcheck.util.FileResourceProvider;
+import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.URLResourceProvider;
+import com.adobe.epubcheck.util.ValidationReport;
 
-public class ResourceUtilJUnitTest {
+public class Epub30CheckTest {
 
 	private ValidationReport testReport;
 
-	private String path = "testdocs/30/single/opf/retrieveVersion/";
+	private DocumentValidator epubCheck;
 
 	private GenericResourceProvider resourceProvider;
 
 	private boolean verbose;
 
+	private static String path = "testdocs/30/epub/";
+
 	/*
 	 * TEST DEBUG FUNCTION
 	 */
-	public void testVersion(String fileName, int errors, int warnings,
+
+	public void testValidateDocument(String fileName, int errors, int warnings,
 			boolean verbose) {
 		if (verbose)
 			this.verbose = verbose;
-		testVersion(fileName, errors, warnings);
+		testValidateDocument(fileName, errors, warnings);
 	}
 
-	public void testVersion(String fileName, int errors, int warnings) {
+	public void testValidateDocument(String fileName, int errors, int warnings) {
+
+		boolean fromFile = false;
 
 		testReport = new ValidationReport(fileName);
 
-		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
+		if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
 			resourceProvider = new URLResourceProvider(fileName);
-		else
+		} else {
 			resourceProvider = new FileResourceProvider(path + fileName);
-
-		try {
-			ResourceUtil.retrieveOpfVersion(resourceProvider
-					.getInputStream(path + fileName));
-		} catch (InvalidVersionException e) {
-			testReport.error(fileName, -1, -1, e.getMessage());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			fromFile = true;
 		}
+
+		if (fromFile)
+			epubCheck = new EpubCheck(new File(path + fileName), testReport);
+		else
+			try {
+				epubCheck = new EpubCheck(
+						resourceProvider.getInputStream(null), testReport);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+		epubCheck.validate();
 
 		if (verbose) {
 			verbose = false;
@@ -74,56 +90,6 @@ public class ResourceUtilJUnitTest {
 
 		assertEquals(errors, testReport.getErrorCount());
 		assertEquals(warnings, testReport.getWarningCount());
-	}
-
-	@Test
-	public void testRetrieveVersionValidVersion() {
-		testVersion("validVersion.opf", 0, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionNoPackageElement() {
-		testVersion("noPackageElement.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionNoVersionAttribute() {
-		testVersion("noVersion.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionNoEqualSign() {
-		testVersion("noEqual.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionValueWithoutQuotes() {
-		testVersion("valueWithoutQuotes.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionSpacesBetweenQuotes() {
-		testVersion("spacesBetweenQuotes.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionSpacesInValue() {
-		testVersion("spacesInValue.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionVersion123323() {
-		testVersion("version123.323.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionNoPointInValue() {
-		testVersion("noPointInValue.opf", 1, 0);
-	}
-
-	@Test
-	public void testRetrieveVersionNegativeVersion() {
-		testVersion("negativeVersion.opf", 1, 0);
 	}
 
 }
