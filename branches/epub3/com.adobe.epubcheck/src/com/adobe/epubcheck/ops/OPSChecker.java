@@ -65,26 +65,26 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
-	static XMLValidator xhtmlValidator = new XMLValidator("rng/ops20.nvdl");
-	static XMLValidator svgValidator = new XMLValidator("rng/svg11.rng");
+	static XMLValidator xhtmlValidator = new XMLValidator("schema/20/rng/ops20.nvdl");
+	static XMLValidator svgValidator = new XMLValidator("schema/20/rng/svg11.rng");
 
 	static XMLValidator xhtmlValidator30 = new XMLValidator(
-			"epub30schemas/epub-xhtml-30.rnc");
+			"schema/30/epub-xhtml-30.rnc");
 	static XMLValidator svgValidator30 = new XMLValidator(
-			"epub30schemas/epub-svg-30.rnc");
+			"schema/30/epub-svg-30.rnc");
 	static XMLValidator mediaOverlayValidator30 = new XMLValidator(
-			"epub30schemas/media-overlay-30.rnc");
+			"schema/30/media-overlay-30.rnc");
 	static XMLValidator navValidator30 = new XMLValidator(
-			"epub30schemas/epub-nav-30.rnc");
+			"schema/30/epub-nav-30.rnc");
 
 	static String xhtmlSchematronValidator30 = new String(
-			"epub30schemas/epub-xhtml-30.sch");
+			"schema/30/epub-xhtml-30.sch");
 	static String svgSchematronValidator30 = new String(
-			"epub30schemas/epub-svg-30.sch");
+			"schema/30/epub-svg-30.sch");
 	static String mediaOverlaySchematronValidator30 = new String(
-			"epub30schemas/media-overlay-30.sch");
+			"schema/30/media-overlay-30.sch");
 	static String navSchematronValidator30 = new String(
-			"epub30schemas/epub-nav-30.sch");
+			"schema/30/epub-nav-30.sch");
 
 	private HashMap epubValidatorMap;
 

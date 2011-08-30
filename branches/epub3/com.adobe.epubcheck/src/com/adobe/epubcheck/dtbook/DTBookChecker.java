@@ -42,7 +42,7 @@ public class DTBookChecker implements ContentChecker {
 	XRefChecker xrefChecker;
 
 	static XMLValidator dtbookValidator = new XMLValidator(
-			"rng/dtbook-2005-2.rng");
+			"schema/20/rng/dtbook-2005-2.rng");
 
 	public DTBookChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker) {

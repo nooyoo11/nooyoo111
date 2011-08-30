@@ -56,15 +56,16 @@ public class OPFChecker implements DocumentValidator {
 
 	float version = 3;
 
-	static XMLValidator opfValidator = new XMLValidator("rng/opf.rng");
+	static XMLValidator opfValidator = new XMLValidator("schema/20/rng/opf.rng");
 
-	static XMLValidator opfSchematronValidator = new XMLValidator("sch/opf.sch");
+	static XMLValidator opfSchematronValidator = new XMLValidator(
+			"schema/20/sch/opf.sch");
 
 	static XMLValidator opfValidator30 = new XMLValidator(
-			"epub30schemas/package-30.rnc");
+			"schema/30/package-30.rnc");
 
 	static String opfSchematronValidator30 = new String(
-			"epub30schemas/package-30.sch");
+			"schema/30/package-30.sch");
 
 	XRefChecker xrefChecker;
 
@@ -125,7 +126,7 @@ public class OPFChecker implements DocumentValidator {
 			return;
 		}
 
-		opfHandler = new OPFHandler(ocf, path, report);
+		opfHandler = new OPFHandler(ocf, path, report, xrefChecker);
 
 		try {
 			version = ResourceUtil.retrieveOpfVersion(ocf.getInputStream(path));

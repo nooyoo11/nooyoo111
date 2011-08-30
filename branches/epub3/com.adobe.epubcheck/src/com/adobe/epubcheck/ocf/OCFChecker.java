@@ -39,13 +39,13 @@ public class OCFChecker {
 	Hashtable encryptedItems;
 
 	static XMLValidator containerValidator = new XMLValidator(
-			"rng/container.rng");
+			"schema/20/rng/container.rng");
 
 	static XMLValidator encryptionValidator = new XMLValidator(
-			"rng/encryption.rng");
+			"schema/20/rng/encryption.rng");
 
 	static XMLValidator signatureValidator = new XMLValidator(
-			"rng/signatures.rng");
+			"schema/20/rng/signatures.rng");
 
 	public OCFChecker(OCFPackage ocf, Report report) {
 		this.ocf = ocf;
