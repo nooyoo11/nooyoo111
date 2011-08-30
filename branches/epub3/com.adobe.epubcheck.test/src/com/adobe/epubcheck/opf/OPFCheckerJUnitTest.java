@@ -33,7 +33,7 @@ import com.adobe.epubcheck.util.ValidationReport;
 
 public class OPFCheckerJUnitTest {
 
-	private String path = "testdocs/general/OPF/validateDocument/";
+	private String path = "testdocs/";
 
 	private ValidationReport testReport;
 
@@ -60,9 +60,9 @@ public class OPFCheckerJUnitTest {
 		String relativePath = null;
 
 		if (version == 2)
-			relativePath = "2.0/";
+			relativePath = "20/single/opf/";
 		else if (version == 3)
-			relativePath = "3.0/";
+			relativePath = "30/single/opf/";
 
 		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
 			resourceProvider = new URLResourceProvider(fileName);

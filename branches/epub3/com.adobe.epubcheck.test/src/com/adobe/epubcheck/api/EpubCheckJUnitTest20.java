@@ -35,9 +35,7 @@ import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
-public class EpubCheckJUnitTest {
-
-	private final String path = "testdocs/general/epubs/";
+public class EpubCheckJUnitTest20 {
 
 	private ValidationReport testReport;
 
@@ -47,9 +45,12 @@ public class EpubCheckJUnitTest {
 
 	private boolean verbose;
 
+	private static String path = "testdocs/20/epub/";
+
 	/*
-	 *  TEST DEBUG FUNCTION
+	 * TEST DEBUG FUNCTION
 	 */
+
 	public void testValidateDocument(String fileName, int errors, int warnings,
 			boolean verbose) {
 		if (verbose)
@@ -93,57 +94,57 @@ public class EpubCheckJUnitTest {
 
 	@Test
 	public void testValidateEPUBPageMap20() {
-		testValidateDocument("2.0/PageMap20.epub", 1, 0);
+		testValidateDocument("PageMap20.epub", 1, 0);
 	}
 
 	@Test
 	public void testValidateEPUBNoUniqueId20() {
-		testValidateDocument("2.0/OPFIllegalElement_UniqueID20.epub", 2, 0);
+		testValidateDocument("OPFIllegalElement_UniqueID20.epub", 2, 0);
 	}
 
 	@Test
 	public void testValidateEPUBOPFIllegalElement20() {
-		testValidateDocument("2.0/OPFIllegalElement20.epub", 1, 0);
+		testValidateDocument("OPFIllegalElement20.epub", 1, 0);
 	}
 
 	@Test
 	public void testValidateEPUBUnmanifested20() {
-		testValidateDocument("2.0/Unmanifested20.epub", 0, 2);
+		testValidateDocument("Unmanifested20.epub", 0, 2);
 	}
 
 	@Test
 	public void testValidateEPUBPFileDeclaredInContainerNotOpf20() {
-		testValidateDocument("2.0/ContainerNotOPF20.epub", 0, 0);
+		testValidateDocument("ContainerNotOPF20.epub", 0, 0);
 	}
 
 	@Test
 	public void testValidateEPUBFileInMetaInfNotOPF20() {
-		testValidateDocument("2.0/MetaInfNotOPF20.epub", 0, 0);
+		testValidateDocument("MetaInfNotOPF20.epub", 0, 0);
 	}
 
 	@Test
 	public void testValidateEPUBNullDate20() {
-		testValidateDocument("2.0/NullDate20.epub", 1, 0);
+		testValidateDocument("NullDate20.epub", 1, 0);
 	}
 
 	@Test
 	public void testValidateEPUBNon8601Date20() {
-		testValidateDocument("2.0/Non8601Date20.epub", 1, 0);
+		testValidateDocument("Non8601Date20.epub", 1, 0);
 	}
 
 	@Test
 	public void testValidateEPUBUnmanifestedGuideItems20() {
-		testValidateDocument("2.0/UnmanifestedGuideItems20.epub", 1, 0);
+		testValidateDocument("UnmanifestedGuideItems20.epub", 2, 0);
 	}
 
 	@Test
 	public void testValidateEPUBEmptyDir20() {
-		testValidateDocument("2.0/EmptyDir20.epub", 0, 1);
+		testValidateDocument("EmptyDir20.epub", 0, 1);
 	}
 
 	@Test
 	public void testValidateEPUBPvalid20() {
-		testValidateDocument("2.0/Test20.epub", 0, 0);
+		testValidateDocument("Test20.epub", 0, 0);
 	}
 
 }
