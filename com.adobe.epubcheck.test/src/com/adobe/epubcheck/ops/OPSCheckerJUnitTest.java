@@ -34,7 +34,7 @@ import com.adobe.epubcheck.util.ValidationReport;
 
 public class OPSCheckerJUnitTest {
 
-	private String path = "testdocs/general/OPS/validateDocument/";
+	private String path = "testdocs/";
 
 	private ValidationReport testReport;
 
@@ -60,9 +60,9 @@ public class OPSCheckerJUnitTest {
 		testReport = new ValidationReport(fileName);
 		String relativePath = null;
 		if (version == 2)
-			relativePath = "2.0/";
+			relativePath = "20/single/";
 		else if (version == 3)
-			relativePath = "3.0/";
+			relativePath = "30/single/";
 
 		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
 			resourceProvider = new URLResourceProvider(fileName);

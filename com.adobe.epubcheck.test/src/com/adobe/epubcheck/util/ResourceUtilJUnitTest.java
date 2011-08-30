@@ -33,7 +33,7 @@ public class ResourceUtilJUnitTest {
 
 	private ValidationReport testReport;
 
-	private String path = "testdocs/general/OPF/retrieveVersion/";
+	private String path = "testdocs/30/single/opf/retrieveVersion/";
 
 	private GenericResourceProvider resourceProvider;
 
