@@ -35,6 +35,7 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.WriterReportImpl;
 
 /**
@@ -124,28 +125,26 @@ public class EpubCheck implements DocumentValidator {
 				}
 			}
 			if (readCount != header.length) {
-				report.error(null, 0, 0, "cannot read header");
+				report.error(null, 0, 0, Messages.CANNOT_READ_HEADER);
 			} else {
 				int fnsize = getIntFromBytes(header, 26);
 				int extsize = getIntFromBytes(header, 28);
 
 				if (header[0] != 'P' && header[1] != 'K') {
-					report.error(null, 0, 0, "corrupted ZIP header");
+					report.error(null, 0, 0, Messages.CORRUPTED_ZIP_HEADER);
 				} else if (fnsize != 8) {
-					report.error(null, 0, 0,
-							"length of first filename in archive must be 8, but was "
-									+ fnsize);
+					report.error(null, 0, 0, String.format(
+							Messages.LENGTH_FIRST_FILENAME, fnsize));
 				} else if (extsize != 0) {
 					report.error(null, 0, 0,
-							"extra field length for first filename must be 0, but was "
-									+ extsize);
+							String.format(Messages.EXTRA_FIELD_LENGTH, extsize));
 				} else if (!CheckUtil.checkString(header, 30, "mimetype")) {
-					report.error(null, 0, 0,
-							"mimetype entry missing or not the first in archive");
+					report.error(null, 0, 0, Messages.MIMETYPE_ENTRY_MISSING);
 				} else if (!CheckUtil.checkString(header, 38,
 						"application/epub+zip")) {
-					report.error(null, 0, 0,
-							"mimetype contains wrong type (application/epub+zip expected)");
+					report.error(null, 0, 0, String.format(
+							Messages.MIMETYPE_WRONG_TYPE,
+							"application/epub+zip"));
 				}
 			}
 
@@ -162,7 +161,8 @@ public class EpubCheck implements DocumentValidator {
 			zip.close();
 
 		} catch (IOException e) {
-			report.error(null, 0, 0, "I/O error: " + e.getMessage());
+			report.error(null, 0, 0,
+					String.format(Messages.IO_ERROR, e.getMessage()));
 		}
 		return report.getWarningCount() == 0 && report.getErrorCount() == 0;
 	}
