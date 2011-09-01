@@ -31,6 +31,7 @@ import org.w3c.css.sac.SelectorList;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 
 class CSSHandler implements DocumentHandler {
@@ -91,7 +92,7 @@ class CSSHandler implements DocumentHandler {
 					xrefChecker.registerReference(path, -1, -1, uri,
 							XRefChecker.RT_HYPERLINK);
 				} else
-					report.error(path, -1, -1, "NULL value reference");
+					report.error(path, -1, -1, Messages.NULL_REF);
 	}
 
 	public void startDocument(InputSource source) throws CSSException {

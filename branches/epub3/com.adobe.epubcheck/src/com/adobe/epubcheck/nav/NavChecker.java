@@ -78,7 +78,7 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, 0, "Nav file " + path + " is missing");
+			report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
 		else if (!ocf.canDecrypt(path))
 			report.error(null, 0, 0, "Nav file " + path
 					+ " cannot be decrypted");

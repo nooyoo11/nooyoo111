@@ -37,6 +37,7 @@ import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.URLResourceProvider;
@@ -110,7 +111,7 @@ public class Checker {
 				.get(opsType);
 
 		if (factory == null) {
-			System.out.println("-help displays help ");
+			System.out.println(Messages.DISPLAY_HELP);
 
 			report.exception(
 					fileName,
@@ -126,9 +127,11 @@ public class Checker {
 				version);
 
 		if (check.validate())
-			System.out.println("No errors or warnings detected");
+
+			System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
 		else {
-			System.err.println("\nCheck finished with warnings or errors!\n");
+
+			System.err.println(Messages.THERE_WERE_ERRORS);
 		}
 	}
 
@@ -148,7 +151,7 @@ public class Checker {
 				.get(opsType);
 
 		if (factory == null) {
-			System.out.println("-help displays help ");
+			System.out.println(Messages.DISPLAY_HELP);
 			report.exception(
 					path,
 					new RuntimeException(String.format(
@@ -163,9 +166,11 @@ public class Checker {
 				version);
 
 		if (check.validate())
-			System.out.println("No errors or warnings detected");
+
+			System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
 		else {
-			System.err.println("\nCheck finished with warnings or errors!\n");
+
+			System.err.println(Messages.THERE_WERE_ERRORS);
 		}
 	}
 
@@ -199,7 +204,8 @@ public class Checker {
 		// Exit if there are no arguments passed to main
 		displayVersion();
 		if (args.length < 1) {
-			System.err.println("At least one argument expected");
+
+			System.err.println(Messages.ARGUMENT_NEEDED);
 			System.exit(1);
 		}
 
@@ -212,24 +218,28 @@ public class Checker {
 					else if (args[i].equals("3.0") || args[i].equals("3"))
 						version = EPUBVersion.VERSION_3;
 					else {
-						System.out.println("-help displays help ");
-						throw new RuntimeException(
-								"Invalid version specified for the file to check");
+						System.out.println(Messages.DISPLAY_HELP);
+						throw new RuntimeException(new InvalidVersionException(
+
+								InvalidVersionException.UNSUPPORTED_VERSION));
 					}
 					continue;
 				} else {
-					System.out.println("-help displays help ");
-					throw new RuntimeException(
-							"After the argument -v or -version, the actual version of the file to be checked is expected");
+					System.out.println(Messages.DISPLAY_HELP);
+					throw new RuntimeException(String.format(
+
+							Messages.AFTER_ARGUMENT_EXPECTED, "-v or -version",
+							"version"));
 				}
 			else if (args[i].equals("-mode"))
 				if (i + 1 < args.length) {
 					mode = args[++i];
 					continue;
 				} else {
-					System.out.println("-help displays help ");
-					throw new RuntimeException(
-							"After the argument -mode, the type of the file to be checked is expected");
+					System.out.println(Messages.DISPLAY_HELP);
+					throw new RuntimeException(String.format(
+
+							Messages.AFTER_ARGUMENT_EXPECTED, "-mode", "type"));
 				}
 			else if (args[i].equals("-help") || args[i].equals("-?"))
 				displayHelp(); // display help message
@@ -248,19 +258,20 @@ public class Checker {
 		}
 
 		if (path == null) {
-			System.err.println("No file to check was specified in arguments!");
-			System.err.println("The tool will EXIT!");
+
+			System.err.println(Messages.NO_FILE_SPECIFIED);
+			System.err.println(Messages.END_OF_EXECUTION);
 			System.exit(1);
 		} else if (path.endsWith(".epub")) {
 			if (mode != null || version != EPUBVersion.VERSION_3) {
-				System.err
-						.println("The mode and version arguments are ignored for epubs!"
-								+ "(They are retrieved from the files.)");
+				System.err.println(Messages.MODE_VERSION_IGNORED);
+
+
 				mode = null;
 			}
 		} else if (mode == null)
-			throw new RuntimeException(
-					"For files other than epubs, mode must be specified! Default version is 3.0.");
+			throw new RuntimeException(Messages.MODE_REQUIRED);
+
 	}
 
 	/**
