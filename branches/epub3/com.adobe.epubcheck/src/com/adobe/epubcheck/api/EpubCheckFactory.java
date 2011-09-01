@@ -28,6 +28,7 @@ import java.io.IOException;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.DocumentValidatorFactory;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 
 public class EpubCheckFactory implements DocumentValidatorFactory {
@@ -40,7 +41,7 @@ public class EpubCheckFactory implements DocumentValidatorFactory {
 
 	public DocumentValidator newInstance(Report report, String path,
 			GenericResourceProvider resourceProvider, String mimeType,
-			float version) {
+			EPUBVersion version) {
 		if (path.startsWith("http://") || path.startsWith("https://"))
 			try {
 				return new EpubCheck(resourceProvider.getInputStream(path),

@@ -26,26 +26,22 @@ import java.util.HashSet;
 
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
-import com.adobe.epubcheck.xml.XMLParser;
 
 public class OCFHandler implements XMLHandler {
 
-	XMLParser parser;
-
-	HashSet containerEntries;
+	HashSet<String> containerEntries;
 
 	static String rootPath;
 
-	OCFHandler(XMLParser parser) {
-		this.parser = parser;
-		this.containerEntries = new HashSet();
+	OCFHandler() {
+		this.containerEntries = new HashSet<String>();
 	}
 
 	public String getRootPath() {
 		return rootPath;
 	}
 
-	public HashSet getContainerEntries() {
+	public HashSet<String> getContainerEntries() {
 		return containerEntries;
 	}
 

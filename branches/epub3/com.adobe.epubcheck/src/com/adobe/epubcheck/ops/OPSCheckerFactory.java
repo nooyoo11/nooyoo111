@@ -29,13 +29,14 @@ import com.adobe.epubcheck.opf.ContentCheckerFactory;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.DocumentValidatorFactory;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 
 public class OPSCheckerFactory implements ContentCheckerFactory,
 		DocumentValidatorFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
-			String path, String mimeType, XRefChecker xrefChecker, float version) {
+			String path, String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
 		return new OPSChecker(ocf, report, path, mimeType, xrefChecker, version);
 	}
 
@@ -47,7 +48,7 @@ public class OPSCheckerFactory implements ContentCheckerFactory,
 
 	public DocumentValidator newInstance(Report report, String path,
 			GenericResourceProvider resourceProvider, String mimeType,
-			float version) {
+			EPUBVersion version) {
 
 		return new OPSChecker(path, mimeType, resourceProvider, report, version);
 	}

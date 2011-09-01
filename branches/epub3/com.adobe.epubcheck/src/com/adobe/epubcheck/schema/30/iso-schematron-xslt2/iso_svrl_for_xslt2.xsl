@@ -192,7 +192,7 @@
 <xsl:param name="output-encoding"/>
 
 <!-- Set the default for schematron-select-full-path, i.e. the notation for svrl's @location-->
-<xsl:param name="full-path-notation">2</xsl:param>
+<xsl:param name="full-path-notation">1</xsl:param>
 
 
 

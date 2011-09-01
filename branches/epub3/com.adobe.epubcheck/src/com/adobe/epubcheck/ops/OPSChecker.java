@@ -34,6 +34,7 @@ import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.SvrlParser;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.OPSType;
 
@@ -59,7 +60,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	XRefChecker xrefChecker;
 
-	float version;
+	EPUBVersion version;
 
 	private OPSHandler opsHandler = null;
 
@@ -76,8 +77,6 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			"schema/30/epub-svg-30.rnc");
 	static XMLValidator mediaOverlayValidator30 = new XMLValidator(
 			"schema/30/media-overlay-30.rnc");
-	static XMLValidator navValidator30 = new XMLValidator(
-			"schema/30/epub-nav-30.rnc");
 
 	static String xhtmlSchematronValidator30 = new String(
 			"schema/30/epub-xhtml-30.sch");
@@ -85,34 +84,32 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			"schema/30/epub-svg-30.sch");
 	static String mediaOverlaySchematronValidator30 = new String(
 			"schema/30/media-overlay-30.sch");
-	static String navSchematronValidator30 = new String(
-			"schema/30/epub-nav-30.sch");
 
-	private HashMap epubValidatorMap;
+	private HashMap<OPSType, EpubValidator> epubValidatorMap;
 
 	private void initEpubValidatorMap() {
-		HashMap map = new HashMap();
-		map.put(new OPSType("application/xhtml+xml", 2), new EpubValidator(
-				xhtmlValidator, null));
+		HashMap<OPSType, EpubValidator> map = new HashMap<OPSType, EpubValidator>();
+		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
+				new EpubValidator(xhtmlValidator, null));
 		// TODO
-		map.put(new OPSType("application/xhtml+xml", 3), new EpubValidator(
-				xhtmlValidator30, /* xhtmlSchematronValidator30 */null));
+		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
+				new EpubValidator(xhtmlValidator30, /* xhtmlSchematronValidator30 */
+				null));
 
-		map.put(new OPSType("image/svg+xml", 2), new EpubValidator(
-				svgValidator, null));
-		map.put(new OPSType("image/svg+xml", 3), new EpubValidator(
-				svgValidator30, svgSchematronValidator30));
+		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
+				new EpubValidator(svgValidator, null));
+		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
+				new EpubValidator(svgValidator30, svgSchematronValidator30));
 
-		map.put(new OPSType("application/smil+xml", 3), new EpubValidator(
-				mediaOverlayValidator30, mediaOverlaySchematronValidator30));
-		map.put(new OPSType("nav", 3), new EpubValidator(navValidator30,
-				navSchematronValidator30));
+		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
+				new EpubValidator(mediaOverlayValidator30,
+						mediaOverlaySchematronValidator30));
 
 		epubValidatorMap = map;
 	}
 
 	public OPSChecker(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, float version) {
+			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
 		initEpubValidatorMap();
 		this.ocf = ocf;
 		this.resourceProvider = ocf;
@@ -125,7 +122,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	public OPSChecker(String path, String mimeType,
 			GenericResourceProvider resourceProvider, Report report,
-			float version) {
+			EPUBVersion version) {
 		initEpubValidatorMap();
 		this.resourceProvider = resourceProvider;
 		this.mimeType = mimeType;

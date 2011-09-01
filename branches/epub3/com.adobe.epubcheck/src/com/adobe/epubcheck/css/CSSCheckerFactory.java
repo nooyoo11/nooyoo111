@@ -26,11 +26,12 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.ContentCheckerFactory;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 
 public class CSSCheckerFactory implements ContentCheckerFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, float version) {
+			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
 		return new CSSChecker(ocf, report, path, xrefChecker);
 	}
 

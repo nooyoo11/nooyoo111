@@ -27,8 +27,10 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.adobe.epubcheck.opf.DocumentValidator;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
@@ -48,7 +50,7 @@ public class OPSCheckerTest {
 	 * TEST DEBUG FUNCTION
 	 */
 	public void testValidateDocument(String fileName, String mimeType,
-			int errors, int warnings, float version, boolean verbose) {
+			int errors, int warnings, EPUBVersion version, boolean verbose) {
 		if (verbose)
 			this.verbose = verbose;
 		testValidateDocument(fileName, mimeType, errors, warnings, version);
@@ -56,12 +58,13 @@ public class OPSCheckerTest {
 	}
 
 	public void testValidateDocument(String fileName, String mimeType,
-			int errors, int warnings, float version) {
-		testReport = new ValidationReport(fileName);
+			int errors, int warnings, EPUBVersion version) {
+		testReport = new ValidationReport(fileName, String.format(
+				Messages.SINGLE_FILE, mimeType, version));
 		String relativePath = null;
-		if (version == 2)
+		if (version == EPUBVersion.VERSION_2)
 			relativePath = "20/single/";
-		else if (version == 3)
+		else if (version == EPUBVersion.VERSION_3)
 			relativePath = "30/single/";
 
 		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
@@ -84,65 +87,160 @@ public class OPSCheckerTest {
 		assertEquals(warnings, testReport.getWarningCount());
 	}
 
-	
-	// XXX The mimeType of the nav document should be nav; this way it can be
-	// tested as a nav file
 	@Test
-	public void testValidateDocumentValidMinimalNav() {
-		testValidateDocument("nav/valid/minimal.xhtml", "nav", 0, 0, 3);
+	public void testValidateSVGRectInvalid() {
+		testValidateDocument("svg/invalid/rect.svg", "image/svg+xml", 4, 0,
+				EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentValidNav001() {
-		testValidateDocument("nav/valid/nav001.xhtml", "nav", 0, 0, 3);
+	public void testValidateSVGRectValid() {
+		testValidateDocument("svg/valid/rect.svg", "image/svg+xml", 0, 0,
+				EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNoTocNav() {
-		testValidateDocument("nav/invalid/noTocNav.xhtml", "nav", 3, 0, 3);
+	public void testValidateXHTMLEdits001() {
+		testValidateDocument("xhtml/valid/edits-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNoTocNavFromURL() {
-		testValidateDocument("http://www.interq.ro/bgd/noTocNav.xhtml", "nav",
-				3, 0, 3);
+	public void testValidateXHTMLEmbed001() {
+		testValidateDocument("xhtml/valid/embed-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentHText() {
-		testValidateDocument("nav/invalid/h-text.xhtml", "nav", 8, 0, 3);
+	public void testValidateXHTMLForms001() {
+		testValidateDocument("xhtml/valid/forms-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumenNavLabels001() {
-		testValidateDocument("nav/invalid/nav-labels-001.xhtml", "nav", 1, 0, 3);
+	public void testValidateXHTMLGlobalAttrs001() {
+		testValidateDocument("xhtml/valid/global-attrs-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNavLabels002() {
-		testValidateDocument("nav/invalid/nav-labels-001.xhtml", "nav", 1, 0, 3);
+	public void testValidateXHTMLOps001() {
+		testValidateDocument("xhtml/valid/ops-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNavLandmarks001() {
-		testValidateDocument("nav/invalid/nav-landmarks-001.xhtml", "nav", 1,
-				0, 3);
+	public void testValidateXHTMLOPSMATHML001() {
+		testValidateDocument("xhtml/valid/ops-mathml-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNavNoPagelist001() {
-		testValidateDocument("nav/invalid/nav-pagelist-001.xhtml", "nav", 1, 0,
-				3);
+	public void testValidateXHTMLOPSMATHML002() {
+		testValidateDocument("xhtml/valid/ops-mathml-002.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNavNoToc() {
-		testValidateDocument("nav/invalid/nav-no-toc.xhtml", "nav", 1, 0, 3);
+	public void testValidateXHTMLOPSSVG001() {
+		testValidateDocument("xhtml/valid/ops-svg-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
-	public void testValidateDocumentNavReqHeading() {
-		testValidateDocument("nav/invalid/req-heading.xhtml", "nav", 1, 0, 3);
+	public void testValidateXHTMLRuby001() {
+		testValidateDocument("xhtml/valid/ruby-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLSCH001() {
+		testValidateDocument("xhtml/valid/sch-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLSections001() {
+		testValidateDocument("xhtml/valid/sections-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLSSML() {
+		testValidateDocument("xhtml/valid/ssml.xhtml", "application/xhtml+xml",
+				0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLStyle001() {
+		testValidateDocument("xhtml/valid/style-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLSwitch001() {
+		testValidateDocument("xhtml/valid/switch-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLTables001() {
+		testValidateDocument("xhtml/valid/tables-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLText001() {
+		testValidateDocument("xhtml/valid/text-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLTrigger() {
+		testValidateDocument("xhtml/valid/trigger.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_OPSMATHML001() {
+		testValidateDocument("xhtml/invalid/ops-mathml-001.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_OPSMATHML002() {
+		testValidateDocument("xhtml/invalid/ops-mathml-002.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_SCH001() {
+		testValidateDocument("xhtml/invalid/sch-001.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_Style001() {
+		testValidateDocument("xhtml/invalid/style-001.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_SVG001() {
+		testValidateDocument("xhtml/invalid/svg-001.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_Switch001() {
+		testValidateDocument("xhtml/invalid/switch-001.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTML_Trigger() {
+		testValidateDocument("xhtml/invalid/trigger.xhtml",
+				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
 	}
 
 }

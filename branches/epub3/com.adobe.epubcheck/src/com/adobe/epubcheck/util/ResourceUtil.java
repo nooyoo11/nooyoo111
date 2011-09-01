@@ -55,7 +55,7 @@ public class ResourceUtil {
 			return loader.getResource(resourcePath);
 	}
 
-	public static float retrieveOpfVersion(InputStream inputStream)
+	public static EPUBVersion retrieveOpfVersion(InputStream inputStream)
 			throws InvalidVersionException {
 		try {
 			StringBuffer stringBuffer = new StringBuffer();
@@ -71,9 +71,9 @@ public class ResourceUtil {
 			if (matcher.find()) {
 				String version = matcher.group(1);
 				if (version.equals("2.0"))
-					return 2;
+					return EPUBVersion.VERSION_2;
 				else if (version.equals("3.0"))
-					return 3;
+					return EPUBVersion.VERSION_3;
 				else
 					throw new InvalidVersionException(
 							InvalidVersionException.UNSUPPORTED_VERSION);

@@ -41,7 +41,7 @@ public class OPSHandler implements XMLHandler {
 
 	XRefChecker xrefChecker;
 
-	static HashSet regURISchemes = fillRegURISchemes();
+	static HashSet<String> regURISchemes = fillRegURISchemes();
 
 	int line;
 
@@ -49,9 +49,9 @@ public class OPSHandler implements XMLHandler {
 
 	Report report;
 
-	private static HashSet fillRegURISchemes() {
+	private static HashSet<String> fillRegURISchemes() {
 		try {
-			HashSet set = new HashSet();
+			HashSet<String> set = new HashSet<String>();
 			InputStream schemaStream = OPSHandler.class
 					.getResourceAsStream("registeredSchemas.txt");
 			BufferedReader schemaReader = new BufferedReader(
