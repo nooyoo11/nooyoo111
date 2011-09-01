@@ -264,8 +264,9 @@ public class OPFChecker implements DocumentValidator {
 						resourceProvider.getInputStream(path),
 						opfSchematronValidator30, report);
 				schematronXSLT2Validator.compile();
-				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-						report);
+				schematronXSLT2Validator.execute();
+//				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//						report);
 			} catch (Throwable t) {
 				report.error(
 						path,

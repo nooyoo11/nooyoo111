@@ -93,8 +93,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 				new EpubValidator(xhtmlValidator, null));
 		// TODO
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
-				new EpubValidator(xhtmlValidator30, /* xhtmlSchematronValidator30 */
-				null));
+				new EpubValidator(xhtmlValidator30, xhtmlSchematronValidator30));
 
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
 				new EpubValidator(svgValidator, null));
@@ -181,15 +180,16 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
 						resourceProvider.getInputStream(path), schValidator,
 						report);
-				schematronXSLT2Validator.compile();
-				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-						report);
+				schematronXSLT2Validator.compile();				
+				schematronXSLT2Validator.execute();
+//				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//						report);
 			} catch (Throwable t) {
 				report.error(
 						path,
 						-1,
 						0,
-						"Failed performing OPF Schematron tests: "
+						"Failed performing OPS Schematron tests: "
 								+ t.getMessage());
 			}
 	}

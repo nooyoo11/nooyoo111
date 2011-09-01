@@ -22,12 +22,9 @@
 
 package com.adobe.epubcheck.xml;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -42,7 +39,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.util.ResourceUtil;
-import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 
 public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
@@ -56,13 +52,16 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	StreamSource compiledSchema = null;
 
-	TransformerFactory transformerFactory = TransformerFactoryImpl
+	//FIXME use jaxp discovery instead
+	TransformerFactory transformerFactory = net.sf.saxon.TransformerFactoryImpl
 			.newInstance();
 
 	Transformer saxonTransformer;
 
+	boolean compiling = false;
+	
 	public void compile() throws TransformerException, IOException {
-
+		compiling = true;
 		String resourcePath = ResourceUtil.getResourcePath(schematronSchema);
 		URL systemIdURL = ResourceUtil.getResourceURL(resourcePath);
 		if (systemIdURL == null) {
@@ -82,25 +81,35 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 					.newTransformer((StreamSource) schematronXsls.get(i));
 			saxonTransformer.transform(input, result);
 
-			input = new StreamSource(result.toString());
+			input = new StreamSource(tempFile);
 			input.setSystemId(tempFile.toURI().toString());
 		}
 		compiledSchema = input;
+		compiling = false;
 	}
 
-	public InputStream generateSVRL() throws TransformerException,
-			UnsupportedEncodingException {
-
-		StringWriter sw = new StringWriter();
-		StreamResult result = new StreamResult(sw);
-
+	public void execute() throws IOException, TransformerException {
 		saxonTransformer = transformerFactory.newTransformer(compiledSchema);
 		saxonTransformer.setErrorListener(this);
-
+		File dummyOut = File.createTempFile("epubcheck", null);
+		StreamResult result = new StreamResult(dummyOut);
 		saxonTransformer.transform(new StreamSource(fileToValidate), result);
-
-		return new ByteArrayInputStream(sw.toString().getBytes("UTF-8"));
+		dummyOut.delete();
 	}
+	
+//	public InputStream generateSVRL() throws TransformerException,
+//			UnsupportedEncodingException {
+//
+//		StringWriter sw = new StringWriter();
+//		StreamResult result = new StreamResult(sw);
+//
+//		saxonTransformer = transformerFactory.newTransformer(compiledSchema);
+//		saxonTransformer.setErrorListener(this);
+//
+//		saxonTransformer.transform(new StreamSource(fileToValidate), result);
+//
+//		return new ByteArrayInputStream(sw.toString().getBytes("UTF-8"));
+//	}
 
 	public SchematronXSLT2Validator(InputStream file, String schemaName,
 			Report report) {
@@ -108,15 +117,15 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/iso_dsdl_include.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/schematronDispatcher.xsl"))));
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/iso_abstract_expand.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso-schematron-abstract.xsl"))));
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/iso_svrl_for_xslt2.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso-schematron-message.xsl"))));
 
 		fileToValidate = file;
 		this.report = report;
@@ -142,17 +151,22 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	// @Override
 	public void warning(TransformerException e) throws TransformerException {
-		report.error(schematronSchema, -1, -1,
+		//FIXME temp solution to remove xpath warnings during execution
+		if(compiling) {
+			report.warning(schematronSchema, -1, -1,
 				"TransformerException: " + e.getMessage());
+		}
 	}
 
-	public Source resolve(String href, String base) throws TransformerException {
-		if (href.startsWith("./mod/"))
+	public Source resolve(String href, String base) throws TransformerException {		
+		if (href.startsWith("./mod/")) {
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("schema/30/" + href.substring(2))));
-		else if (href.endsWith(".xsl"))
+					.getResourcePath("schema/30/" + href.substring(2))));			
+		} else if (href.endsWith(".xsl")) {			
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("schema/30/iso-schematron-xslt2/" + href)));
+					.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/"
+							+ href))); 
+		}	
 		return null;
 	}
 }

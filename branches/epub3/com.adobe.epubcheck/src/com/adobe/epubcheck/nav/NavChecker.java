@@ -104,8 +104,9 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 					resourceProvider.getInputStream(path),
 					navSchematronValidator30, report);
 			schematronXSLT2Validator.compile();
-			new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-					report);
+			schematronXSLT2Validator.execute();
+//			new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//					report);
 
 			/*
 			 * schematronXSLT2Validator = new SchematronXSLT2Validator(
