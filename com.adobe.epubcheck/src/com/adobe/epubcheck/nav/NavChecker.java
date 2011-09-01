@@ -33,7 +33,6 @@ import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
-import com.adobe.epubcheck.xml.SvrlParser;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -89,7 +88,8 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 	}
 
 	public boolean validate() {
-
+		int errors = report.getErrorCount();
+		int warnings = report.getWarningCount();
 		try {
 			XMLParser navParser = new XMLParser(
 					resourceProvider.getInputStream(path), path, report);
@@ -101,25 +101,27 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 
 		try {
 			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-					resourceProvider.getInputStream(path),
+					path, resourceProvider.getInputStream(path),
 					navSchematronValidator30, report);
 			schematronXSLT2Validator.compile();
 			schematronXSLT2Validator.execute();
-//			new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-//					report);
+			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+			// report);
 
-			/*
-			 * schematronXSLT2Validator = new SchematronXSLT2Validator(
-			 * resourceProvider.getInputStream(path),
-			 * xhtmlSchematronValidator30, report);
-			 * schematronXSLT2Validator.compile(); new SvrlParser(path,
-			 * schematronXSLT2Validator.generateSVRL(), report);
-			 */
+			schematronXSLT2Validator = new SchematronXSLT2Validator(path,
+					resourceProvider.getInputStream(path),
+					xhtmlSchematronValidator30, report);
+			schematronXSLT2Validator.compile();
+			schematronXSLT2Validator.execute();
+			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+			// report);
+
 		} catch (Throwable t) {
 			report.error(path, -1, 0,
 					"Failed performing OPF Schematron tests: " + t.getMessage());
 		}
-		return false;
+		return errors == report.getErrorCount()
+				&& warnings == report.getWarningCount();
 	}
 
 }

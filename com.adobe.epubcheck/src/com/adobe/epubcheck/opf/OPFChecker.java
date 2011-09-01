@@ -43,7 +43,6 @@ import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
-import com.adobe.epubcheck.xml.SvrlParser;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -261,12 +260,12 @@ public class OPFChecker implements DocumentValidator {
 		if (version == EPUBVersion.VERSION_3)
 			try {
 				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-						resourceProvider.getInputStream(path),
+						path, resourceProvider.getInputStream(path),
 						opfSchematronValidator30, report);
 				schematronXSLT2Validator.compile();
 				schematronXSLT2Validator.execute();
-//				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-//						report);
+				// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+				// report);
 			} catch (Throwable t) {
 				report.error(
 						path,
