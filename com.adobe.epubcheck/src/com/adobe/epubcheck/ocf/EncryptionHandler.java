@@ -27,16 +27,12 @@ import java.net.URLDecoder;
 
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
-import com.adobe.epubcheck.xml.XMLParser;
 
 public class EncryptionHandler implements XMLHandler {
 
 	OCFPackage ocf;
 
-	XMLParser parser;
-
-	EncryptionHandler(XMLParser parser, OCFPackage ocf) {
-		this.parser = parser;
+	EncryptionHandler(OCFPackage ocf) {
 		this.ocf = ocf;
 	}
 

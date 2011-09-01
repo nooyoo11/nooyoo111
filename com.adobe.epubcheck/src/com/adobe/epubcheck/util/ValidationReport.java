@@ -43,15 +43,28 @@ public class ValidationReport implements Report {
 
 	}
 
-	private int errorCount, warningCount;
-	private ArrayList errorList, warningList;
+	private int errorCount, warningCount, exceptionCount;
+	private ArrayList<ItemReport> errorList, warningList, exceptionList;
 	public String fileName;
+	String info = "";
 
 	public ValidationReport(String file) {
-		errorCount = warningCount = 0;
+		errorCount = warningCount = exceptionCount = 0;
 		fileName = file;
-		errorList = new ArrayList();
-		warningList = new ArrayList();
+		errorList = new ArrayList<ItemReport>();
+		warningList = new ArrayList<ItemReport>();
+		exceptionList = new ArrayList<ItemReport>();
+	}
+
+	public ValidationReport(String file, String info) {
+		errorCount = warningCount = exceptionCount = 0;
+		fileName = file;
+		if (!info.equals(""))
+			info = info + "\n";
+		this.info = info;
+		errorList = new ArrayList<ItemReport>();
+		warningList = new ArrayList<ItemReport>();
+		exceptionList = new ArrayList<ItemReport>();
 	}
 
 	public void error(String resource, int line, int column, String message) {
@@ -68,9 +81,18 @@ public class ValidationReport implements Report {
 		warningList.add(item);
 	}
 
+	public void exception(String resource, Exception e) {
+		exceptionCount++;
+		ItemReport item = new ItemReport(resource, 0, 0,
+				fixMessage(e.getMessage()));
+		exceptionList.add(item);
+	}
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		System.out.println(errorCount + " " + warningCount);
+
+		buffer.append(fileName + ": " + info);
+
 		buffer.append("Errors: " + errorCount + "; Warnings: " + warningCount
 				+ "\n");
 		for (int i = 0; i < errorList.size(); i++) {
@@ -92,6 +114,12 @@ public class ValidationReport implements Report {
 							+ (item.column > 0 ? "," + item.column : "") + ")"
 							: "") + ": " + item.message + "\n");
 		}
+		for (int i = 0; i < exceptionList.size(); i++) {
+			ItemReport item = (ItemReport) exceptionList.get(i);
+			buffer.append("EXCEPTION: " + fileName
+					+ (item.resource != null ? ":" + item.resource : "")
+					+ item.message + "\n");
+		}
 		return buffer.toString();
 	}
 
@@ -106,4 +134,9 @@ public class ValidationReport implements Report {
 	public int getWarningCount() {
 		return warningCount;
 	}
+
+	public int getExceptionCount() {
+		return exceptionCount;
+	}
+
 }

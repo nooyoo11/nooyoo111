@@ -26,8 +26,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.URLResourceProvider;
 import com.adobe.epubcheck.util.ValidationReport;
 
@@ -47,7 +49,7 @@ public class OPFCheckerTest {
 	 * TEST DEBUG FUNCTION
 	 */
 	public void testValidateDocument(String fileName, int errors, int warnings,
-			float version, boolean verbose) {
+			EPUBVersion version, boolean verbose) {
 		if (verbose)
 			this.verbose = verbose;
 		testValidateDocument(fileName, errors, warnings, version);
@@ -55,13 +57,15 @@ public class OPFCheckerTest {
 	}
 
 	public void testValidateDocument(String fileName, int errors, int warnings,
-			float version) {
-		testReport = new ValidationReport(fileName);
+			EPUBVersion version) {
+		testReport = new ValidationReport(fileName,String.format(
+				Messages.SINGLE_FILE,"opf", version.toString()));
+		
 		String relativePath = null;
 
-		if (version == 2)
+		if (version == EPUBVersion.VERSION_2)
 			relativePath = "20/single/opf/";
-		else if (version == 3)
+		else if (version == EPUBVersion.VERSION_3)
 			relativePath = "30/single/opf/";
 
 		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
@@ -85,157 +89,157 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentValidOPFBase001() {
-		testValidateDocument("valid/base-001.opf", 0, 0, 3);
+		testValidateDocument("valid/base-001.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentValidOPFBindings001() {
-		testValidateDocument("valid/bindings-001.opf", 0, 0, 3);
+		testValidateDocument("valid/bindings-001.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentValidOPFMediaOverlay001() {
-		testValidateDocument("valid/media-overlay-001.opf", 0, 0, 3);
+		testValidateDocument("valid/media-overlay-001.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentValidOPFMediaOverlay002() {
-		testValidateDocument("valid/media-overlay-002.opf", 0, 0, 3);
+		testValidateDocument("valid/media-overlay-002.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentValidOPFMinimal() {
-		testValidateDocument("valid/minimal.opf", 0, 0, 3);
+		testValidateDocument("valid/minimal.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNoPackageElement() {
-		testValidateDocument("invalid/noPackageElement.opf", 9, 0, 3);
+		testValidateDocument("invalid/noPackageElement.opf", 9, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNoMetadataElement() {
-		testValidateDocument("invalid/noMetadataElement.opf", 5, 0, 3);
+		testValidateDocument("invalid/noMetadataElement.opf", 5, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNoNav() {
-		testValidateDocument("invalid/noNav.opf", 2, 0, 3);
+		testValidateDocument("invalid/noNav.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentInvalidMetaAbout() {
-		testValidateDocument("invalid/invalidMetaAbout.opf", 2, 0, 3);
+		testValidateDocument("invalid/invalidMetaAbout.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNoDcNamespace() {
-		testValidateDocument("invalid/noDcNamespace.opf", 5, 0, 3);
+		testValidateDocument("invalid/noDcNamespace.opf", 5, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentBindings001() {
-		testValidateDocument("invalid/bindings-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/bindings-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentCoverImage() {
-		testValidateDocument("invalid/cover-image.opf", 1, 0, 3);
+		testValidateDocument("invalid/cover-image.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentFallback001() {
-		testValidateDocument("invalid/fallback-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/fallback-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentFallback002() {
-		testValidateDocument("invalid/fallback-002.opf", 1, 0, 3);
+		testValidateDocument("invalid/fallback-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentIdUnique() {
-		testValidateDocument("invalid/id-unique.opf", 2, 0, 3);
+		testValidateDocument("invalid/id-unique.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentItemref001() {
-		testValidateDocument("invalid/itemref-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/itemref-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentMediaOverlay001() {
-		testValidateDocument("invalid/media-overlay-001.opf", 4, 0, 3);
+		testValidateDocument("invalid/media-overlay-001.opf", 4, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentMediaOverlay002() {
-		testValidateDocument("invalid/media-overlay-002.opf", 1, 0, 3);
+		testValidateDocument("invalid/media-overlay-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentMediaOverlayMeta001() {
-		testValidateDocument("invalid/media-overlay-meta-001.opf", 2, 0, 3);
+		testValidateDocument("invalid/media-overlay-meta-001.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentMinlegth() {
-		testValidateDocument("invalid/minlength.opf", 6, 0, 3);
+		testValidateDocument("invalid/minlength.opf", 6, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentModifiedSyntax() {
-		testValidateDocument("invalid/modified-syntax.opf", 1, 0, 3);
+		testValidateDocument("invalid/modified-syntax.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentModified() {
-		testValidateDocument("invalid/modified.opf", 1, 0, 3);
+		testValidateDocument("invalid/modified.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNav001() {
-		testValidateDocument("invalid/nav-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/nav-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNav002() {
-		testValidateDocument("invalid/nav-002.opf", 1, 0, 3);
+		testValidateDocument("invalid/nav-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentNav003() {
-		testValidateDocument("invalid/nav-003.opf", 1, 0, 3);
+		testValidateDocument("invalid/nav-003.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentOrder() {
-		testValidateDocument("invalid/order.opf", 2, 0, 3);
+		testValidateDocument("invalid/order.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentRefinesRelative() {
-		testValidateDocument("invalid/refines-relative.opf", 1, 0, 3);
+		testValidateDocument("invalid/refines-relative.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentTocncx001() {
-		testValidateDocument("invalid/tocncx-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/tocncx-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentTocncx002() {
-		testValidateDocument("invalid/tocncx-002.opf", 1, 0, 3);
+		testValidateDocument("invalid/tocncx-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentUid001() {
-		testValidateDocument("invalid/uid-001.opf", 1, 0, 3);
+		testValidateDocument("invalid/uid-001.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentUid002() {
-		testValidateDocument("invalid/uid-002.opf", 1, 0, 3);
+		testValidateDocument("invalid/uid-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 }

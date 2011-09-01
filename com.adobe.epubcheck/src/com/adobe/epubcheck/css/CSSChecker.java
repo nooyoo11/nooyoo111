@@ -30,6 +30,7 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.Messages;
 
 public class CSSChecker implements ContentChecker {
 
@@ -49,7 +50,7 @@ public class CSSChecker implements ContentChecker {
 	public void runChecks() {
 		try {
 			if (!ocf.hasEntry(path)) {
-				report.error(null, 0, 0, "Css file " + path + " is missing");
+				report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
 				return;
 			}
 

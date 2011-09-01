@@ -52,7 +52,7 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	Report report;
 
-	ArrayList schematronXsls;
+	ArrayList<StreamSource> schematronXsls;
 
 	StreamSource compiledSchema = null;
 
@@ -104,7 +104,7 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	public SchematronXSLT2Validator(InputStream file, String schemaName,
 			Report report) {
-		schematronXsls = new ArrayList();
+		schematronXsls = new ArrayList<StreamSource>();
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
@@ -152,8 +152,7 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 					.getResourcePath("schema/30/" + href.substring(2))));
 		else if (href.endsWith(".xsl"))
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("schema/30/iso-schematron-xslt2/"
-							+ href)));
+					.getResourcePath("schema/30/iso-schematron-xslt2/" + href)));
 		return null;
 	}
 }

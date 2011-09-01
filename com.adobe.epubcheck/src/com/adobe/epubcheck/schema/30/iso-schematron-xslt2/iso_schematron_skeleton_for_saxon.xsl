@@ -534,7 +534,7 @@ which require a preprocess.
 <xsl:param name="langCode">default</xsl:param>
 
 <!-- Set the default for schematron-select-full-path, i.e. the notation for svrl's @location-->
-<xsl:param name="full-path-notation">2</xsl:param>
+<xsl:param name="full-path-notation">1</xsl:param>
 
 <xsl:param name="terminate">false</xsl:param>
 

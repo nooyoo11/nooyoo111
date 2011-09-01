@@ -29,10 +29,21 @@ public class WriterReportImpl implements Report {
 
 	private PrintWriter out;
 
-	private int errorCount = 0, warningCount = 0;
+	private int errorCount, warningCount, exceptionCount;
 
 	public WriterReportImpl(PrintWriter out) {
 		this.out = out;
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
+	}
+
+	public WriterReportImpl(PrintWriter out, String info) {
+		this.out = out;
+		warning("", 0, 0, info);
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
 
 	private String fixMessage(String message) {
@@ -65,6 +76,16 @@ public class WriterReportImpl implements Report {
 
 	public int getWarningCount() {
 		return warningCount;
+	}
+
+	public void exception(String resource, Exception e) {
+		exceptionCount++;
+		out.println("EXCEPTION: " + (resource == null ? "" : "/" + resource)
+				+ e.getMessage());
+	}
+
+	public int getExceptionCount() {
+		return exceptionCount;
 	}
 
 }

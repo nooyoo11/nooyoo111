@@ -23,10 +23,10 @@
 package com.adobe.epubcheck.util;
 
 public class OPSType {
-	private float version;
+	private EPUBVersion version;
 	private String mimeType;
 
-	public OPSType(String mimeType, float version) {
+	public OPSType(String mimeType, EPUBVersion version) {
 		if (mimeType == null)
 			mimeType = "";
 		this.mimeType = mimeType;
@@ -44,6 +44,6 @@ public class OPSType {
 	}
 
 	public int hashCode() {
-		return (int) (mimeType.hashCode() * version);
+		return (int) (mimeType.hashCode() * version.ordinal());
 	}
 }

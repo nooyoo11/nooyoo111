@@ -32,11 +32,14 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
 import com.adobe.epubcheck.css.CSSCheckerFactory;
 import com.adobe.epubcheck.dtbook.DTBookCheckerFactory;
+import com.adobe.epubcheck.nav.NavCheckerFactory;
 import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.InvalidVersionException;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
@@ -52,9 +55,9 @@ public class OPFChecker implements DocumentValidator {
 
 	String path;
 
-	HashSet containerEntries;
+	HashSet<String> containerEntries;
 
-	float version = 3;
+	EPUBVersion version;
 
 	static XMLValidator opfValidator = new XMLValidator("schema/20/rng/opf.rng");
 
@@ -73,10 +76,10 @@ public class OPFChecker implements DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
-	static Hashtable contentCheckerFactoryMap;
+	static Hashtable<String, ContentCheckerFactory> contentCheckerFactoryMap;
 
 	static {
-		Hashtable map = new Hashtable();
+		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
 		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
 		map.put("text/html", OPSCheckerFactory.getInstance());
 		map.put("text/x-oeb1-document", OPSCheckerFactory.getInstance());
@@ -92,13 +95,14 @@ public class OPFChecker implements DocumentValidator {
 	}
 
 	public OPFChecker(OCFPackage ocf, Report report, String path,
-			HashSet containerEntries) {
+			HashSet<String> containerEntries, EPUBVersion version) {
 		this.ocf = ocf;
 		this.resourceProvider = ocf;
 		this.report = report;
 		this.path = path;
 		this.containerEntries = containerEntries;
 		this.xrefChecker = new XRefChecker(ocf, report);
+		this.version = version;
 	}
 
 	public OPFChecker(String path, GenericResourceProvider resourceProvider,
@@ -112,17 +116,18 @@ public class OPFChecker implements DocumentValidator {
 					.getInputStream(path));
 		} catch (InvalidVersionException e) {
 			report.error(path, -1, -1,
-					"Failed obtaining OPF version: " + e.getMessage());
+					String.format(Messages.INVALID_OPF_Version, e.getMessage()));
+
 			return;
 		} catch (IOException e) {
-			report.error(null, 0, 0, "OPF file " + path + " is missing");
+			report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
 			return;
 		}
 	}
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path)) {
-			report.error(null, 0, 0, "OPF file " + path + " is missing");
+			report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
 			return;
 		}
 
@@ -130,7 +135,8 @@ public class OPFChecker implements DocumentValidator {
 
 		try {
 			version = ResourceUtil.retrieveOpfVersion(ocf.getInputStream(path));
-			System.out.println("Epub file version: " + version);
+			System.out.println("Epub file version: "
+					+ (version == EPUBVersion.VERSION_2 ? "2.0" : "3.0"));
 		} catch (InvalidVersionException e) {
 			report.error(path, -1, -1,
 					"Failed obtaining OPF version: " + e.getMessage());
@@ -241,10 +247,10 @@ public class OPFChecker implements DocumentValidator {
 
 			opfParser.addXMLHandler(opfHandler);
 
-			if (version == 2) {
+			if (version == EPUBVersion.VERSION_2) {
 				opfParser.addValidator(opfValidator);
 				opfParser.addValidator(opfSchematronValidator);
-			} else if (version == 3)
+			} else if (version == EPUBVersion.VERSION_3)
 				opfParser.addValidator(opfValidator30);
 			opfParser.process();
 
@@ -252,7 +258,7 @@ public class OPFChecker implements DocumentValidator {
 			report.error(path, 0, 0, e.getMessage());
 		}
 
-		if (version == 3)
+		if (version == EPUBVersion.VERSION_3)
 			try {
 				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
 						resourceProvider.getInputStream(path),
@@ -373,19 +379,19 @@ public class OPFChecker implements DocumentValidator {
 			ContentCheckerFactory checkerFactory;
 			if (item.isNcx())
 				checkerFactory = NCXCheckerFactory.getInstance();
+			else if (item.isNav())
+				checkerFactory = NavCheckerFactory.getInstance();
 			else
 				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
 						.get(mimeType);
+
 			if (checkerFactory == null)
 				checkerFactory = GenericContentCheckerFactory.getInstance();
 			if (checkerFactory != null) {
 				ContentChecker checker;
-				if (item.isNav())
-					checker = checkerFactory.newInstance(ocf, report, path,
-							"nav", xrefChecker, version);
-				else
-					checker = checkerFactory.newInstance(ocf, report, path,
-							mimeType, xrefChecker, version);
+
+				checker = checkerFactory.newInstance(ocf, report, path,
+						mimeType, xrefChecker, version);
 				checker.runChecks();
 			}
 		}

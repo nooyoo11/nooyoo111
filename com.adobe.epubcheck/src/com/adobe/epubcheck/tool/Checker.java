@@ -28,65 +28,81 @@ import java.util.HashMap;
 import com.adobe.epubcheck.api.EpubCheck;
 import com.adobe.epubcheck.api.EpubCheckFactory;
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.nav.NavCheckerFactory;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.DocumentValidatorFactory;
 import com.adobe.epubcheck.opf.OPFCheckerFactory;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.util.DefaultReportImpl;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.OPSType;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.URLResourceProvider;
 
 public class Checker {
 
 	private static String path = null, mode = null;
-	private static float version = 3;
+	private static EPUBVersion version = EPUBVersion.VERSION_3;
 	private static OPSType opsType;
 
-	private static HashMap modeMimeTypeMap;
+	private static HashMap<OPSType, String> modeMimeTypeMap;
 
 	static {
-		HashMap map = new HashMap();
+		HashMap<OPSType, String> map = new HashMap<OPSType, String>();
 
-		map.put(new OPSType("xhtml", 2), "application/xhtml+xml");
-		map.put(new OPSType("xhtml", 3), "application/xhtml+xml");
+		map.put(new OPSType("xhtml", EPUBVersion.VERSION_2),
+				"application/xhtml+xml");
+		map.put(new OPSType("xhtml", EPUBVersion.VERSION_3),
+				"application/xhtml+xml");
 
-		map.put(new OPSType("svg", 2), "image/svg+xml");
-		map.put(new OPSType("svg", 3), "image/svg+xml");
+		map.put(new OPSType("svg", EPUBVersion.VERSION_2), "image/svg+xml");
+		map.put(new OPSType("svg", EPUBVersion.VERSION_3), "image/svg+xml");
 
-		map.put(new OPSType("mo", 3), "application/smil+xml");
-		map.put(new OPSType("nav", 3), "nav");
+		map.put(new OPSType("mo", EPUBVersion.VERSION_3),
+				"application/smil+xml");
+		map.put(new OPSType("nav", EPUBVersion.VERSION_3), "nav");
 		// TODO expanded epubs
 		// map.put(new OPSType("exp", 3), );
 		modeMimeTypeMap = map;
 	}
 
-	private static HashMap documentValidatorFactoryMap;
+	private static HashMap<OPSType, DocumentValidatorFactory> documentValidatorFactoryMap;
 
 	static {
-		HashMap map = new HashMap();
-		map.put(new OPSType(null, 2), EpubCheckFactory.getInstance());
-		map.put(new OPSType(null, 3), EpubCheckFactory.getInstance());
+		HashMap<OPSType, DocumentValidatorFactory> map = new HashMap<OPSType, DocumentValidatorFactory>();
+		map.put(new OPSType(null, EPUBVersion.VERSION_2),
+				EpubCheckFactory.getInstance());
+		map.put(new OPSType(null, EPUBVersion.VERSION_3),
+				EpubCheckFactory.getInstance());
 
-		map.put(new OPSType("opf", 2), OPFCheckerFactory.getInstance());
-		map.put(new OPSType("opf", 3), OPFCheckerFactory.getInstance());
+		map.put(new OPSType("opf", EPUBVersion.VERSION_2),
+				OPFCheckerFactory.getInstance());
+		map.put(new OPSType("opf", EPUBVersion.VERSION_3),
+				OPFCheckerFactory.getInstance());
 
-		map.put(new OPSType("xhtml", 2), OPSCheckerFactory.getInstance());
-		map.put(new OPSType("xhtml", 3), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("xhtml", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
+		map.put(new OPSType("xhtml", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
 
-		map.put(new OPSType("svg", 2), OPSCheckerFactory.getInstance());
-		map.put(new OPSType("svg", 3), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("svg", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
+		map.put(new OPSType("svg", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
 
-		map.put(new OPSType("mo", 3), OPSCheckerFactory.getInstance());
-		map.put(new OPSType("nav", 3), OPSCheckerFactory.getInstance());
+		map.put(new OPSType("mo", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
+		map.put(new OPSType("nav", EPUBVersion.VERSION_3),
+				NavCheckerFactory.getInstance());
 		// TODO expanded epubs
-		// map.put(new OPSType("exp", 3), );
+		// map.put(new OPSType("exp", EPUBVersion.VERSION_3), );
 		documentValidatorFactoryMap = map;
 	}
 
 	public static void validateFile(GenericResourceProvider resourceProvider,
-			String fileName, String mimeType, float version, Report report) {
+			String fileName, String mimeType, EPUBVersion version, Report report) {
 
 		opsType = new OPSType(mode, version);
 
@@ -95,8 +111,14 @@ public class Checker {
 
 		if (factory == null) {
 			System.out.println("-help displays help ");
-			throw new RuntimeException("The checker doesn't validate type "
-					+ mimeType + " and version " + version + "!");
+
+			report.exception(
+					fileName,
+					new RuntimeException(String.format(
+							Messages.MODE_VERSION_NOT_SUPPORTED, mode, version)));
+
+			throw new RuntimeException(String.format(
+					Messages.MODE_VERSION_NOT_SUPPORTED, mode, version));
 		}
 
 		DocumentValidator check = factory.newInstance(report, path,
@@ -111,7 +133,7 @@ public class Checker {
 	}
 
 	public static void validateFile(String path, String mimeType,
-			float version, Report report) {
+			EPUBVersion version, Report report) {
 
 		GenericResourceProvider resourceProvider;
 
@@ -127,8 +149,13 @@ public class Checker {
 
 		if (factory == null) {
 			System.out.println("-help displays help ");
-			throw new RuntimeException("The checker doesn't validate type "
-					+ mimeType + " and version " + version + "!");
+			report.exception(
+					path,
+					new RuntimeException(String.format(
+							Messages.MODE_VERSION_NOT_SUPPORTED, mode, version)));
+
+			throw new RuntimeException(String.format(
+					Messages.MODE_VERSION_NOT_SUPPORTED, mode, version));
 		}
 
 		DocumentValidator check = factory.newInstance(report, path,
@@ -145,8 +172,12 @@ public class Checker {
 	public static void main(String[] args) {
 
 		processArguments(args);
-
-		Report report = new DefaultReportImpl(path);
+		Report report;
+		if (mode != null)
+			report = new DefaultReportImpl(path, String.format(
+					Messages.SINGLE_FILE, mode, version.toString()));
+		else
+			report = new DefaultReportImpl(path);
 
 		validateFile(path, mode, version, report);
 	}
@@ -176,10 +207,10 @@ public class Checker {
 			if (args[i].equals("-version") || args[i].equals("-v"))
 				if (i + 1 < args.length) {
 					++i;
-					if (args[i].equals("2.0"))
-						version = 2;
-					else if (args[i].equals("3.0"))
-						version = 3;
+					if (args[i].equals("2.0") || args[i].equals("2"))
+						version = EPUBVersion.VERSION_2;
+					else if (args[i].equals("3.0") || args[i].equals("3"))
+						version = EPUBVersion.VERSION_3;
 					else {
 						System.out.println("-help displays help ");
 						throw new RuntimeException(
@@ -221,7 +252,7 @@ public class Checker {
 			System.err.println("The tool will EXIT!");
 			System.exit(1);
 		} else if (path.endsWith(".epub")) {
-			if (mode != null || version != 3) {
+			if (mode != null || version != EPUBVersion.VERSION_3) {
 				System.err
 						.println("The mode and version arguments are ignored for epubs!"
 								+ "(They are retrieved from the files.)");

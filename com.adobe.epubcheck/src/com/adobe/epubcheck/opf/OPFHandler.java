@@ -38,19 +38,19 @@ public class OPFHandler implements XMLHandler {
 
 	OCFPackage ocf;
 
-	Hashtable itemMapById = new Hashtable();
+	Hashtable<String, OPFItem> itemMapById = new Hashtable<String, OPFItem>();
 
-	Hashtable itemMapByPath = new Hashtable();
+	Hashtable<String, OPFItem> itemMapByPath = new Hashtable<String, OPFItem>();
 
 	Hashtable encryptedItems;
 
-	Vector spine = new Vector();
-	Vector items = new Vector();
-	Vector refs = new Vector();
+	Vector<OPFItem> spine = new Vector<OPFItem>();
+	Vector<OPFItem> items = new Vector<OPFItem>();
+	Vector<OPFReference> refs = new Vector<OPFReference>();
 
 	Report report;
 
-	static HashSet validRoles = new HashSet();
+	static HashSet<String> validRoles = new HashSet<String>();
 
 	String path;
 

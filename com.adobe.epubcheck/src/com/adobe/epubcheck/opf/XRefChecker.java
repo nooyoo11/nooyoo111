@@ -99,7 +99,7 @@ public class XRefChecker {
 
 		String mimeType;
 
-		Hashtable anchors;
+		Hashtable<String, Anchor> anchors;
 
 		boolean inSpine;
 
@@ -114,15 +114,15 @@ public class XRefChecker {
 			this.inSpine = inSpine;
 			this.hasValidItemFallback = hasValidItemFallback;
 			this.hasValidImageFallback = hasValidImageFallback;
-			this.anchors = new Hashtable();
+			this.anchors = new Hashtable<String, Anchor>();
 		}
 	}
 
-	Hashtable resources = new Hashtable();
+	Hashtable<String, Resource> resources = new Hashtable<String, Resource>();
 
-	HashSet undeclared = new HashSet();
+	HashSet<String> undeclared = new HashSet<String>();
 
-	Vector references = new Vector();
+	Vector<Reference> references = new Vector<Reference>();
 
 	Report report;
 
@@ -182,7 +182,7 @@ public class XRefChecker {
 	}
 
 	public void checkReferences() {
-		Enumeration refs = references.elements();
+		Enumeration<Reference> refs = references.elements();
 		while (refs.hasMoreElements()) {
 			Reference ref = (Reference) refs.nextElement();
 			checkReference(ref);

@@ -27,7 +27,6 @@ package com.adobe.epubcheck.api;
  */
 public interface Report {
 
-	
 	/**
 	 * Called when a violation of the standard is found in epub.
 	 * 
@@ -57,8 +56,12 @@ public interface Report {
 	 *            warning message.
 	 */
 	public void warning(String resource, int line, int column, String message);
-	
+
+	public void exception(String resource, Exception e);
+
 	public int getErrorCount();
-	
+
 	public int getWarningCount();
+
+	public int getExceptionCount();
 }

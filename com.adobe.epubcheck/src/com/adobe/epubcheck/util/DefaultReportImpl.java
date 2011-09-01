@@ -26,16 +26,26 @@ import com.adobe.epubcheck.api.Report;
 public class DefaultReportImpl implements Report {
 
 	private String ePubName;
-	private int errorCount, warningCount;
+	private int errorCount, warningCount, exceptionCount;
 
 	public DefaultReportImpl(String ePubName) {
 		this.ePubName = ePubName;
 		errorCount = 0;
 		warningCount = 0;
+		exceptionCount = 0;
+	}
+
+	public DefaultReportImpl(String ePubName, String info) {
+		this.ePubName = ePubName;
+		warning("", 0, 0, info);
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
 
 	private String fixMessage(String message) {
-		if(message == null)return "";
+		if (message == null)
+			return "";
 		return message.replaceAll("[\\s]+", " ");
 	}
 
@@ -61,6 +71,12 @@ public class DefaultReportImpl implements Report {
 				+ message);
 	}
 
+	public void exception(String resource, Exception e) {
+		exceptionCount++;
+		System.err.println("EXCEPTION: " + ePubName
+				+ (resource == null ? "" : "/" + resource) + e.getMessage());
+	}
+
 	public int getErrorCount() {
 		return errorCount;
 	}
@@ -68,4 +84,9 @@ public class DefaultReportImpl implements Report {
 	public int getWarningCount() {
 		return warningCount;
 	}
+
+	public int getExceptionCount() {
+		return exceptionCount;
+	}
+
 }

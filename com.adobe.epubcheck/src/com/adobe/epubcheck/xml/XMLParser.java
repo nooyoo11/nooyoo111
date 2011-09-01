@@ -67,26 +67,26 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	InputStream resourceIn;
 
-	Vector contentHandlers = new Vector();
+	Vector<XMLHandler> contentHandlers = new Vector<XMLHandler>();
 
 	XMLElement currentElement;
 
 	// ContentHandler validatorContentHandler;
-	Vector validatorContentHandlers = new Vector();
+	Vector<ContentHandler> validatorContentHandlers = new Vector<ContentHandler>();
 
 	// DTDHandler validatorDTDHandler;
-	Vector validatorDTDHandlers = new Vector();
+	Vector<DTDHandler> validatorDTDHandlers = new Vector<DTDHandler>();
 
 	Locator documentLocator;
 
 	static String zipRoot = "file:///epub-root/";
 
-	static Hashtable systemIdMap;
+	static Hashtable<String, String> systemIdMap;
 
-	HashSet entities = new HashSet();
+	HashSet<String> entities = new HashSet<String>();
 
 	static {
-		Hashtable map = new Hashtable();
+		Hashtable<String, String> map = new Hashtable<String, String>();
 
 		// fully-resolved names
 		map.put("http://www.idpf.org/dtds/2007/opf.dtd",
@@ -94,15 +94,18 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent",
 				ResourceUtil.getResourcePath("schema/20/dtd/oeb12.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd",
-				ResourceUtil.getResourcePath("schema/20/dtd/xhtml1-transitional.dtd"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml1-transitional.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd",
 				ResourceUtil.getResourcePath("schema/20/dtd/xhtml1-strict.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent",
 				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-lat1.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent",
-				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-symbol.dtdinc"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml-symbol.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent",
-				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-special.dtdinc"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml-special.dtdinc"));
 		map.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd",
 				ResourceUtil.getResourcePath("schema/20/dtd/svg11.dtd"));
 		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd",
@@ -441,7 +444,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).ignorableWhitespace(
-					arg0, arg1, arg2, currentElement, getLineNumber(), getColumnNumber());
+					arg0, arg1, arg2, currentElement, getLineNumber(),
+					getColumnNumber());
 	}
 
 	public void processingInstruction(String arg0, String arg1)
@@ -454,7 +458,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).processingInstruction(
-					arg0, arg1, currentElement, getLineNumber(), getColumnNumber());
+					arg0, arg1, currentElement, getLineNumber(),
+					getColumnNumber());
 	}
 
 	public void setDocumentLocator(Locator locator) {

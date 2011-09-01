@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.opf;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 
 public class OPFCheckerFactory implements DocumentValidatorFactory {
@@ -35,7 +36,7 @@ public class OPFCheckerFactory implements DocumentValidatorFactory {
 
 	public DocumentValidator newInstance(Report report, String path,
 			GenericResourceProvider resourceProvider, String mimeType,
-			float version) {
+			EPUBVersion version) {
 
 		return new OPFChecker(path, resourceProvider, report);
 	}
