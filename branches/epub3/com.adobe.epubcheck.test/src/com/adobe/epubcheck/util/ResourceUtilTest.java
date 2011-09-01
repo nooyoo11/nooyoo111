@@ -50,8 +50,7 @@ public class ResourceUtilTest {
 
 	public void testVersion(String fileName, int errors, int warnings) {
 
-		testReport = new ValidationReport(fileName,
-				Messages.OPV_VERSION_TEST);
+		testReport = new ValidationReport(fileName, Messages.OPV_VERSION_TEST);
 
 		if (fileName.startsWith("http://") || fileName.startsWith("https://"))
 			resourceProvider = new URLResourceProvider(fileName);
@@ -88,7 +87,7 @@ public class ResourceUtilTest {
 
 	@Test
 	public void testRetrieveVersionNoVersionAttribute() {
-		testVersion("noVersion.opf", 1, 0, true);
+		testVersion("noVersion.opf", 1, 0);
 	}
 
 	@Test

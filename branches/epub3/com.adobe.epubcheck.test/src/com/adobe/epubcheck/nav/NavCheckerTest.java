@@ -40,7 +40,7 @@ public class NavCheckerTest {
 
 	private ValidationReport testReport;
 
-	private DocumentValidator opsChecker;
+	private DocumentValidator navChecker;
 
 	private GenericResourceProvider resourceProvider;
 
@@ -66,10 +66,10 @@ public class NavCheckerTest {
 		else
 			resourceProvider = new FileResourceProvider(path + fileName);
 
-		opsChecker = new NavChecker(resourceProvider, testReport, path
+		navChecker = new NavChecker(resourceProvider, testReport, path
 				+ fileName, EPUBVersion.VERSION_3);
 
-		opsChecker.validate();
+		navChecker.validate();
 
 		if (verbose) {
 			verbose = false;

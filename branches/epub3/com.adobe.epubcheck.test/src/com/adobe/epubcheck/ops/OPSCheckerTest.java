@@ -204,43 +204,43 @@ public class OPSCheckerTest {
 	@Test
 	public void testValidateXHTML_OPSMATHML001() {
 		testValidateDocument("xhtml/invalid/ops-mathml-001.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 4, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_OPSMATHML002() {
 		testValidateDocument("xhtml/invalid/ops-mathml-002.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 7, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_SCH001() {
 		testValidateDocument("xhtml/invalid/sch-001.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 47, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_Style001() {
 		testValidateDocument("xhtml/invalid/style-001.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 3, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_SVG001() {
 		testValidateDocument("xhtml/invalid/svg-001.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_Switch001() {
 		testValidateDocument("xhtml/invalid/switch-001.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 9, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTML_Trigger() {
 		testValidateDocument("xhtml/invalid/trigger.xhtml",
-				"application/xhtml+xml", 10, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 }
