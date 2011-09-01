@@ -19,8 +19,11 @@
 -->
 <!-- 
   VERSION INFORMATION
+
   2008-09-18 RJ
+
   		* move out param test from iso:schema template  to work with XSLT 1. (Noah Fontes)
+
   		
   2008-07-29 RJ 
   		* Create.  Pull out as distinct XSL in its own namespace from old iso_pre_pro.xsl
@@ -86,11 +89,13 @@
 	<!-- ================================================================================== -->
 	<!-- Output only the selected schema --> 
 	<xslt:template match="iso:schema" >
+
 	    <xsl:if test="string-length($schema-id) =0 or @id= $schema-id ">
 	    	<xslt:copy>
 				<xslt:copy-of select="@*" />
 				<xslt:apply-templates  mode="iae:go" /> 
 			</xslt:copy>
+
 		</xsl:if>
 	</xslt:template>
 	
@@ -136,6 +141,7 @@
 	
 	<!-- Suppress uses of abstract patterns -->
 	<xslt:template match="iso:pattern[@is-a]"  mode="iae:go" >
+
 			
 		<xslt:comment>Start pattern based on abstract <xslt:value-of select="@is-a"/></xslt:comment>
 		
@@ -230,7 +236,7 @@
 	<xslt:template mode="iae:do-pattern" match="*">
 		<xslt:param name="caller"/>
 		<xslt:copy>
-			<xslt:for-each select="@*[name()='test' or name()='context' or name()='select']">
+			<xslt:for-each select="@*[name()='test' or name()='context' or name()='select' or name()='path']"><!--dtc added path-->
 				<xslt:attribute name="{name()}">
 				<xslt:call-template name="iae:macro-expand">
 						<xslt:with-param name="text"><xslt:value-of select="."/></xslt:with-param>
@@ -238,7 +244,7 @@
 					</xslt:call-template>
 				</xslt:attribute>
 			</xslt:for-each>	
-			<xslt:copy-of select="@*[name()!='test'][name()!='context'][name()!='select']" />
+			<xslt:copy-of select="@*[name()!='test'][name()!='context'][name()!='select'][name()!='path']" />
 			<xsl:for-each select="node()">
 				<xsl:choose>
 				    <!-- Experiment: replace macros in text as well, to allow parameterized assertions

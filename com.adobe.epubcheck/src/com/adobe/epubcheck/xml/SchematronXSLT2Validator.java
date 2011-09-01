@@ -38,6 +38,7 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -65,24 +66,7 @@ public class SchematronXSLT2Validator extends DefaultHandler implements
 
 	boolean compiling = false;
 
-	StringBuffer messageBuffer = null;
-
 	String fileName;
-
-	public void characters(char ch[], int start, int length)
-			throws SAXException {
-		if (ch[start + length - 1] == '\n') {
-			if (messageBuffer != null) {
-				report.error(fileName, -1, -1, messageBuffer.toString());
-				messageBuffer = null;
-			}
-			return;
-		}
-		if (messageBuffer == null) {
-			messageBuffer = new StringBuffer();
-		}
-		messageBuffer.append(new String(ch, start, length));
-	}
 
 	public void compile() throws TransformerException, IOException {
 		compiling = true;
@@ -113,10 +97,10 @@ public class SchematronXSLT2Validator extends DefaultHandler implements
 	}
 
 	public void execute() throws IOException, TransformerException {
+		//System.err.println(compiledSchema.getSystemId());
 		saxonTransformer = transformerFactory.newTransformer(compiledSchema);
 		saxonTransformer.setErrorListener(this);
-		saxonTransformer.transform(new StreamSource(fileToValidate),
-				new SAXResult(this));
+		saxonTransformer.transform(new StreamSource(fileToValidate), new SAXResult(new SchematronOutputHandler()));
 	}
 
 	// public InputStream generateSVRL() throws TransformerException,
@@ -136,19 +120,21 @@ public class SchematronXSLT2Validator extends DefaultHandler implements
 	public SchematronXSLT2Validator(String fileName, InputStream file,
 			String schemaName, Report report) {
 		this.fileName = fileName;
+		// System.err.println("sch on: " + fileName);
 		schematronXsls = new ArrayList<StreamSource>();
+
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/schematronDispatcher.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_dsdl_include.xsl"))));
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso-schematron-abstract.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_abstract_expand.xsl")))); //
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso_schematron_skeleton.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/iso_svrl_for_xslt2.xsl")))); // iso_schematron_message_xslt2
 
 		fileToValidate = file;
 		this.report = report;
@@ -187,10 +173,54 @@ public class SchematronXSLT2Validator extends DefaultHandler implements
 					.getResourcePath("schema/30/" + href.substring(2))));
 		} else if (href.endsWith(".xsl")) {
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/"
-							+ href)));
+					.getResourcePath("schema/30/iso-schematron-xslt2/" + href)));
 		}
 		return null;
 	}
 
+	class SchematronOutputHandler extends DefaultHandler {
+		boolean inText = false;
+		boolean inFailedAssert = false;
+		boolean inReport = false;
+
+		StringBuilder message = new StringBuilder();
+
+		public void characters(char ch[], int start, int length)
+				throws SAXException {
+			//System.err.println("sch: characters");
+			if (inText && (inFailedAssert || inReport)) {
+				for (int i = start; i < length; i++) {
+					message.append(ch[i]);
+				}
+			}
+		}
+
+		@Override
+		public void startElement(String uri, String localName, String qName,
+				Attributes attributes) throws SAXException {
+			//System.err.println("sch: start element: " + localName);
+			if (localName.equals("text"))
+				inText = true;
+			if (localName.equals("failed-assert"))
+				inFailedAssert = true;
+			if (localName.equals("report"))
+				inReport = true;
+		}
+
+		@Override
+		public void endElement(String uri, String localName, String qName)
+				throws SAXException {
+			//System.err.println("sch: end element: " + localName);
+			if (inText && (inFailedAssert || inReport)) {
+				report.error(fileName, -1, -1, message.toString());
+				message.delete(0, message.length());
+			}
+			if (localName.equals("text"))
+				inText = false;
+			if (localName.equals("failed-assert"))
+				inFailedAssert = false;
+			if (localName.equals("report"))
+				inReport = false;
+		}
+	}
 }
