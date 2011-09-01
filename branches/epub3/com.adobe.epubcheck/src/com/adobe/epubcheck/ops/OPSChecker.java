@@ -178,12 +178,12 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		if (schValidator != null)
 			try {
 				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-						resourceProvider.getInputStream(path), schValidator,
-						report);
-				schematronXSLT2Validator.compile();				
+						path, resourceProvider.getInputStream(path),
+						schValidator, report);
+				schematronXSLT2Validator.compile();
 				schematronXSLT2Validator.execute();
-//				new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-//						report);
+				// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+				// report);
 			} catch (Throwable t) {
 				report.error(
 						path,

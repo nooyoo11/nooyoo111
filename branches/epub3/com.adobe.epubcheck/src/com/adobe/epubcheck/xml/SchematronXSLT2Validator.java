@@ -34,13 +34,18 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.util.ResourceUtil;
 
-public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
+public class SchematronXSLT2Validator extends DefaultHandler implements
+		ErrorListener, URIResolver {
 
 	InputStream fileToValidate;
 
@@ -52,14 +57,33 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	StreamSource compiledSchema = null;
 
-	//FIXME use jaxp discovery instead
+	// FIXME use jaxp discovery instead
 	TransformerFactory transformerFactory = net.sf.saxon.TransformerFactoryImpl
 			.newInstance();
 
 	Transformer saxonTransformer;
 
 	boolean compiling = false;
-	
+
+	StringBuffer messageBuffer = null;
+
+	String fileName;
+
+	public void characters(char ch[], int start, int length)
+			throws SAXException {
+		if (ch[start + length - 1] == '\n') {
+			if (messageBuffer != null) {
+				report.error(fileName, -1, -1, messageBuffer.toString());
+				messageBuffer = null;
+			}
+			return;
+		}
+		if (messageBuffer == null) {
+			messageBuffer = new StringBuffer();
+		}
+		messageBuffer.append(new String(ch, start, length));
+	}
+
 	public void compile() throws TransformerException, IOException {
 		compiling = true;
 		String resourcePath = ResourceUtil.getResourcePath(schematronSchema);
@@ -91,28 +115,27 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 	public void execute() throws IOException, TransformerException {
 		saxonTransformer = transformerFactory.newTransformer(compiledSchema);
 		saxonTransformer.setErrorListener(this);
-		File dummyOut = File.createTempFile("epubcheck", null);
-		StreamResult result = new StreamResult(dummyOut);
-		saxonTransformer.transform(new StreamSource(fileToValidate), result);
-		dummyOut.delete();
+		saxonTransformer.transform(new StreamSource(fileToValidate),
+				new SAXResult(this));
 	}
-	
-//	public InputStream generateSVRL() throws TransformerException,
-//			UnsupportedEncodingException {
-//
-//		StringWriter sw = new StringWriter();
-//		StreamResult result = new StreamResult(sw);
-//
-//		saxonTransformer = transformerFactory.newTransformer(compiledSchema);
-//		saxonTransformer.setErrorListener(this);
-//
-//		saxonTransformer.transform(new StreamSource(fileToValidate), result);
-//
-//		return new ByteArrayInputStream(sw.toString().getBytes("UTF-8"));
-//	}
 
-	public SchematronXSLT2Validator(InputStream file, String schemaName,
-			Report report) {
+	// public InputStream generateSVRL() throws TransformerException,
+	// UnsupportedEncodingException {
+	//
+	// StringWriter sw = new StringWriter();
+	// StreamResult result = new StreamResult(sw);
+	//
+	// saxonTransformer = transformerFactory.newTransformer(compiledSchema);
+	// saxonTransformer.setErrorListener(this);
+	//
+	// saxonTransformer.transform(new StreamSource(fileToValidate), result);
+	//
+	// return new ByteArrayInputStream(sw.toString().getBytes("UTF-8"));
+	// }
+
+	public SchematronXSLT2Validator(String fileName, InputStream file,
+			String schemaName, Report report) {
+		this.fileName = fileName;
 		schematronXsls = new ArrayList<StreamSource>();
 		schematronXsls
 				.add(new StreamSource(
@@ -125,7 +148,7 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 		schematronXsls
 				.add(new StreamSource(
 						ResourceUtil.getResourceStream(ResourceUtil
-								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso-schematron-message.xsl"))));
+								.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/iso_schematron_skeleton.xsl"))));
 
 		fileToValidate = file;
 		this.report = report;
@@ -151,22 +174,23 @@ public class SchematronXSLT2Validator implements ErrorListener, URIResolver {
 
 	// @Override
 	public void warning(TransformerException e) throws TransformerException {
-		//FIXME temp solution to remove xpath warnings during execution
-		if(compiling) {
-			report.warning(schematronSchema, -1, -1,
-				"TransformerException: " + e.getMessage());
+		// FIXME temp solution to remove xpath warnings during execution
+		if (compiling) {
+			report.warning(schematronSchema, -1, -1, "TransformerException: "
+					+ e.getMessage());
 		}
 	}
 
-	public Source resolve(String href, String base) throws TransformerException {		
+	public Source resolve(String href, String base) throws TransformerException {
 		if (href.startsWith("./mod/")) {
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
-					.getResourcePath("schema/30/" + href.substring(2))));			
-		} else if (href.endsWith(".xsl")) {			
+					.getResourcePath("schema/30/" + href.substring(2))));
+		} else if (href.endsWith(".xsl")) {
 			return new StreamSource(ResourceUtil.getResourceStream(ResourceUtil
 					.getResourcePath("schema/30/iso-schematron-xslt2/oxygen/"
-							+ href))); 
-		}	
+							+ href)));
+		}
 		return null;
 	}
+
 }
