@@ -318,7 +318,7 @@ public class OPFChecker implements DocumentValidator {
 					|| type.equals("font/opentype");
 
 		return type.equals("application/xhtml+xml")
-				|| type.equals("font/opentype");
+				|| type.equals("image/svg+xml");
 	}
 
 	static boolean isDeprecatedBlessedItemType(String type) {
@@ -445,10 +445,8 @@ public class OPFChecker implements DocumentValidator {
 		// FIXME this is a temporary fix; This class should be refactored.
 
 		if (mimeType != null) {
-			if (version == EPUBVersion.VERSION_3) {
-				if (mimeType.equals("image/svg+xml"))
-					return;
-			}
+			if (isBlessedItemType(mimeType, version))
+				return;
 
 			if (isBlessedStyleType(mimeType)
 					|| isDeprecatedBlessedStyleType(mimeType)
