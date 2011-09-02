@@ -92,4 +92,33 @@ public class Epub30CheckTest {
 		assertEquals(warnings, testReport.getWarningCount());
 	}
 
+	@Test
+	public void testValidateEPUBPvalid30() {
+		testValidateDocument("valid/lorem.epub", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBTestSvg() {
+		testValidateDocument("valid/test_svg.epub", 0, 0);
+	}
+
+	@Test
+	public void testValidateEPUBInvalidNcx() {
+		testValidateDocument("invalid/invalid-ncx.epub", 2, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBMp3() {
+		testValidateDocument("valid/mp3-in-manifest.epub", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBInvalidMp3() {
+		testValidateDocument("invalid/mp3-in-spine-no-fallback.epub", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBMp3WithFallback() {
+		testValidateDocument("valid/mp3-with-fallback.epub", 0, 0);
+	}
 }
