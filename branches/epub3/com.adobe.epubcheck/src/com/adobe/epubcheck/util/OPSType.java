@@ -35,7 +35,7 @@ public class OPSType {
 
 	public boolean equals(Object obj) {
 		if (!(obj instanceof OPSType))
-			System.out.println("nu e instance of");
+			return false;
 
 		OPSType Obj = (OPSType) obj;
 

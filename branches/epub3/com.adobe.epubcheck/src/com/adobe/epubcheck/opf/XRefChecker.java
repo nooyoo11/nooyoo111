@@ -29,6 +29,7 @@ import java.util.Vector;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.util.EPUBVersion;
 
 public class XRefChecker {
 
@@ -128,9 +129,12 @@ public class XRefChecker {
 
 	OCFPackage ocf;
 
-	public XRefChecker(OCFPackage ocf, Report report) {
+	EPUBVersion version;
+
+	public XRefChecker(OCFPackage ocf, Report report, EPUBVersion version) {
 		this.ocf = ocf;
 		this.report = report;
+		this.version = version;
 	}
 
 	public void registerResource(String resource, String mimeType,
@@ -224,7 +228,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType)
+						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
@@ -282,7 +286,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType)
+						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)

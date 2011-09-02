@@ -40,6 +40,7 @@ import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.Messages;
+import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
@@ -75,20 +76,51 @@ public class OPFChecker implements DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
-	static Hashtable<String, ContentCheckerFactory> contentCheckerFactoryMap;
+	static Hashtable<OPSType, ContentCheckerFactory> contentCheckerFactoryMap;
 
 	static {
-		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
-		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
-		map.put("text/html", OPSCheckerFactory.getInstance());
-		map.put("text/x-oeb1-document", OPSCheckerFactory.getInstance());
-		map.put("image/jpeg", BitmapCheckerFactory.getInstance());
-		map.put("image/gif", BitmapCheckerFactory.getInstance());
-		map.put("image/png", BitmapCheckerFactory.getInstance());
-		map.put("image/svg+xml", OPSCheckerFactory.getInstance());
-		map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
-		map.put("application/smil+xml", OPSCheckerFactory.getInstance());
-		map.put("text/css", CSSCheckerFactory.getInstance());
+		Hashtable<OPSType, ContentCheckerFactory> map = new Hashtable<OPSType, ContentCheckerFactory>();
+		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
+		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("text/x-oeb1-document", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("application/x-dtbook+xml", EPUBVersion.VERSION_2),
+				DTBookCheckerFactory.getInstance());
+
+		map.put(new OPSType("image/jpeg", EPUBVersion.VERSION_2),
+				BitmapCheckerFactory.getInstance());
+		map.put(new OPSType("image/jpeg", EPUBVersion.VERSION_3),
+				BitmapCheckerFactory.getInstance());
+
+		map.put(new OPSType("image/gif", EPUBVersion.VERSION_2),
+				BitmapCheckerFactory.getInstance());
+		map.put(new OPSType("image/gif", EPUBVersion.VERSION_3),
+				BitmapCheckerFactory.getInstance());
+
+		map.put(new OPSType("image/png", EPUBVersion.VERSION_2),
+				BitmapCheckerFactory.getInstance());
+		map.put(new OPSType("image/png", EPUBVersion.VERSION_3),
+				BitmapCheckerFactory.getInstance());
+
+		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
+		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("text/css", EPUBVersion.VERSION_2),
+				CSSCheckerFactory.getInstance());
+		map.put(new OPSType("text/css", EPUBVersion.VERSION_3),
+				CSSCheckerFactory.getInstance());
+
+		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
+				OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("text/html", EPUBVersion.VERSION_2),
+				OPSCheckerFactory.getInstance());
 
 		contentCheckerFactoryMap = map;
 	}
@@ -100,7 +132,7 @@ public class OPFChecker implements DocumentValidator {
 		this.report = report;
 		this.path = path;
 		this.containerEntries = containerEntries;
-		this.xrefChecker = new XRefChecker(ocf, report);
+		this.xrefChecker = new XRefChecker(ocf, report, version);
 		this.version = version;
 	}
 
@@ -279,11 +311,14 @@ public class OPFChecker implements DocumentValidator {
 				&& warningsSoFar == report.getWarningCount();
 	}
 
-	static boolean isBlessedItemType(String type) {
-		return type.equals("application/xhtml+xml")
-				|| type.equals("application/x-dtbook+xml")
-				|| type.equals("font/opentype");
+	static boolean isBlessedItemType(String type, EPUBVersion version) {
+		if (version == EPUBVersion.VERSION_2)
+			return type.equals("application/xhtml+xml")
+					|| type.equals("application/x-dtbook+xml")
+					|| type.equals("font/opentype");
 
+		return type.equals("application/xhtml+xml")
+				|| type.equals("font/opentype");
 	}
 
 	static boolean isDeprecatedBlessedItemType(String type) {
@@ -338,7 +373,7 @@ public class OPFChecker implements DocumentValidator {
 								+ mimeType + "'");
 		}
 		if (opfHandler.getOpf12PackageFile() && fallback == null) {
-			if (isBlessedItemType(mimeType))
+			if (isBlessedItemType(mimeType, version))
 				report.warning(
 						path,
 						item.getLineNumber(),
@@ -383,7 +418,7 @@ public class OPFChecker implements DocumentValidator {
 				checkerFactory = NavCheckerFactory.getInstance();
 			else
 				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
-						.get(mimeType);
+						.get(new OPSType(mimeType, version));
 
 			if (checkerFactory == null)
 				checkerFactory = GenericContentCheckerFactory.getInstance();
@@ -405,21 +440,29 @@ public class OPFChecker implements DocumentValidator {
 		// resolutions in the EPUB Maint Working Group (e.g. embedded fonts not
 		// needing fallbacks).
 		// [GC 11/15/09]
+
 		String mimeType = item.getMimeType();
+		// FIXME this is a temporary fix; This class should be refactored.
+
 		if (mimeType != null) {
+			if (version == EPUBVersion.VERSION_3) {
+				if (mimeType.equals("image/svg+xml"))
+					return;
+			}
+
 			if (isBlessedStyleType(mimeType)
 					|| isDeprecatedBlessedStyleType(mimeType)
 					|| isBlessedImageType(mimeType))
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "'" + mimeType
 								+ "' is not a permissible spine media-type");
-			else if (!isBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType, version)
 					&& !isDeprecatedBlessedItemType(mimeType)
 					&& item.getFallback() == null)
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "non-standard media-type '"
 								+ mimeType + "' with no fallback");
-			else if (!isBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType, version)
 					&& !isDeprecatedBlessedItemType(mimeType)
 					&& !checkItemFallbacks(item, opfHandler))
 				report.error(
@@ -439,7 +482,7 @@ public class OPFChecker implements DocumentValidator {
 			if (fallbackItem != null) {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
-					if (isBlessedItemType(mimeType)
+					if (isBlessedItemType(mimeType, version)
 							|| isDeprecatedBlessedItemType(mimeType))
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
