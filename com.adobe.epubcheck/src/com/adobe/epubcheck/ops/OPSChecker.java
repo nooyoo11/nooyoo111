@@ -30,13 +30,12 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.XRefChecker;
-import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
-import com.adobe.epubcheck.xml.SvrlParser;
-import com.adobe.epubcheck.xml.XMLParser;
-import com.adobe.epubcheck.xml.XMLValidator;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.OPSType;
+import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
+import com.adobe.epubcheck.xml.XMLParser;
+import com.adobe.epubcheck.xml.XMLValidator;
 
 public class OPSChecker implements ContentChecker, DocumentValidator {
 
@@ -75,16 +74,12 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			"schema/30/epub-xhtml-30.rnc");
 	static XMLValidator svgValidator30 = new XMLValidator(
 			"schema/30/epub-svg-30.rnc");
-	static XMLValidator mediaOverlayValidator30 = new XMLValidator(
-			"schema/30/media-overlay-30.rnc");
 
 	static String xhtmlSchematronValidator30 = new String(
 			"schema/30/epub-xhtml-30.sch");
 	static String svgSchematronValidator30 = new String(
 			"schema/30/epub-svg-30.sch");
-	static String mediaOverlaySchematronValidator30 = new String(
-			"schema/30/media-overlay-30.sch");
-
+	
 	private HashMap<OPSType, EpubValidator> epubValidatorMap;
 
 	private void initEpubValidatorMap() {
@@ -99,10 +94,6 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 				new EpubValidator(svgValidator, null));
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
 				new EpubValidator(svgValidator30, svgSchematronValidator30));
-
-		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
-				new EpubValidator(mediaOverlayValidator30,
-						mediaOverlaySchematronValidator30));
 
 		epubValidatorMap = map;
 	}

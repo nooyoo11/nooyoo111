@@ -37,8 +37,6 @@ public class OPSHandler implements XMLHandler {
 
 	String path;
 
-	HashSet idMap;
-
 	XRefChecker xrefChecker;
 
 	static HashSet<String> regURISchemes = fillRegURISchemes();
@@ -73,7 +71,6 @@ public class OPSHandler implements XMLHandler {
 	OPSHandler(String path, XRefChecker xrefChecker, Report report) {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
-		this.idMap = new HashSet();
 		this.report = report;
 	}
 
