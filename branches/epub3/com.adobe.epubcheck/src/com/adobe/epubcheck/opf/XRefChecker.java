@@ -42,6 +42,8 @@ public class XRefChecker {
 	public static final int RT_OBJECT = 3;
 
 	public static final int RT_STYLESHEET = 4;
+	
+	public static final int RT_AUDIO = 5;
 
 	public static final int RT_SVG_PAINT = 0x10;
 

@@ -91,7 +91,12 @@ public class Epub30CheckTest {
 		assertEquals(errors, testReport.getErrorCount());
 		assertEquals(warnings, testReport.getWarningCount());
 	}
-
+//TODO -- check for fallback cycles
+/*	@Test
+	public void testValidateEPUBPFallbackCycle() {
+		testValidateDocument("invalid/fallback-cycle.epub", 0, 0,true);
+	}
+*/	
 	@Test
 	public void testValidateEPUBPvalid30() {
 		testValidateDocument("valid/lorem.epub", 0, 0);
@@ -121,4 +126,14 @@ public class Epub30CheckTest {
 	public void testValidateEPUBMp3WithFallback() {
 		testValidateDocument("valid/mp3-with-fallback.epub", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUBFontNoFallback() {
+		testValidateDocument("invalid/font_no_fallback.epub", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBFontFallbackChain() {
+		testValidateDocument("valid/font_fallback_chain.epub", 0, 0);
+	}	
 }

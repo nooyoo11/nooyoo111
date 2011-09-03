@@ -33,6 +33,7 @@ import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.DocumentValidatorFactory;
 import com.adobe.epubcheck.opf.OPFCheckerFactory;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
+import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
 import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FileResourceProvider;
@@ -94,7 +95,7 @@ public class Checker {
 				OPSCheckerFactory.getInstance());
 
 		map.put(new OPSType("mo", EPUBVersion.VERSION_3),
-				OPSCheckerFactory.getInstance());
+				OverlayCheckerFactory.getInstance());
 		map.put(new OPSType("nav", EPUBVersion.VERSION_3),
 				NavCheckerFactory.getInstance());
 		// TODO expanded epubs

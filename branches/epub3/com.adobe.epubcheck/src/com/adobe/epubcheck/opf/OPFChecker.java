@@ -36,6 +36,7 @@ import com.adobe.epubcheck.nav.NavCheckerFactory;
 import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
+import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.InvalidVersionException;
@@ -121,6 +122,9 @@ public class OPFChecker implements DocumentValidator {
 
 		map.put(new OPSType("text/html", EPUBVersion.VERSION_2),
 				OPSCheckerFactory.getInstance());
+
+		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
+				OverlayCheckerFactory.getInstance());
 
 		contentCheckerFactoryMap = map;
 	}
@@ -223,7 +227,7 @@ public class OPFChecker implements DocumentValidator {
 		}
 
 		try {
-			Iterator filesIter = ocf.getFileEntries().iterator();
+			Iterator<String> filesIter = ocf.getFileEntries().iterator();
 			while (filesIter.hasNext()) {
 				String entry = (String) filesIter.next();
 
@@ -242,7 +246,8 @@ public class OPFChecker implements DocumentValidator {
 				}
 			}
 
-			Iterator directoriesIter = ocf.getDirectoryEntries().iterator();
+			Iterator<String> directoriesIter = ocf.getDirectoryEntries()
+					.iterator();
 			while (directoriesIter.hasNext()) {
 				String directory = (String) directoriesIter.next();
 				boolean hasContents = false;
@@ -311,6 +316,15 @@ public class OPFChecker implements DocumentValidator {
 				&& warningsSoFar == report.getWarningCount();
 	}
 
+	static boolean isBlessedSpineItemType(String type, EPUBVersion version) {
+		if (version == EPUBVersion.VERSION_2)
+			return type.equals("application/xhtml+xml")
+					|| type.equals("application/x-dtbook+xml");
+
+		return type.equals("application/xhtml+xml")
+				|| type.equals("image/svg+xml");
+	}
+
 	static boolean isBlessedItemType(String type, EPUBVersion version) {
 		if (version == EPUBVersion.VERSION_2)
 			return type.equals("application/xhtml+xml")
@@ -318,7 +332,7 @@ public class OPFChecker implements DocumentValidator {
 					|| type.equals("font/opentype");
 
 		return type.equals("application/xhtml+xml")
-				|| type.equals("image/svg+xml");
+				|| type.equals("image/svg+xml") || type.equals("font/opentype");
 	}
 
 	static boolean isDeprecatedBlessedItemType(String type) {
@@ -445,7 +459,7 @@ public class OPFChecker implements DocumentValidator {
 		// FIXME this is a temporary fix; This class should be refactored.
 
 		if (mimeType != null) {
-			if (isBlessedItemType(mimeType, version))
+			if (isBlessedSpineItemType(mimeType, version))
 				return;
 
 			if (isBlessedStyleType(mimeType)
@@ -454,14 +468,12 @@ public class OPFChecker implements DocumentValidator {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "'" + mimeType
 								+ "' is not a permissible spine media-type");
-			else if (!isBlessedItemType(mimeType, version)
-					&& !isDeprecatedBlessedItemType(mimeType)
+			else if (!isDeprecatedBlessedItemType(mimeType)
 					&& item.getFallback() == null)
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "non-standard media-type '"
 								+ mimeType + "' with no fallback");
-			else if (!isBlessedItemType(mimeType, version)
-					&& !isDeprecatedBlessedItemType(mimeType)
+			else if (!isDeprecatedBlessedItemType(mimeType)
 					&& !checkItemFallbacks(item, opfHandler))
 				report.error(
 						path,
@@ -480,7 +492,7 @@ public class OPFChecker implements DocumentValidator {
 			if (fallbackItem != null) {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
-					if (isBlessedItemType(mimeType, version)
+					if (isBlessedSpineItemType(mimeType, version)
 							|| isDeprecatedBlessedItemType(mimeType))
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
