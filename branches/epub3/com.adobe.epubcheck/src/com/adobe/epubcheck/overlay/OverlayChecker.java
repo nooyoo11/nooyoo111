@@ -30,6 +30,7 @@ import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
@@ -92,9 +93,9 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 			overlayParser.addValidator(mediaOverlayValidator30);
 			overlayParser.addXMLHandler(overlayHandler);
 			overlayParser.process();
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			report.error(path, -1, -1,
+					String.format(Messages.MISSING_FILE, path));
 		}
 
 		try {
