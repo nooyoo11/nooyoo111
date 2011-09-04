@@ -90,7 +90,7 @@
                                 <attribute name="Main-Class"
                                         value="com.adobe.epubcheck.tool.Checker"/>
                                 <attribute name="Class-Path"
-                                        value="lib/jing.jar lib/saxon.jar lib/sac.jar lib/flute.jar"
+                                        value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar"
                                 />
                         </manifest>
                 </jar>
