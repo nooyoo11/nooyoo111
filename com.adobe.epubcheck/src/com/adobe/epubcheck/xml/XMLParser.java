@@ -148,6 +148,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 					.getFeature("http://xml.org/sax/features/xml-1.1");
 		} catch (Exception e) {
 		}
+		/*
+		 * mgy: remove this for now TODO add 3.0 test forbidding xml 1.1 and so on
 		if (!hasXML11) {
 			System.err
 					.println("Your configuration does not support XML 1.1 parsing");
@@ -163,6 +165,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 					.println("\tjavax.xml.parsers.SAXParserFactory system property");
 			System.err.println("\tto point to XML-1.1-compliant parser.");
 		}
+		*/
 		try {
 			parser = factory.newSAXParser();
 			XMLReader reader = parser.getXMLReader();

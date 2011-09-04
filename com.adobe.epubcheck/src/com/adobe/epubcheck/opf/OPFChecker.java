@@ -44,7 +44,6 @@ import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.util.ResourceUtil;
-import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -60,16 +59,17 @@ public class OPFChecker implements DocumentValidator {
 
 	EPUBVersion version;
 
-	static XMLValidator opfValidator = new XMLValidator("schema/20/rng/opf.rng");
+	static XMLValidator opfValidator_20_RNG = new XMLValidator(
+			"schema/20/rng/opf.rng");
 
-	static XMLValidator opfSchematronValidator = new XMLValidator(
+	static XMLValidator opfValidator_20_SCH = new XMLValidator(
 			"schema/20/sch/opf.sch");
 
-	static XMLValidator opfValidator30 = new XMLValidator(
+	static XMLValidator opfValidator_30_RNC = new XMLValidator(
 			"schema/30/package-30.rnc");
 
-	static String opfSchematronValidator30 = new String(
-			"schema/30/package-30.sch");
+	static XMLValidator opfValidator_30_ISOSCH = new XMLValidator(
+			"schema/30/package-30-PREP.sch");
 
 	XRefChecker xrefChecker;
 
@@ -284,33 +284,36 @@ public class OPFChecker implements DocumentValidator {
 			opfParser.addXMLHandler(opfHandler);
 
 			if (version == EPUBVersion.VERSION_2) {
-				opfParser.addValidator(opfValidator);
-				opfParser.addValidator(opfSchematronValidator);
-			} else if (version == EPUBVersion.VERSION_3)
-				opfParser.addValidator(opfValidator30);
+				opfParser.addValidator(opfValidator_20_RNG);
+				opfParser.addValidator(opfValidator_20_SCH);
+			} else if (version == EPUBVersion.VERSION_3) {
+				opfParser.addValidator(opfValidator_30_RNC);
+				opfParser.addValidator(opfValidator_30_ISOSCH);
+			}	
 			opfParser.process();
 
 		} catch (IOException e) {
 			report.error(path, 0, 0, e.getMessage());
 		}
 
-		if (version == EPUBVersion.VERSION_3)
-			try {
-				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-						path, resourceProvider.getInputStream(path),
-						opfSchematronValidator30, report);
-				schematronXSLT2Validator.compile();
-				schematronXSLT2Validator.execute();
-				// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-				// report);
-			} catch (Throwable t) {
-				report.error(
-						path,
-						-1,
-						-1,
-						"Failed performing OPF Schematron tests: "
-								+ t.getMessage());
-			}
+		// if (version == EPUBVersion.VERSION_3)
+		// try {
+		// SchematronXSLT2Validator schematronXSLT2Validator = new
+		// SchematronXSLT2Validator(
+		// path, resourceProvider.getInputStream(path),
+		// opfSchematronValidator30, report);
+		// schematronXSLT2Validator.compile();
+		// schematronXSLT2Validator.execute();
+		// // new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+		// // report);
+		// } catch (Throwable t) {
+		// report.error(
+		// path,
+		// -1,
+		// -1,
+		// "Failed performing OPF Schematron tests: "
+		// + t.getMessage());
+		// }
 
 		return errorsSoFar == report.getErrorCount()
 				&& warningsSoFar == report.getWarningCount();

@@ -116,6 +116,12 @@ public class OPFCheckerTest {
 	}
 
 	@Test
+	public void testValidateDocumentMalformed() {
+		testValidateDocument("invalid/malformed.opf", 2, 0,
+				EPUBVersion.VERSION_3);
+	}
+	
+	@Test
 	public void testValidateDocumentNoPackageElement() {
 		testValidateDocument("invalid/noPackageElement.opf", 3, 0,
 				EPUBVersion.VERSION_3);
@@ -123,7 +129,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentNoMetadataElement() {
-		testValidateDocument("invalid/noMetadataElement.opf", 5, 0,
+		testValidateDocument("invalid/noMetadataElement.opf", 3, 0,
 				EPUBVersion.VERSION_3);
 	}
 
@@ -140,7 +146,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentNoDcNamespace() {
-		testValidateDocument("invalid/noDcNamespace.opf", 5, 0,
+		testValidateDocument("invalid/noDcNamespace.opf", 3, 0,
 				EPUBVersion.VERSION_3);
 	}
 
