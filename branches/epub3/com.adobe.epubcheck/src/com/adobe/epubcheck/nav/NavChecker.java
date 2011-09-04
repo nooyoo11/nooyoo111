@@ -32,20 +32,19 @@ import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
-import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
 public class NavChecker implements ContentChecker, DocumentValidator {
 
-	static XMLValidator navValidator30 = new XMLValidator(
+	static XMLValidator navValidator_30_RNC = new XMLValidator(
 			"schema/30/epub-nav-30.rnc");
 
-	static String navSchematronValidator30 = new String(
-			"schema/30/epub-nav-30.sch");
+	static XMLValidator navValidator_30_ISOSCH = new XMLValidator(
+			"schema/30/epub-nav-30-PREP.sch");
 
-	static String xhtmlSchematronValidator30 = new String(
-			"schema/30/epub-xhtml-30.sch");
+	static XMLValidator xhtmlValidator_30_ISOSCH = new XMLValidator(
+			"schema/30/epub-xhtml-30-PREP.sch");
 
 	OCFPackage ocf;
 
@@ -93,33 +92,36 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		try {
 			XMLParser navParser = new XMLParser(
 					resourceProvider.getInputStream(path), path, report);
-			navParser.addValidator(navValidator30);
+			
+			navParser.addValidator(navValidator_30_RNC);
+			navParser.addValidator(xhtmlValidator_30_ISOSCH);
+			navParser.addValidator(navValidator_30_ISOSCH);
 			navParser.process();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		try {
-			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-					path, resourceProvider.getInputStream(path),
-					navSchematronValidator30, report);
-			schematronXSLT2Validator.compile();
-			schematronXSLT2Validator.execute();
-			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-			// report);
-
-			schematronXSLT2Validator = new SchematronXSLT2Validator(path,
-					resourceProvider.getInputStream(path),
-					xhtmlSchematronValidator30, report);
-			schematronXSLT2Validator.compile();
-			schematronXSLT2Validator.execute();
-			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-			// report);
-
-		} catch (Throwable t) {
-			report.error(path, -1, 0,
-					"Failed performing OPF Schematron tests: " + t.getMessage());
-		}
+//		try {
+//			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+//					path, resourceProvider.getInputStream(path),
+//					navValidator_30_ISOSCH, report);
+//			schematronXSLT2Validator.compile();
+//			schematronXSLT2Validator.execute();
+//			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//			// report);
+//
+//			schematronXSLT2Validator = new SchematronXSLT2Validator(path,
+//					resourceProvider.getInputStream(path),
+//					xhtmlValidator_30_ISOSCH, report);
+//			schematronXSLT2Validator.compile();
+//			schematronXSLT2Validator.execute();
+//			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//			// report);
+//
+//		} catch (Throwable t) {
+//			report.error(path, -1, 0,
+//					"Failed performing OPF Schematron tests: " + t.getMessage());
+//		}
 		return errors == report.getErrorCount()
 				&& warnings == report.getWarningCount();
 	}

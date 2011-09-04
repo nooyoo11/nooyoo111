@@ -31,7 +31,6 @@ import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
-import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -49,11 +48,11 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 
 	private OverlayHandler overlayHandler = null;
 
-	static XMLValidator mediaOverlayValidator30 = new XMLValidator(
+	static XMLValidator mediaOverlayValidator_30_RNC = new XMLValidator(
 			"schema/30/media-overlay-30.rnc");
 
-	static String mediaOverlaySchematronValidator30 = new String(
-			"schema/30/media-overlay-30.sch");
+	static XMLValidator mediaOverlayValidator_30_SCH = new XMLValidator(
+			"schema/30/media-overlay-30-PREP.sch");
 
 	public OverlayChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker) {
@@ -90,7 +89,8 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 		try {
 			XMLParser overlayParser = new XMLParser(
 					resourceProvider.getInputStream(path), path, report);
-			overlayParser.addValidator(mediaOverlayValidator30);
+			overlayParser.addValidator(mediaOverlayValidator_30_RNC);
+			overlayParser.addValidator(mediaOverlayValidator_30_SCH);
 			overlayParser.addXMLHandler(overlayHandler);
 			overlayParser.process();
 		} catch (IOException e) {
@@ -98,19 +98,19 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 					String.format(Messages.MISSING_FILE, path));
 		}
 
-		try {
-			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-					path, resourceProvider.getInputStream(path),
-					mediaOverlaySchematronValidator30, report);
-			schematronXSLT2Validator.compile();
-			schematronXSLT2Validator.execute();
-			// new SvrlParser(path,
-			// schematronXSLT2Validator.generateSVRL(),
-			// report);
-		} catch (Throwable t) {
-			report.error(path, -1, 0,
-					"Failed performing OPS Schematron tests: " + t.getMessage());
-		}
+//		try {
+//			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+//					path, resourceProvider.getInputStream(path),
+//					mediaOverlayValidator_30_SCH, report);
+//			schematronXSLT2Validator.compile();
+//			schematronXSLT2Validator.execute();
+//			// new SvrlParser(path,
+//			// schematronXSLT2Validator.generateSVRL(),
+//			// report);
+//		} catch (Throwable t) {
+//			report.error(path, -1, 0,
+//					"Failed performing OPS Schematron tests: " + t.getMessage());
+//		}
 
 		return errorsSoFar == report.getErrorCount()
 				&& warningsSoFar == report.getWarningCount();

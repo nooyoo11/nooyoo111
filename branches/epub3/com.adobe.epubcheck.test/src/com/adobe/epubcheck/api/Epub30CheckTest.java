@@ -46,11 +46,11 @@ public class Epub30CheckTest {
 	private boolean verbose;
 
 	private static String path = "testdocs/30/epub/";
-
+	
 	/*
 	 * TEST DEBUG FUNCTION
 	 */
-
+	
 	public void testValidateDocument(String fileName, int errors, int warnings,
 			boolean verbose) {
 		if (verbose)
@@ -136,4 +136,21 @@ public class Epub30CheckTest {
 	public void testValidateEPUBFontFallbackChain() {
 		testValidateDocument("valid/font_fallback_chain.epub", 0, 0);
 	}	
+	
+	@Test
+	public void testValidateEPUBvalid30() {
+		testValidateDocument("valid/lorem.epub", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_xhtmlsch() {
+		//1 schematron error from xhtml validation
+		testValidateDocument("invalid/lorem-xht-sch-1.epub", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_xhtmlrng() {
+		//1 rng error from xhtml validation
+		testValidateDocument("invalid/lorem-xht-rng-1.epub", 1, 0);
+	}
 }

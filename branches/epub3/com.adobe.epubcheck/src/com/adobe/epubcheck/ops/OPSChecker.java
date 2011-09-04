@@ -33,7 +33,6 @@ import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.OPSType;
-import com.adobe.epubcheck.xml.SchematronXSLT2Validator;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -41,9 +40,9 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	class EpubValidator {
 		XMLValidator xmlValidator = null;
-		String schValidator = null;
+		XMLValidator schValidator = null;
 
-		public EpubValidator(XMLValidator xmlValidator, String schValidator) {
+		public EpubValidator(XMLValidator xmlValidator, XMLValidator schValidator) {
 			this.xmlValidator = xmlValidator;
 			this.schValidator = schValidator;
 		}
@@ -65,35 +64,34 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
-	static XMLValidator xhtmlValidator = new XMLValidator(
+	static XMLValidator xhtmlValidator_20_NVDL = new XMLValidator(
 			"schema/20/rng/ops20.nvdl");
-	static XMLValidator svgValidator = new XMLValidator(
+	static XMLValidator svgValidator_20_RNG = new XMLValidator(
 			"schema/20/rng/svg11.rng");
 
-	static XMLValidator xhtmlValidator30 = new XMLValidator(
+	static XMLValidator xhtmlValidator_30_RNC = new XMLValidator(
 			"schema/30/epub-xhtml-30.rnc");
-	static XMLValidator svgValidator30 = new XMLValidator(
+	static XMLValidator svgValidator_30_RNC = new XMLValidator(
 			"schema/30/epub-svg-30.rnc");
 
-	static String xhtmlSchematronValidator30 = new String(
-			"schema/30/epub-xhtml-30.sch");
-	static String svgSchematronValidator30 = new String(
-			"schema/30/epub-svg-30.sch");
+	static XMLValidator xhtmlValidator_30_ISOSCH = new XMLValidator(
+			"schema/30/epub-xhtml-30-PREP.sch");
+	static XMLValidator svgValidator_30_ISOSCH = new XMLValidator(
+			"schema/30/epub-svg-30-PREP.sch");
 	
 	private HashMap<OPSType, EpubValidator> epubValidatorMap;
 
 	private void initEpubValidatorMap() {
 		HashMap<OPSType, EpubValidator> map = new HashMap<OPSType, EpubValidator>();
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
-				new EpubValidator(xhtmlValidator, null));
-		// TODO
+				new EpubValidator(xhtmlValidator_20_NVDL, null));
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
-				new EpubValidator(xhtmlValidator30, xhtmlSchematronValidator30));
+				new EpubValidator(xhtmlValidator_30_RNC, xhtmlValidator_30_ISOSCH));
 
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
-				new EpubValidator(svgValidator, null));
+				new EpubValidator(svgValidator_20_RNG, null));
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
-				new EpubValidator(svgValidator30, svgSchematronValidator30));
+				new EpubValidator(svgValidator_30_RNC, svgValidator_30_ISOSCH));
 
 		epubValidatorMap = map;
 	}
@@ -135,7 +133,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	public boolean validate() {
 		XMLValidator rngValidator = null;
-		String schValidator = null;
+		XMLValidator schValidator = null;
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
 		OPSType type = new OPSType(mimeType, version);
@@ -155,7 +153,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 	}
 
 	public void validateAgainstSchemas(XMLValidator rngValidator,
-			String schValidator) throws IOException {
+			XMLValidator schValidator) throws IOException {
 
 		XMLParser opsParser = new XMLParser(
 				resourceProvider.getInputStream(path), path, report);
@@ -164,24 +162,27 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		if (rngValidator != null)
 			opsParser.addValidator(rngValidator);
 
+		if (schValidator != null)
+			opsParser.addValidator(schValidator);
+		
 		opsParser.process();
 
-		if (schValidator != null)
-			try {
-				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-						path, resourceProvider.getInputStream(path),
-						schValidator, report);
-				schematronXSLT2Validator.compile();
-				schematronXSLT2Validator.execute();
-				// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-				// report);
-			} catch (Throwable t) {
-				report.error(
-						path,
-						-1,
-						0,
-						"Failed performing OPS Schematron tests: "
-								+ t.getMessage());
-			}
+//		if (schValidator != null)
+//			try {
+//				SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
+//						path, resourceProvider.getInputStream(path),
+//						schValidator, report);
+//				schematronXSLT2Validator.compile();
+//				schematronXSLT2Validator.execute();
+//				// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
+//				// report);
+//			} catch (Throwable t) {
+//				report.error(
+//						path,
+//						-1,
+//						0,
+//						"Failed performing OPS Schematron tests: "
+//								+ t.getMessage());
+//			}
 	}
 }

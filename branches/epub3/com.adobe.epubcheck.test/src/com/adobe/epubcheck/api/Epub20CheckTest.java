@@ -93,6 +93,11 @@ public class Epub20CheckTest {
 	}
 
 	@Test
+	public void testValidateEPUBvalid20() {
+		testValidateDocument("valid/lorem.epub", 0, 0);
+	}
+	
+	@Test
 	public void testValidateEPUBPageMap20() {
 		testValidateDocument("PageMap20.epub", 1, 0);
 	}
