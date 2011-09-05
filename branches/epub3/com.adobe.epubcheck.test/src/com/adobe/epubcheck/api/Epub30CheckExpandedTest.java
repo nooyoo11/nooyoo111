@@ -30,7 +30,7 @@ import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.util.Archive;
 import com.adobe.epubcheck.util.ValidationReport;
 
-public class Epub30CheckExpanded {
+public class Epub30CheckExpandedTest {
 
 	private ValidationReport testReport;
 
