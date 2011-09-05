@@ -35,6 +35,9 @@
 	<property name="coverage.summaryxml.dir" value="${reports.dir}/cobertura-sumary-xml" />
 	<property name="coverage.html.dir" value="${reports.dir}/cobertura-html" />
 
+	<property name="util.dir" value="${epubcheck.base.dir}/util" />
+	<property name="lib.dir" value="${epubcheck.base.dir}/lib" />
+
 	<path id="cobertura.classpath">
 		<fileset dir="${cobertura.dir}">
 			<include name="cobertura.jar" />
@@ -209,7 +212,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.adobe.epubcheck.tool.Checker" />
-				<attribute name="Class-Path" value="lib/jing.jar lib/saxon.jar lib/sac.jar lib/flute.jar" />
+				<attribute name="Class-Path" value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar" />
 			</manifest>
 		</jar>
 	</target>
@@ -238,7 +241,7 @@
 	*** java source zip package ***
 	*******************************
 	-->
-	<target name="buildSrcZip" depends="init" description="Creates a epubcheck_src_${version}.zip with *.java files in the distribution folder">
+	<target name="buildSrcZip" depends="init,iso-sch-prep" description="Creates a epubcheck_src_${version}.zip with *.java files in the distribution folder">
 
 		<zip zipfile="${distribution.dir}/epubcheck-src-${version}.zip">
 			<fileset dir="${epubcheck.base.dir}" includes="**/*.*" excludes="dist/**/*.* bin/**/*.*" />
@@ -250,7 +253,7 @@
 	*** All Packages ***
 	********************
 	-->
-	<target name="build-Epubchecker" description="Creates binary jar zip and source zip" depends="buildSrcZip,
+	<target name="build-Epubchecker" description="Creates binary jar zip and source zip" depends="iso-sch-prep,buildSrcZip,
 					 buildBinZip,clean-build-final
 					" />
 
@@ -267,14 +270,40 @@
 		<delete file="cobertura.ser" />
 		<delete dir="${test.build.dir}" />
 	</target>
-	
+
 	<target name="clean" depends="clean-build">
 		<delete dir="${temp.dir}" />
 	</target>
-	
+
 	<target name="clean-all" depends="clean">
 		<delete dir="${distribution.dir}" />
 	</target>
 
+	<target name="iso-sch-prep" description="temporary solution for iso sch validation; resolve includes and abstract patterns
+                    and store alongside the originals in the schema dir">
 
+		<property name="schema.30.dir" value="${src.dir}/com/adobe/epubcheck/schema/30" />
+		<iso-sch in="${schema.30.dir}/package-30.sch" out="${schema.30.dir}/package-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-xhtml-30.sch" out="${schema.30.dir}/epub-xhtml-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-svg-30.sch" out="${schema.30.dir}/epub-svg-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-nav-30.sch" out="${schema.30.dir}/epub-nav-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/media-overlay-30.sch" out="${schema.30.dir}/media-overlay-30-PREP.sch" />
+	</target>
+
+	<macrodef name="iso-sch">
+		<attribute name="in" />
+		<attribute name="out" />
+		<sequential>
+			<java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+				<arg value="-s:@{in}" />
+				<arg value="-xsl:${util.dir}/sch/iso-sch-include.xsl" />
+				<arg value="-o:${temp.dir}/isosch-1.sch" />
+			</java>
+			<java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+				<arg value="-s:${temp.dir}/isosch-1.sch" />
+				<arg value="-xsl:${util.dir}/sch/iso-sch-abstract.xsl" />
+				<arg value="-o:@{out}" />
+			</java>
+		</sequential>
+	</macrodef>
 </project>
