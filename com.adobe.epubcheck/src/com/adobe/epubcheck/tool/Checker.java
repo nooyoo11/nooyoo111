@@ -241,21 +241,13 @@ public class Checker {
 			else if (args[i].equals("-mode"))
 				if (i + 1 < args.length) {
 					mode = args[++i];
+					if (mode.equals("exp"))
+						expanded = true;
 					continue;
 				} else {
 					System.out.println(Messages.DISPLAY_HELP);
 					throw new RuntimeException(String.format(
 							Messages.AFTER_ARGUMENT_EXPECTED, "-mode", "type"));
-				}
-			else if (args[i].equals("-exp"))
-				if (i + 1 < args.length) {
-					expanded = true;
-					path = args[++i];
-					continue;
-				} else {
-					System.out.println(Messages.DISPLAY_HELP);
-					throw new RuntimeException(String.format(
-							Messages.AFTER_ARGUMENT_EXPECTED, "-exp", "path"));
 				}
 			else if (args[i].equals("-save")) {
 				keep = true;
@@ -280,13 +272,13 @@ public class Checker {
 			System.err.println(Messages.NO_FILE_SPECIFIED);
 			System.err.println(Messages.END_OF_EXECUTION);
 			System.exit(1);
-		} else if (path.endsWith(".epub") || expanded) {
+		} else if (path.endsWith(".epub")) {
 			if (mode != null || version != EPUBVersion.VERSION_3) {
 				System.err.println(Messages.MODE_VERSION_IGNORED);
 
 				mode = null;
 			}
-		} else if (mode == null && !expanded)
+		} else if (mode == null)
 			throw new RuntimeException(Messages.MODE_REQUIRED);
 
 	}
@@ -314,11 +306,13 @@ public class Checker {
 
 		System.out.println("-mode svg -v 2.0");
 		System.out.println("-mode svg -v 3.0");
-
-		System.out.println("-mode mo -v 3.0 // For MediaOverlay validation");
 		System.out.println("-mode nav -v 3.0");
+		System.out.println("-mode mo  -v 3.0 // For MediaOverlay validation");
+		System.out.println("-mode exp  // For expanded epubs archives");
 
 		System.out.println("This tool also accepts the following flags:");
+		System.out
+				.println("-save 	= saves the epub created from the expended epub");
 		System.out.println("-? or -help 	= displays this help message");
 	}
 
