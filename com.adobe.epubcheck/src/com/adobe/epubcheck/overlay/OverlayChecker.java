@@ -98,20 +98,6 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 					String.format(Messages.MISSING_FILE, path));
 		}
 
-//		try {
-//			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-//					path, resourceProvider.getInputStream(path),
-//					mediaOverlayValidator_30_SCH, report);
-//			schematronXSLT2Validator.compile();
-//			schematronXSLT2Validator.execute();
-//			// new SvrlParser(path,
-//			// schematronXSLT2Validator.generateSVRL(),
-//			// report);
-//		} catch (Throwable t) {
-//			report.error(path, -1, 0,
-//					"Failed performing OPS Schematron tests: " + t.getMessage());
-//		}
-
 		return errorsSoFar == report.getErrorCount()
 				&& warningsSoFar == report.getWarningCount();
 	}

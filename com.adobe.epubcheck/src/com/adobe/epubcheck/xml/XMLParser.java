@@ -314,7 +314,6 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws SAXException, IOException {
-		// System.out.println("se apeleaza functia");
 		// System.out.println(publicId);
 		// System.out.println(systemId);
 
