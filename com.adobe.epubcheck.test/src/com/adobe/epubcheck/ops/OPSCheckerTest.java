@@ -36,7 +36,7 @@ import com.adobe.epubcheck.util.ValidationReport;
 
 public class OPSCheckerTest {
 
-	private String path = "testdocs/";
+	private String path = "com.adobe.epubcheck.test/testdocs/";
 
 	private ValidationReport testReport;
 

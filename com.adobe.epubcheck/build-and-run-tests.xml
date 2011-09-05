@@ -52,7 +52,7 @@
 
 	<fileset dir="${epubcheck.base.dir}/lib" id="libs">
 		<include name="jing.jar" />
-		<include name="saxon.jar" />
+		<include name="saxon9he.jar" />
 		<include name="sac.jar" />
 		<include name="flute.jar" />
 	</fileset>
@@ -141,7 +141,7 @@
 	-->
 
 	<target name="run-tests" depends="instrument">
-		<junit fork="yes" dir="${epubcheck.test.dir}" printsummary="yes">
+		<junit fork="yes" dir="${epubcheck.test.dir}/.." printsummary="yes">
 
 			<sysproperty key="net.sourceforge.cobertura.datafile" file="${epubcheck.base.dir}/cobertura.ser" />
 
