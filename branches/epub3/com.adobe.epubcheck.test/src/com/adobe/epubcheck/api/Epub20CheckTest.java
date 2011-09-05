@@ -45,7 +45,7 @@ public class Epub20CheckTest {
 
 	private boolean verbose;
 
-	private static String path = "testdocs/20/epub/";
+	private static String path = "com.adobe.epubcheck.test/testdocs/20/epub/";
 
 	/*
 	 * TEST DEBUG FUNCTION

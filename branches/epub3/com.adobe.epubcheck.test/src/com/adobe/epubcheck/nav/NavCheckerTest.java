@@ -36,7 +36,7 @@ import com.adobe.epubcheck.util.ValidationReport;
 
 public class NavCheckerTest {
 
-	private String path = "testdocs/30/single/nav/";
+	private String path = "com.adobe.epubcheck.test/testdocs/30/single/nav/";
 
 	private ValidationReport testReport;
 

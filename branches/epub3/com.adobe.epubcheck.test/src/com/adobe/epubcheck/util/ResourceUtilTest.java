@@ -32,7 +32,7 @@ public class ResourceUtilTest {
 
 	private ValidationReport testReport;
 
-	private String path = "testdocs/30/single/opf/retrieveVersion/";
+	private String path = "com.adobe.epubcheck.test/testdocs/30/single/opf/retrieveVersion/";
 
 	private GenericResourceProvider resourceProvider;
 
