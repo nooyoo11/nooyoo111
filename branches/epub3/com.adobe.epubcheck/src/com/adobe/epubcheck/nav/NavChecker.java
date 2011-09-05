@@ -92,7 +92,7 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		try {
 			XMLParser navParser = new XMLParser(
 					resourceProvider.getInputStream(path), path, report);
-			
+
 			navParser.addValidator(navValidator_30_RNC);
 			navParser.addValidator(xhtmlValidator_30_ISOSCH);
 			navParser.addValidator(navValidator_30_ISOSCH);
@@ -101,27 +101,6 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 			e.printStackTrace();
 		}
 
-//		try {
-//			SchematronXSLT2Validator schematronXSLT2Validator = new SchematronXSLT2Validator(
-//					path, resourceProvider.getInputStream(path),
-//					navValidator_30_ISOSCH, report);
-//			schematronXSLT2Validator.compile();
-//			schematronXSLT2Validator.execute();
-//			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-//			// report);
-//
-//			schematronXSLT2Validator = new SchematronXSLT2Validator(path,
-//					resourceProvider.getInputStream(path),
-//					xhtmlValidator_30_ISOSCH, report);
-//			schematronXSLT2Validator.compile();
-//			schematronXSLT2Validator.execute();
-//			// new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-//			// report);
-//
-//		} catch (Throwable t) {
-//			report.error(path, -1, 0,
-//					"Failed performing OPF Schematron tests: " + t.getMessage());
-//		}
 		return errors == report.getErrorCount()
 				&& warnings == report.getWarningCount();
 	}

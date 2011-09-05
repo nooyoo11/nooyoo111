@@ -296,25 +296,6 @@ public class OPFChecker implements DocumentValidator {
 			report.error(path, 0, 0, e.getMessage());
 		}
 
-		// if (version == EPUBVersion.VERSION_3)
-		// try {
-		// SchematronXSLT2Validator schematronXSLT2Validator = new
-		// SchematronXSLT2Validator(
-		// path, resourceProvider.getInputStream(path),
-		// opfSchematronValidator30, report);
-		// schematronXSLT2Validator.compile();
-		// schematronXSLT2Validator.execute();
-		// // new SvrlParser(path, schematronXSLT2Validator.generateSVRL(),
-		// // report);
-		// } catch (Throwable t) {
-		// report.error(
-		// path,
-		// -1,
-		// -1,
-		// "Failed performing OPF Schematron tests: "
-		// + t.getMessage());
-		// }
-
 		return errorsSoFar == report.getErrorCount()
 				&& warningsSoFar == report.getWarningCount();
 	}
