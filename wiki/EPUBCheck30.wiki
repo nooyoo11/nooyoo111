@@ -1,0 +1,53 @@
+#labels Featured
+= EPUBCheck 3.0 Information =
+
+Current version: 3.0b
+
+== About ==
+
+EpubCheck 3.0 is the continuation of the EpubCheck 1.2 project, upgraded to support validation of [http://idpf.org/epub/30 EPUB 3.0] content besides the legacy [http://idpf.org/epub/201 EPUB 2.0]. 
+
+At the time of this writing, the available build is a [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Development development build ] in an early alpha stage. We do not guarantee correct results, and there are many tests remaining to be added. [WikiSyntax#Contributing_to Your contributions] will help us make EpubCheck 3.0 stable faster.
+
+Another new feature added to 3.0 is _single file validation_. Currently, the following types are supported: OPF/Package Documents, XHTML, SVG, Navigation Documents and Media Overlay documents (the latter two naturally supported only in EPUB 3.0 mode).
+
+EpubCheck 3.0 also supports validation of an unzipped EPUB with the possibility to save the created EPUB archive. 
+
+_If you are using EpubCheck to validate EPUB 2 content and have problems with this development release, we recommend that you revert to using the [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Stable stable build]._
+
+== Running ==
+
+To run the tool you need java (1.5 or above). Any OS should do. Run it from the command line:
+All detected errors are simply printed to stderr.
+
+basic mode:
+{{{
+java -jar epubcheck-3.0a1.jar file.epub
+}}}
+advanced mode:
+{{{
+java -jar epubcheck-3.0a1.jar file -mode MODE -v VERSION
+}}}
+where MODE must be one of the following:
+
+ * opf for package document validation;
+ * nav for navigation document validation (available only for version 3.0);
+ * mo for media overlay validation (available only for version 3.0);
+ * xhtml;
+ * svg;
+ * exp for Expanded EPUB validation; 
+
+When using -mode exp, one could add an extra flag -save to save the created archive upon validation:
+	java -jar epubcheck-3.0a.jar dir -mode exp -save
+VERSION must be 2.0 or 3.0.
+Additional flags:
+	-help displays a help message;
+Note that when validating a single file, only a subset of the available tests is run. Also, when validating a full EPUB, both mode and version are ignored.
+
+
+== Contributing to EpubCheck==
+
+If you'd like to contribute to the epubcheck project, then there's some things you'll probably want to do:
+ * Join the discussion group for epubcheck
+ * Get the latest build
+ * Document problems under Issues, and submit test cases that expose these problems, either as full `.epub` archives, or as single files.
