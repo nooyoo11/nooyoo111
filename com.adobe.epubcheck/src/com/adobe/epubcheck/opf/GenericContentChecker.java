@@ -39,10 +39,10 @@ public class GenericContentChecker implements ContentChecker {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "resource " + path + " is missing");
+			report.error(null, 0, 0, "resource " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
 			report
-					.warning(null, 0, "resource " + path
+					.warning(null, 0, 0,"resource " + path
 							+ " cannot be decrypted");
 	}
 

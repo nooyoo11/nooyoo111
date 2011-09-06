@@ -22,6 +22,8 @@
 
 package com.adobe.epubcheck.ncx;
 
+import java.io.IOException;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
@@ -39,9 +41,9 @@ public class NCXChecker implements ContentChecker {
 
 	XRefChecker xrefChecker;
 
-	static XMLValidator ncxValidator = new XMLValidator("rng/ncx.rng");
+	static XMLValidator ncxValidator = new XMLValidator("schema/20/rng/ncx.rng");
 
-	static XMLValidator ncxSchematronValidator = new XMLValidator("sch/ncx.sch");
+	static XMLValidator ncxSchematronValidator = new XMLValidator("schema/20/sch/ncx.sch");
 
 	public NCXChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker) {
@@ -53,12 +55,19 @@ public class NCXChecker implements ContentChecker {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "NCX file " + path + " is missing");
+			report.error(null, 0, 0, "NCX file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "NCX file " + path + " cannot be decrypted");
+			report.error(null, 0, 0, "NCX file " + path
+					+ " cannot be decrypted");
 		else {
 			// relaxng
-			XMLParser ncxParser = new XMLParser(ocf, path, report);
+			XMLParser ncxParser = null;
+			try {
+				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+						report);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			ncxParser.addValidator(ncxValidator);
 			NCXHandler ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 			ncxParser.addXMLHandler(ncxHandler);
@@ -68,12 +77,16 @@ public class NCXChecker implements ContentChecker {
 			// below
 			// TODO: do it in a single step
 			try {
-				ncxParser = new XMLParser(ocf, path, report);
+				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+						report);
 				ncxParser.addValidator(ncxSchematronValidator);
 				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 				ncxParser.process();
 			} catch (Throwable t) {
-				report.error(path, -1,
+				report.error(
+						path,
+						-1,
+						0,
 						"Failed performing NCX Schematron tests: "
 								+ t.getMessage());
 			}

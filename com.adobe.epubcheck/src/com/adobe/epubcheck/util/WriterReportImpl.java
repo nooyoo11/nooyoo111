@@ -28,18 +28,64 @@ import com.adobe.epubcheck.api.Report;
 public class WriterReportImpl implements Report {
 
 	private PrintWriter out;
-	
-	public WriterReportImpl( PrintWriter out ) {
+
+	private int errorCount, warningCount, exceptionCount;
+
+	public WriterReportImpl(PrintWriter out) {
 		this.out = out;
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
-	
-	public void error(String resource, int line, String message) {
-		out.println("ERROR: " + (resource == null ? "[top level]" : resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );
+
+	public WriterReportImpl(PrintWriter out, String info) {
+		this.out = out;
+		warning("", 0, 0, info);
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
-	public void warning(String resource, int line, String message) {
-		out.println("WARNING: " + (resource == null ? "[top level]" : resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );
+
+	private String fixMessage(String message) {
+		return message.replaceAll("[\\s]+", " ");
+	}
+
+	public void error(String resource, int line, int column, String message) {
+		errorCount++;
+		message = fixMessage(message);
+		out.println("ERROR: "
+				+ (resource == null ? "[top level]" : resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public void warning(String resource, int line, int column, String message) {
+		warningCount++;
+		message = fixMessage(message);
+		out.println("WARNING: "
+				+ (resource == null ? "[top level]" : resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public int getErrorCount() {
+		return errorCount;
+	}
+
+	public int getWarningCount() {
+		return warningCount;
+	}
+
+	public void exception(String resource, Exception e) {
+		exceptionCount++;
+		out.println("EXCEPTION: " + (resource == null ? "" : "/" + resource)
+				+ e.getMessage());
+	}
+
+	public int getExceptionCount() {
+		return exceptionCount;
 	}
 
 }

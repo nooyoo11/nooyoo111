@@ -24,35 +24,43 @@ package com.adobe.epubcheck.opf;
 
 public class OPFReference {
 
-    String type;
+	String type;
 
-    String title;
+	String title;
 
-    String href;
+	String href;
 
-    int lineNumber;
+	int lineNumber;
 
-    OPFReference(String type, String title, String href, int lineNumber) {
-        this.type = type;
-        this.title = title;
-        this.href = href;
-        this.lineNumber = lineNumber;
-    }
+	int columnNumber;
 
-    public String getType() {
-        return type;
-    }
+	OPFReference(String type, String title, String href, int lineNumber,
+			int columnNumber) {
+		this.type = type;
+		this.title = title;
+		this.href = href;
+		this.lineNumber = lineNumber;
+		this.columnNumber = columnNumber;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public String getHref() {
-        return href;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public int getLineNumber() {
-        return lineNumber;
-    }
+	public String getHref() {
+		return href;
+	}
+
+	public int getLineNumber() {
+		return lineNumber;
+	}
+
+	public int getColumnNumber() {
+		return columnNumber;
+	}
 
 }

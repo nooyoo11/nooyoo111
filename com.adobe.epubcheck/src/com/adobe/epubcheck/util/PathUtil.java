@@ -56,7 +56,7 @@ public class PathUtil {
                         throws IllegalArgumentException {
                 if (path.indexOf("..") < 0)
                         return path;
-                Stack pathSegments = new Stack();
+                Stack<String> pathSegments = new Stack<String>();
                 StringTokenizer tokenizer = new StringTokenizer(path, "/");
                 while (tokenizer.hasMoreTokens()) {
                         String pathSegment = tokenizer.nextToken();

@@ -26,55 +26,53 @@ import java.util.HashSet;
 
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
-import com.adobe.epubcheck.xml.XMLParser;
 
 public class OCFHandler implements XMLHandler {
 
-        XMLParser parser;
+	HashSet<String> containerEntries;
 
-        HashSet containerEntries;
+	static String rootPath;
 
-        static String rootPath;
+	OCFHandler() {
+		this.containerEntries = new HashSet<String>();
+	}
 
-        OCFHandler(XMLParser parser) {
-                this.parser = parser;
-                this.containerEntries = new HashSet();
-        }
+	public String getRootPath() {
+		return rootPath;
+	}
 
-        public String getRootPath() {
-                return rootPath;
-        }
+	public HashSet<String> getContainerEntries() {
+		return containerEntries;
+	}
 
-        public HashSet getContainerEntries() {
-                return containerEntries;
-        }
+	public void startElement(XMLElement e, int line, int column) {
 
-        public void startElement() {
-                XMLElement e = parser.getCurrentElement();
-                String ns = e.getNamespace();
-                if (e.getName().equals("rootfile") && ns != null
-                                && ns.equals("urn:oasis:names:tc:opendocument:xmlns:container")) {
-                        String mediaType = e.getAttribute("media-type");
-                        String fullPath = e.getAttribute("full-path");
-                        containerEntries.add(fullPath);
+		String ns = e.getNamespace();
+		if (e.getName().equals("rootfile") && ns != null
+				&& ns.equals("urn:oasis:names:tc:opendocument:xmlns:container")) {
+			String mediaType = e.getAttribute("media-type");
+			String fullPath = e.getAttribute("full-path");
+			containerEntries.add(fullPath);
 
-                        if (mediaType != null
-                                        && mediaType.equals("application/oebps-package+xml")) {
-                                rootPath = fullPath;
-                        }
-                }
-        }
+			if (mediaType != null
+					&& mediaType.equals("application/oebps-package+xml")) {
+				rootPath = fullPath;
+			}
+		}
+	}
 
-        public void endElement() {
-        }
+	public void endElement(XMLElement e, int line, int column) {
+	}
 
-        public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
-        }
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
+			XMLElement e, int line, int column) {
+	}
 
-        public void characters(char[] chars, int arg1, int arg2) {
-        }
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line, int column) {
+	}
 
-        public void processingInstruction(String arg0, String arg1) {
-        }
-
+	public void processingInstruction(String arg0, String arg1, XMLElement e,
+			int line, int column) {
+	}
 }
