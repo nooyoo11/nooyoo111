@@ -5,15 +5,15 @@ Current version: 3.0b
 
 == About ==
 
-EpubCheck 3.0 is the continuation of the EpubCheck 1.2 project, upgraded to support validation of [http://idpf.org/epub/30 EPUB 3.0] content besides the legacy [http://idpf.org/epub/201 EPUB 2.0]. 
+!EpubCheck 3.0 is the continuation of the EpubCheck 1.2 project, upgraded to support validation of [http://idpf.org/epub/30 EPUB 3.0] content besides the legacy [http://idpf.org/epub/201 EPUB 2.0]. 
 
-At the time of this writing, the available build is a [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Development development build ] in an early alpha stage. We do not guarantee correct results, and there are many tests remaining to be added. [#Contributing_to Your contributions] will help us make EpubCheck 3.0 stable faster.
+At the time of this writing, the available build is a [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Development development build ] in an early alpha stage. We do not guarantee correct results, and there are many tests remaining to be added. [#Contributing_to Your contributions] will help us make !EpubCheck 3.0 stable faster.
 
 Another new feature added to 3.0 is _single file validation_. Currently, the following types are supported: OPF/Package Documents, XHTML, SVG, Navigation Documents and Media Overlay documents (the latter two naturally supported only in EPUB 3.0 mode).
 
 EpubCheck 3.0 also supports validation of an unzipped EPUB with the possibility to save the created EPUB archive. 
 
-_If you are using EpubCheck to validate EPUB 2 content and have problems with this development release, we recommend that you revert to using the [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Stable stable build]._
+_If you are using !EpubCheck to validate EPUB 2 content and have problems with this development release, we recommend that you revert to using the [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Stable stable build]._
 
 == Running ==
 
