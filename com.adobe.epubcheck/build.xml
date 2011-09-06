@@ -126,7 +126,7 @@
 
                 <zip zipfile="${distribution.dir}/epubcheck-src-${version}.zip">
                         <fileset dir="${epubcheck.base.dir}" includes="**/*.*"
-                                excludes="dist/**/*.* bin/**/*.*"/>
+                                excludes="dist/**/*.* bin/**/*.* temp/**/*.* build-and-run-tests.xml"/>
                 </zip>
         </target>
 
@@ -136,7 +136,7 @@
         ********************
         -->
         <target name="buildEpubChecker" description="Creates binary jar zip and source zip"
-                depends="iso-sch-prep,buildSrcZip,
+                depends="clean,iso-sch-prep,buildSrcZip,
                                          buildBinZip
                                         "/>
         
