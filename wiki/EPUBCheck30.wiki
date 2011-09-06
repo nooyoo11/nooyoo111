@@ -11,7 +11,7 @@ At the time of this writing, the available build is a [http://code.google.com/p/
 
 Another new feature added to 3.0 is _single file validation_. Currently, the following types are supported: OPF/Package Documents, XHTML, SVG, Navigation Documents and Media Overlay documents (the latter two naturally supported only in EPUB 3.0 mode).
 
-EpubCheck 3.0 also supports validation of an unzipped EPUB with the possibility to save the created EPUB archive. 
+!EpubCheck 3.0 also supports validation of an unzipped EPUB with the possibility to save the created EPUB archive. 
 
 _If you are using !EpubCheck to validate EPUB 2 content and have problems with this development release, we recommend that you revert to using the [http://code.google.com/p/epubcheck/downloads/list?can=2&q=Build-Stable stable build]._
 
@@ -45,7 +45,7 @@ Additional flags:
 Note that when validating a single file, only a subset of the available tests is run. Also, when validating a full EPUB, both mode and version are ignored.
 
 
-== Contributing to EpubCheck==
+== Contributing to !EpubCheck==
 
 If you'd like to contribute to the epubcheck project, then there's some things you'll probably want to do:
  * Join the discussion group for epubcheck
