@@ -30,12 +30,12 @@ java -jar epubcheck-3.0b1.jar file -mode MODE -v VERSION
 }}}
 where MODE must be one of the following:
 
- * opf for package document validation;
- * nav for navigation document validation (available only for version 3.0);
- * mo for media overlay validation (available only for version 3.0);
- * xhtml;
- * svg;
- * exp for Expanded EPUB validation; 
+ * `opf` for package document validation;
+ * `nav` for navigation document validation (available only for version 3.0);
+ * `mo` for media overlay validation (available only for version 3.0);
+ * `xhtml`;
+ * `svg`;
+ * `exp` for Expanded EPUB validation; 
 
 When using -mode exp, one could add an extra flag -save to save the created archive upon validation:
 	java -jar epubcheck-3.0b1.jar dir -mode exp -save
