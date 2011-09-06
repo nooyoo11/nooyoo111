@@ -38,7 +38,7 @@ where MODE must be one of the following:
  * exp for Expanded EPUB validation; 
 
 When using -mode exp, one could add an extra flag -save to save the created archive upon validation:
-	java -jar epubcheck-3.0a.jar dir -mode exp -save
+	java -jar epubcheck-3.0b1.jar dir -mode exp -save
 VERSION must be 2.0 or 3.0.
 Additional flags:
 	-help displays a help message;
