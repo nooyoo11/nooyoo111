@@ -243,7 +243,7 @@ public class OPFHandler implements XMLHandler {
 				String type = e.getAttribute("type");
 				String title = e.getAttribute("title");
 				String href = e.getAttribute("href");
-				if (href != null) {
+				if (href != null && xrefChecker != null) {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 						xrefChecker.registerReference(path, line, column, href,
@@ -351,7 +351,7 @@ public class OPFHandler implements XMLHandler {
 				if (idAttr != null && !idAttr.equals("")
 						&& idAttr.equals(uniqueIdent)) {
 					String idval = (String) e.getPrivateData();
-					if (idval != null)
+					if (idval != null && ocf != null)
 						ocf.setUniqueIdentifier(idval);
 				}
 			} else if (name.equals("date")) {

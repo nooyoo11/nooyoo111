@@ -74,8 +74,8 @@ public class OPFCheckerTest {
 			resourceProvider = new FileResourceProvider(path + relativePath
 					+ fileName);
 
-		opfChecker = new OPFChecker(path + relativePath + fileName,
-				resourceProvider, testReport);
+		opfChecker = new OPFChecker("test_single_opf", resourceProvider,
+				testReport);
 		opfChecker.validate();
 
 		if (verbose) {
@@ -120,7 +120,7 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/malformed.opf", 2, 0,
 				EPUBVersion.VERSION_3);
 	}
-	
+
 	@Test
 	public void testValidateDocumentNoPackageElement() {
 		testValidateDocument("invalid/noPackageElement.opf", 3, 0,
@@ -164,8 +164,8 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentFallback001() {
-		testValidateDocument("invalid/fallback-001.opf", 1, 0,
-				EPUBVersion.VERSION_3);
+		testValidateDocument("invalid/fallback-001.opf", 2, 0,
+				EPUBVersion.VERSION_3, true);
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentItemref001() {
-		testValidateDocument("invalid/itemref-001.opf", 1, 0,
+		testValidateDocument("invalid/itemref-001.opf", 2, 0,
 				EPUBVersion.VERSION_3);
 	}
 
@@ -206,7 +206,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentMinlegth() {
-		testValidateDocument("invalid/minlength.opf", 6, 0,
+		testValidateDocument("invalid/minlength.opf", 8, 0,
 				EPUBVersion.VERSION_3);
 	}
 
@@ -256,7 +256,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentTocncx002() {
-		testValidateDocument("invalid/tocncx-002.opf", 1, 0,
+		testValidateDocument("invalid/tocncx-002.opf", 2, 0,
 				EPUBVersion.VERSION_3);
 	}
 
