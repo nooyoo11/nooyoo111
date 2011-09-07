@@ -166,19 +166,6 @@ public class OPFChecker implements DocumentValidator {
 			return;
 		}
 
-		opfHandler = new OPFHandler(ocf, path, report, xrefChecker);
-
-		try {
-			version = ResourceUtil.retrieveOpfVersion(ocf.getInputStream(path));
-			System.out.println("Epub file version: "
-					+ (version == EPUBVersion.VERSION_2 ? "2.0" : "3.0"));
-		} catch (InvalidVersionException e) {
-			report.error(path, -1, -1,
-					"Failed obtaining OPF version: " + e.getMessage());
-			return;
-		} catch (IOException ignored) {
-		}
-
 		validate();
 
 		if (!opfHandler.checkUniqueIdentExists()) {
@@ -187,17 +174,6 @@ public class OPFChecker implements DocumentValidator {
 					-1,
 					0,
 					"unique-identifier attribute in package element must reference an existing identifier element id");
-		}
-
-		int refCount = opfHandler.getReferenceCount();
-		for (int i = 0; i < refCount; i++) {
-			OPFReference ref = opfHandler.getReference(i);
-			String itemPath = PathUtil.removeAnchor(ref.getHref());
-			if (opfHandler.getItemByPath(itemPath) == null) {
-				report.error(path, ref.getLineNumber(), ref.getColumnNumber(),
-						"File listed in reference element in guide was not declared in OPF manifest: "
-								+ ref.getHref());
-			}
 		}
 
 		int itemCount = opfHandler.getItemCount();
@@ -212,13 +188,6 @@ public class OPFChecker implements DocumentValidator {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), e.getMessage());
 			}
-			checkItem(item, opfHandler);
-		}
-
-		int spineItemCount = opfHandler.getSpineItemCount();
-		for (int i = 0; i < spineItemCount; i++) {
-			OPFItem item = opfHandler.getSpineItem(i);
-			checkSpineItem(item, opfHandler);
 		}
 
 		for (int i = 0; i < itemCount; i++) {
@@ -277,6 +246,11 @@ public class OPFChecker implements DocumentValidator {
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
 
+		if (version == EPUBVersion.VERSION_2)
+			opfHandler = new OPFHandler(ocf, path, report, xrefChecker);
+		else
+			opfHandler = new OPFHandler30(ocf, path, report, xrefChecker);
+
 		try {
 			opfParser = new XMLParser(new BufferedInputStream(
 					resourceProvider.getInputStream(path)), path, report);
@@ -289,11 +263,33 @@ public class OPFChecker implements DocumentValidator {
 			} else if (version == EPUBVersion.VERSION_3) {
 				opfParser.addValidator(opfValidator_30_RNC);
 				opfParser.addValidator(opfValidator_30_ISOSCH);
-			}	
+			}
 			opfParser.process();
-
 		} catch (IOException e) {
 			report.error(path, 0, 0, e.getMessage());
+		}
+
+		int refCount = opfHandler.getReferenceCount();
+		for (int i = 0; i < refCount; i++) {
+			OPFReference ref = opfHandler.getReference(i);
+			String itemPath = PathUtil.removeAnchor(ref.getHref());
+			if (opfHandler.getItemByPath(itemPath) == null) {
+				report.error(path, ref.getLineNumber(), ref.getColumnNumber(),
+						"File listed in reference element in guide was not declared in OPF manifest: "
+								+ ref.getHref());
+			}
+		}
+
+		int itemCount = opfHandler.getItemCount();
+		for (int i = 0; i < itemCount; i++) {
+			OPFItem item = opfHandler.getItem(i);
+			checkItem(item, opfHandler);
+		}
+
+		int spineItemCount = opfHandler.getSpineItemCount();
+		for (int i = 0; i < spineItemCount; i++) {
+			OPFItem item = opfHandler.getSpineItem(i);
+			checkSpineItem(item, opfHandler);
 		}
 
 		return errorsSoFar == report.getErrorCount()
@@ -443,16 +439,18 @@ public class OPFChecker implements DocumentValidator {
 		// FIXME this is a temporary fix; This class should be refactored.
 
 		if (mimeType != null) {
-			if (isBlessedSpineItemType(mimeType, version))
+			if (isBlessedSpineItemType(mimeType, version)
+					|| checkItemFallbacks(item, opfHandler))
 				return;
 
 			if (isBlessedStyleType(mimeType)
 					|| isDeprecatedBlessedStyleType(mimeType)
-					|| isBlessedImageType(mimeType))
+					|| isBlessedImageType(mimeType)) {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "'" + mimeType
 								+ "' is not a permissible spine media-type");
-			else if (!isDeprecatedBlessedItemType(mimeType)
+				System.out.println("greselutza");
+			} else if (!isDeprecatedBlessedItemType(mimeType)
 					&& item.getFallback() == null)
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "non-standard media-type '"
@@ -477,7 +475,8 @@ public class OPFChecker implements DocumentValidator {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
 					if (isBlessedSpineItemType(mimeType, version)
-							|| isDeprecatedBlessedItemType(mimeType))
+							|| (isDeprecatedBlessedItemType(mimeType))
+							&& version == EPUBVersion.VERSION_2)
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
 						return true;
