@@ -77,7 +77,6 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 			report.error(null, 0, 0, "OPS/XHTML file " + path
 					+ " cannot be decrypted");
 		else {
-			overlayHandler = new OverlayHandler(path, xrefChecker, report);
 			validate();
 		}
 	}
@@ -85,6 +84,7 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 	public boolean validate() {
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
+		overlayHandler = new OverlayHandler(path, xrefChecker, report);
 
 		try {
 			XMLParser overlayParser = new XMLParser(

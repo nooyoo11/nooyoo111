@@ -68,7 +68,7 @@ public class OPSHandler implements XMLHandler {
 		return null;
 	}
 
-	OPSHandler(String path, XRefChecker xrefChecker, Report report) {
+	public OPSHandler(String path, XRefChecker xrefChecker, Report report) {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 		this.report = report;
@@ -76,7 +76,8 @@ public class OPSHandler implements XMLHandler {
 
 	private void checkPaint(XMLElement e, String attr) {
 		String paint = e.getAttribute(attr);
-		if (paint != null && paint.startsWith("url(") && paint.endsWith(")")) {
+		if (xrefChecker != null && paint != null && paint.startsWith("url(")
+				&& paint.endsWith(")")) {
 			String href = paint.substring(4, paint.length() - 1);
 			href = PathUtil.resolveRelativeReference(path, href);
 			xrefChecker.registerReference(path, line, column, href,
@@ -90,7 +91,7 @@ public class OPSHandler implements XMLHandler {
 
 	private void checkImage(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
-		if (href != null) {
+		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
 			xrefChecker.registerReference(path, line, column, href,
 					XRefChecker.RT_IMAGE);
@@ -99,7 +100,7 @@ public class OPSHandler implements XMLHandler {
 
 	private void checkObject(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
-		if (href != null) {
+		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
 			xrefChecker.registerReference(path, line, column, href,
 					XRefChecker.RT_OBJECT);
@@ -109,7 +110,8 @@ public class OPSHandler implements XMLHandler {
 	private void checkLink(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
 		String rel = e.getAttributeNS(attrNS, "rel");
-		if (href != null && rel != null && rel.indexOf("stylesheet") >= 0) {
+		if (xrefChecker != null && href != null && rel != null
+				&& rel.indexOf("stylesheet") >= 0) {
 			href = PathUtil.resolveRelativeReference(path, href);
 			xrefChecker.registerReference(path, line, column, href,
 					XRefChecker.RT_STYLESHEET);
@@ -118,7 +120,7 @@ public class OPSHandler implements XMLHandler {
 
 	private void checkSymbol(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
-		if (href != null) {
+		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
 			xrefChecker.registerReference(path, line, column, href,
 					XRefChecker.RT_SVG_SYMBOL);
@@ -154,8 +156,9 @@ public class OPSHandler implements XMLHandler {
 				report.error(path, line, column, err.getMessage());
 				return;
 			}
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_HYPERLINK);
+			if (xrefChecker != null)
+				xrefChecker.registerReference(path, line, column, href,
+						XRefChecker.RT_HYPERLINK);
 		}
 	}
 
@@ -215,7 +218,7 @@ public class OPSHandler implements XMLHandler {
 				resourceType = XRefChecker.RT_HYPERLINK;
 			}
 		}
-		if (id != null)
+		if (xrefChecker != null && id != null)
 			xrefChecker.registerAnchor(path, line, column, id, resourceType);
 	}
 

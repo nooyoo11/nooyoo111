@@ -165,7 +165,7 @@ public class OPFCheckerTest {
 	@Test
 	public void testValidateDocumentFallback001() {
 		testValidateDocument("invalid/fallback-001.opf", 2, 0,
-				EPUBVersion.VERSION_3, true);
+				EPUBVersion.VERSION_3);
 	}
 
 	@Test
