@@ -117,12 +117,15 @@ public class OPFHandler30 extends OPFHandler {
 		if (property == null)
 			return;
 		property = property.replaceAll("[\\s]+", " ");
-		property = property.replaceAll("\\s:", ":");
+
 		String propertyArray[] = property.split(" ");
 		boolean right = false, left = false;
 
 		for (int i = 0; i < propertyArray.length; i++)
-			if (propertyArray[i].contains(":"))
+			if (propertyArray[i].endsWith(":"))
+				report.error(path, line, column,
+						"Property is not allowed to be composed only by a prefix!");
+			else if (propertyArray[i].contains(":"))
 				checkPrefix(propertyArray[i].substring(0,
 						propertyArray[i].indexOf(':')));
 			else if (propertyArray[i].equals("page-spread-left"))
@@ -142,10 +145,13 @@ public class OPFHandler30 extends OPFHandler {
 		if (property == null)
 			return;
 		property = property.replaceAll("[\\s]+", " ");
-		property = property.replaceAll("\\s:", ":");
+
 		String propertyArray[] = property.split(" ");
 		for (int i = 0; i < propertyArray.length; i++)
-			if (propertyArray[i].contains(":"))
+			if (propertyArray[i].endsWith(":"))
+				report.error(path, line, column,
+						"Property is not allowed to be composed only by a prefix!");
+			else if (propertyArray[i].contains(":"))
 				checkPrefix(propertyArray[i].substring(0,
 						propertyArray[i].indexOf(':')));
 			else if (!itemPropertySet.contains(propertyArray[i]))
@@ -157,10 +163,13 @@ public class OPFHandler30 extends OPFHandler {
 		if (rel == null)
 			return;
 		rel = rel.replaceAll("[\\s]+", " ");
-		rel = rel.replaceAll("\\s:", ":");
+
 		String relArray[] = rel.split(" ");
 		for (int i = 0; i < relArray.length; i++)
-			if (relArray[i].contains(":"))
+			if (relArray[i].endsWith(":"))
+				report.error(path, line, column,
+						"Link rel is not allowed to be composed only by a prefix!");
+			else if (relArray[i].contains(":"))
 				checkPrefix(relArray[i].substring(0, relArray[i].indexOf(':')));
 			else if (!linkRelSet.contains(relArray[i]))
 				report.error(path, line, column, "Undefined link rel: "
@@ -176,10 +185,13 @@ public class OPFHandler30 extends OPFHandler {
 		if (scheme == null)
 			return;
 		scheme = scheme.replaceAll("[\\s]+", " ");
-		scheme = scheme.replaceAll("\\s:", ":");
-		if (scheme.contains(":")) {
+
+		if (scheme.contains(":") && !scheme.endsWith(":")) {
 			checkPrefix(scheme.substring(0, scheme.indexOf(':')));
-		} else
+		} else if (scheme.endsWith(":"))
+			report.error(path, line, column,
+					"Property is not allowed to be composed only by a prefix!");
+		else
 			report.error(path, line, column,
 					"Unprefixed values for scheme attribute not allowed!");
 	}
@@ -196,12 +208,13 @@ public class OPFHandler30 extends OPFHandler {
 	private void processMetaProperty(String property) {
 		if (property == null)
 			return;
-		property = property.replaceAll("[\\s]+", " ");
-		property = property.replaceAll("\\s:", ":");
-		if (property.contains(":")) {
+		property = property.trim();
+		if (property.contains(":") && !property.endsWith(":")) {
 			checkPrefix(property.substring(0, property.indexOf(':')));
-		} else if (!metaPropertySet.contains(property))
+		} else if (property.endsWith(":"))
+			report.error(path, line, column,
+					"Meta property is not allowed to be composed only by a prefix!");
+		else if (!metaPropertySet.contains(property))
 			report.error(path, line, column, "Undefined propery " + property);
-
 	}
 }
