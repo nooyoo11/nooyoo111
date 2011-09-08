@@ -12,7 +12,7 @@ public class HandlerUtil {
 		if (prefix == null)
 			return;
 		prefix = prefix.replaceAll("[\\s]+", " ");
-		prefix = prefix.replaceAll("\\s:", ":");
+
 		String prefixArray[] = prefix.split(" ");
 		boolean validPrefix;
 		for (int i = 0; i < prefixArray.length; i++) {

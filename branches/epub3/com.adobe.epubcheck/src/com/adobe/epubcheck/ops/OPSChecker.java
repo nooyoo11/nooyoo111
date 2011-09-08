@@ -29,6 +29,8 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
+import com.adobe.epubcheck.opf.OPFHandler;
+import com.adobe.epubcheck.opf.OPFHandler30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
@@ -42,7 +44,8 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		XMLValidator xmlValidator = null;
 		XMLValidator schValidator = null;
 
-		public EpubValidator(XMLValidator xmlValidator, XMLValidator schValidator) {
+		public EpubValidator(XMLValidator xmlValidator,
+				XMLValidator schValidator) {
 			this.xmlValidator = xmlValidator;
 			this.schValidator = schValidator;
 		}
@@ -78,7 +81,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			"schema/30/epub-xhtml-30-PREP.sch");
 	static XMLValidator svgValidator_30_ISOSCH = new XMLValidator(
 			"schema/30/epub-svg-30-PREP.sch");
-	
+
 	private HashMap<OPSType, EpubValidator> epubValidatorMap;
 
 	private void initEpubValidatorMap() {
@@ -86,7 +89,8 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
 				new EpubValidator(xhtmlValidator_20_NVDL, null));
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
-				new EpubValidator(xhtmlValidator_30_RNC, xhtmlValidator_30_ISOSCH));
+				new EpubValidator(xhtmlValidator_30_RNC,
+						xhtmlValidator_30_ISOSCH));
 
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
 				new EpubValidator(svgValidator_20_RNG, null));
@@ -157,6 +161,12 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 		XMLParser opsParser = new XMLParser(
 				resourceProvider.getInputStream(path), path, report);
+
+		if (version == EPUBVersion.VERSION_2)
+			opsHandler = new OPSHandler(path, xrefChecker, report);
+		else
+			opsHandler = new OPSHandler30(path, xrefChecker, report);
+
 		opsParser.addXMLHandler(opsHandler);
 
 		if (rngValidator != null)
@@ -164,7 +174,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 		if (schValidator != null)
 			opsParser.addValidator(schValidator);
-		
+
 		opsParser.process();
 
 	}

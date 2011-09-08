@@ -29,9 +29,11 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.ops.OPSHandler30;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
+import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -93,6 +95,8 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 			XMLParser navParser = new XMLParser(
 					resourceProvider.getInputStream(path), path, report);
 
+			XMLHandler navHandler = new OPSHandler30(path, xrefChecker, report);
+			navParser.addXMLHandler(navHandler);
 			navParser.addValidator(navValidator_30_RNC);
 			navParser.addValidator(xhtmlValidator_30_ISOSCH);
 			navParser.addValidator(navValidator_30_ISOSCH);
@@ -104,5 +108,4 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		return errors == report.getErrorCount()
 				&& warnings == report.getWarningCount();
 	}
-
 }

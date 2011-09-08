@@ -270,4 +270,15 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/uid-002.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
+	@Test
+	public void testValidateDocumentPrefixes() {
+		testValidateDocument("invalid/prefixes.opf", 12, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentPrefixDeclaration() {
+		testValidateDocument("invalid/prefix-declaration.opf", 15, 0,
+				EPUBVersion.VERSION_3);
+	}
 }
