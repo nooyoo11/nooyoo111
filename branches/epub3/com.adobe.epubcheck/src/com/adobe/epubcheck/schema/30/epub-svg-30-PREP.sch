@@ -14,6 +14,5 @@
         <assert test="@requiredExtensions = 'http://www.idpf.org/2007/ops'">Invalid value (expecting: 'http://www.idpf.org/2007/ops')</assert>
     </rule>
 </pattern>
-    
         
 </schema>

@@ -159,33 +159,39 @@
         </rule>
     </pattern>
 
-    <pattern id="idref-aria-describedby">
-        <rule context="*[@aria-describedby]">
-            <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@aria-describedby">The <name path="@aria-describedby"/> attribute must refer to an element in the same document (the ID '<value-of select="current()/@aria-describedby"/>' does not exist).</assert>
+    <pattern id="idrefs-aria-describedby">
+        <rule context="*[@aria-describedby]">            
+            <assert test="every $idref in tokenize(@aria-describedby,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@aria-describedby"/> attribute must refer to elements in the same document (target ID missing)</assert>
         </rule>
     </pattern>
 
-    <pattern id="idref-aria-flowto">
-        <rule context="*[@aria-flowto]">
-            <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@aria-flowto">The <name path="@aria-flowto"/> attribute must refer to an element in the same document (the ID '<value-of select="current()/@aria-flowto"/>' does not exist).</assert>
+    <pattern id="idrefs-output-for">
+        <rule context="h:output[@for]">            
+            <assert test="every $idref in tokenize(@for,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@for"/> attribute must refer to elements in the same document (target ID missing)</assert>
         </rule>
     </pattern>
 
-    <pattern id="idref-aria-labelledby">
-        <rule context="*[@aria-labelledby]">
-            <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@aria-labelledby">The <name path="@aria-labelledby"/> attribute must refer to an element in the same document (the ID '<value-of select="current()/@aria-labelledby"/>' does not exist).</assert>
+    <pattern id="idrefs-aria-flowto">
+        <rule context="*[@aria-flowto]">            
+            <assert test="every $idref in tokenize(@aria-flowto,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@aria-flowto"/> attribute must refer to elements in the same document (target ID missing)</assert>
         </rule>
     </pattern>
 
-    <pattern id="idref-aria-owns">
-        <rule context="*[@aria-owns]">
-            <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@aria-owns">The <name path="@aria-owns"/> attribute must refer to an element in the same document (the ID '<value-of select="current()/@aria-owns"/>' does not exist).</assert>
+    <pattern id="idrefs-aria-labelledby">
+        <rule context="*[@aria-labelledby]">            
+            <assert test="every $idref in tokenize(@aria-labelledby,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@aria-labelledby"/> attribute must refer to elements in the same document (target ID missing)</assert>
         </rule>
     </pattern>
 
-    <pattern id="idref-aria-controls">
-        <rule context="*[@aria-controls]">
-            <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@aria-controls">The <name path="@aria-controls"/> attribute must refer to an element in the same document (the ID '<value-of select="current()/@aria-controls"/>' does not exist).</assert>
+    <pattern id="idrefs-aria-owns">
+        <rule context="*[@aria-owns]">            
+            <assert test="every $idref in tokenize(@aria-owns,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@aria-owns"/> attribute must refer to elements in the same document (target ID missing)</assert>
+        </rule>
+    </pattern>
+
+    <pattern id="idrefs-aria-controls">
+        <rule context="*[@aria-controls]">            
+            <assert test="every $idref in tokenize(@aria-controls,'\s+') satisfies (some $elem in $id-set satisfies ($elem/@id eq $idref))">The <name path="@aria-controls"/> attribute must refer to elements in the same document (target ID missing)</assert>
         </rule>
     </pattern>
     
@@ -230,13 +236,7 @@
             <assert test="some $elem in $id-set satisfies $elem/@id eq current()/@for and                     (local-name($elem) eq 'button'                   or (local-name($elem) eq 'input' and not($elem/@type='hidden'))                  or local-name($elem) eq 'keygen'                   or local-name($elem) eq 'meter'                  or local-name($elem) eq 'output'                   or local-name($elem) eq 'progress'                   or local-name($elem) eq 'select'                   or local-name($elem) eq 'textarea')">The for attribute does not refer to an allowed target element (expecting: button|keygen|meter|output|progress|select|textarea|input[not(@type='hidden')]).</assert>
         </rule>
     </pattern>
-    
-    <pattern id="idrefs-output-for">        
-        <rule context="h:output[@for]">
-            <assert test="every $idref in tokenize(@for, '\s+') satisfies (some $elem in $id-set satisfies $elem/@id eq $idref)">The for attribute must refer to elements in the same document.</assert>
-        </rule>
-    </pattern>
-    
+            
     <pattern id="idrefs-headers">        
         <rule context="h:*[@headers]">    
             <let name="table" value="ancestor::h:table"/>
@@ -317,7 +317,22 @@
             <assert test="count(preceding-sibling::h:meta[@charset]) = 0">There must not be more than one meta element with a charset attribute per document.</assert>
         </rule>
     </pattern>
-                
+    
+    <pattern id="article-pubdate">
+        <rule context="h:article[h:time]">
+            <assert test="count(./h:time[@pubdate]) &lt; 2">For each article element, there must be no more than one time element child with a pubdate attribute</assert>
+        </rule>
+    </pattern>
+    
+    <pattern id="document-pubdate">
+        <rule context="h:time[not (ancestor::h:article)]">
+            <assert test="count(//h:time[@pubdate and not (ancestor::h:article)]) &lt; 2">For each Document, there must be no more than one time element with a pubdate 
+                attribute that does not have an ancestor article element.</assert>
+        </rule>
+    </pattern>
+
+    
+
     
 
     
