@@ -30,13 +30,14 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public class CSSCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
-		return new CSSChecker(ocf, report, path, xrefChecker);
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, XRefChecker xrefChecker,
+			EPUBVersion version) {
+		return new CSSChecker(ocf, report, path, xrefChecker, version);
 	}
 
 	static private CSSCheckerFactory instance = new CSSCheckerFactory();
-	
+
 	static public CSSCheckerFactory getInstance() {
 		return instance;
 	}

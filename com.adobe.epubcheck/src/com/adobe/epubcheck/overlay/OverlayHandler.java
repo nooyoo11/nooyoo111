@@ -3,6 +3,7 @@ package com.adobe.epubcheck.overlay;
 import java.util.HashSet;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EpubTypeAttributes;
 import com.adobe.epubcheck.util.HandlerUtil;
@@ -82,6 +83,14 @@ public class OverlayHandler implements XMLHandler {
 	private void processRef(String ref, int type) {
 		if (ref != null && xrefChecker != null) {
 			ref = PathUtil.resolveRelativeReference(path, ref);
+			if (type == XRefChecker.RT_AUDIO) {
+				String mimeType = xrefChecker.getMimeType(ref);
+				if (mimeType != null
+						&& !OPFChecker30.isBlessedAudioType(mimeType))
+					report.error(path, line, column,
+							"Media Overlay audio refernence " + ref
+									+ " to non-standard audio type " + mimeType);
+			}
 			xrefChecker.registerReference(path, line, column, ref, type);
 		}
 	}

@@ -42,7 +42,7 @@ public class XRefChecker {
 	public static final int RT_OBJECT = 3;
 
 	public static final int RT_STYLESHEET = 4;
-	
+
 	public static final int RT_AUDIO = 5;
 
 	public static final int RT_SVG_PAINT = 0x10;
@@ -137,6 +137,12 @@ public class XRefChecker {
 		this.ocf = ocf;
 		this.report = report;
 		this.version = version;
+
+	}
+
+	public String getMimeType(String path) {
+		return resources.get(path) != null ? resources.get(path).mimeType
+				: null;
 	}
 
 	public void registerResource(String resource, String mimeType,
@@ -230,7 +236,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
+						&& !OPFChecker.isBlessedItemType(res.mimeType)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
@@ -288,7 +294,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
+						&& !OPFChecker.isBlessedItemType(res.mimeType)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)

@@ -32,18 +32,12 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
 import com.adobe.epubcheck.css.CSSCheckerFactory;
 import com.adobe.epubcheck.dtbook.DTBookCheckerFactory;
-import com.adobe.epubcheck.nav.NavCheckerFactory;
 import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
-import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
-import com.adobe.epubcheck.util.InvalidVersionException;
-import com.adobe.epubcheck.util.Messages;
-import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.util.PathUtil;
-import com.adobe.epubcheck.util.ResourceUtil;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -57,74 +51,33 @@ public class OPFChecker implements DocumentValidator {
 
 	HashSet<String> containerEntries;
 
-	EPUBVersion version;
-
-	static XMLValidator opfValidator_20_RNG = new XMLValidator(
+	protected XMLValidator opfValidator = new XMLValidator(
 			"schema/20/rng/opf.rng");
 
-	static XMLValidator opfValidator_20_SCH = new XMLValidator(
+	protected XMLValidator opfSchematronValidator = new XMLValidator(
 			"schema/20/sch/opf.sch");
-
-	static XMLValidator opfValidator_30_RNC = new XMLValidator(
-			"schema/30/package-30.rnc");
-
-	static XMLValidator opfValidator_30_ISOSCH = new XMLValidator(
-			"schema/30/package-30-PREP.sch");
 
 	XRefChecker xrefChecker;
 
+	static Hashtable contentCheckerFactoryMap;
+
 	OPFHandler opfHandler = null;
 
-	GenericResourceProvider resourceProvider;
+	protected EPUBVersion version;
 
-	static Hashtable<OPSType, ContentCheckerFactory> contentCheckerFactoryMap;
+	protected GenericResourceProvider resourceProvider = null;
 
 	static {
-		Hashtable<OPSType, ContentCheckerFactory> map = new Hashtable<OPSType, ContentCheckerFactory>();
-		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
-				OPSCheckerFactory.getInstance());
-		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
-				OPSCheckerFactory.getInstance());
-
-		map.put(new OPSType("text/x-oeb1-document", EPUBVersion.VERSION_2),
-				OPSCheckerFactory.getInstance());
-
-		map.put(new OPSType("application/x-dtbook+xml", EPUBVersion.VERSION_2),
-				DTBookCheckerFactory.getInstance());
-
-		map.put(new OPSType("image/jpeg", EPUBVersion.VERSION_2),
-				BitmapCheckerFactory.getInstance());
-		map.put(new OPSType("image/jpeg", EPUBVersion.VERSION_3),
-				BitmapCheckerFactory.getInstance());
-
-		map.put(new OPSType("image/gif", EPUBVersion.VERSION_2),
-				BitmapCheckerFactory.getInstance());
-		map.put(new OPSType("image/gif", EPUBVersion.VERSION_3),
-				BitmapCheckerFactory.getInstance());
-
-		map.put(new OPSType("image/png", EPUBVersion.VERSION_2),
-				BitmapCheckerFactory.getInstance());
-		map.put(new OPSType("image/png", EPUBVersion.VERSION_3),
-				BitmapCheckerFactory.getInstance());
-
-		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
-				OPSCheckerFactory.getInstance());
-		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
-				OPSCheckerFactory.getInstance());
-
-		map.put(new OPSType("text/css", EPUBVersion.VERSION_2),
-				CSSCheckerFactory.getInstance());
-		map.put(new OPSType("text/css", EPUBVersion.VERSION_3),
-				CSSCheckerFactory.getInstance());
-
-		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
-				OPSCheckerFactory.getInstance());
-
-		map.put(new OPSType("text/html", EPUBVersion.VERSION_2),
-				OPSCheckerFactory.getInstance());
-
-		map.put(new OPSType("application/smil+xml", EPUBVersion.VERSION_3),
-				OverlayCheckerFactory.getInstance());
+		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
+		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
+		map.put("text/html", OPSCheckerFactory.getInstance());
+		map.put("text/x-oeb1-document", OPSCheckerFactory.getInstance());
+		map.put("image/jpeg", BitmapCheckerFactory.getInstance());
+		map.put("image/gif", BitmapCheckerFactory.getInstance());
+		map.put("image/png", BitmapCheckerFactory.getInstance());
+		map.put("image/svg+xml", OPSCheckerFactory.getInstance());
+		map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
+		map.put("text/css", CSSCheckerFactory.getInstance());
 
 		contentCheckerFactoryMap = map;
 	}
@@ -146,33 +99,25 @@ public class OPFChecker implements DocumentValidator {
 		this.resourceProvider = resourceProvider;
 		this.report = report;
 		this.path = path;
-		try {
-			this.version = ResourceUtil.retrieveOpfVersion(resourceProvider
-					.getInputStream(path));
-		} catch (InvalidVersionException e) {
-			report.error(path, -1, -1,
-					String.format(Messages.INVALID_OPF_Version, e.getMessage()));
+		this.version = EPUBVersion.VERSION_2;
+	}
 
-			return;
-		} catch (IOException e) {
-			report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
-			return;
-		}
+	public OPFChecker() {
+		// TODO Auto-generated constructor stub
 	}
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path)) {
-			report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
+			report.error(null, 0, 0, "OPF file " + path + " is missing");
 			return;
 		}
-
 		validate();
 
 		if (!opfHandler.checkUniqueIdentExists()) {
 			report.error(
 					path,
 					-1,
-					0,
+					-1,
 					"unique-identifier attribute in package element must reference an existing identifier element id");
 		}
 
@@ -188,6 +133,7 @@ public class OPFChecker implements DocumentValidator {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), e.getMessage());
 			}
+			checkItem(item, opfHandler);
 		}
 
 		for (int i = 0; i < itemCount; i++) {
@@ -241,29 +187,28 @@ public class OPFChecker implements DocumentValidator {
 		xrefChecker.checkReferences();
 	}
 
+	public void initHandler() {
+		opfHandler = new OPFHandler(ocf, path, report, xrefChecker);
+	}
+
+	@Override
 	public boolean validate() {
 		XMLParser opfParser = null;
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
 
-		if (version == EPUBVersion.VERSION_2)
-			opfHandler = new OPFHandler(ocf, path, report, xrefChecker);
-		else
-			opfHandler = new OPFHandler30(ocf, path, report, xrefChecker);
+		initHandler();
 
 		try {
+
 			opfParser = new XMLParser(new BufferedInputStream(
 					resourceProvider.getInputStream(path)), path, report);
 
 			opfParser.addXMLHandler(opfHandler);
 
-			if (version == EPUBVersion.VERSION_2) {
-				opfParser.addValidator(opfValidator_20_RNG);
-				opfParser.addValidator(opfValidator_20_SCH);
-			} else if (version == EPUBVersion.VERSION_3) {
-				opfParser.addValidator(opfValidator_30_RNC);
-				opfParser.addValidator(opfValidator_30_ISOSCH);
-			}
+			opfParser.addValidator(opfValidator);
+			opfParser.addValidator(opfSchematronValidator);
+
 			opfParser.process();
 		} catch (IOException e) {
 			report.error(path, 0, 0, e.getMessage());
@@ -296,43 +241,30 @@ public class OPFChecker implements DocumentValidator {
 				&& warningsSoFar == report.getWarningCount();
 	}
 
-	static boolean isBlessedSpineItemType(String type, EPUBVersion version) {
-		if (version == EPUBVersion.VERSION_2)
-			return type.equals("application/xhtml+xml")
-					|| type.equals("application/x-dtbook+xml");
-
+	public static boolean isBlessedItemType(String type) {
 		return type.equals("application/xhtml+xml")
-				|| type.equals("image/svg+xml");
+				|| type.equals("application/x-dtbook+xml");
+
 	}
 
-	static boolean isBlessedItemType(String type, EPUBVersion version) {
-		if (version == EPUBVersion.VERSION_2)
-			return type.equals("application/xhtml+xml")
-					|| type.equals("application/x-dtbook+xml")
-					|| type.equals("font/opentype");
-
-		return type.equals("application/xhtml+xml")
-				|| type.equals("image/svg+xml") || type.equals("font/opentype");
-	}
-
-	static boolean isDeprecatedBlessedItemType(String type) {
+	public static boolean isDeprecatedBlessedItemType(String type) {
 		return type.equals("text/x-oeb1-document") || type.equals("text/html");
 	}
 
-	static boolean isBlessedStyleType(String type) {
+	public static boolean isBlessedStyleType(String type) {
 		return type.equals("text/css");
 	}
 
-	static boolean isDeprecatedBlessedStyleType(String type) {
+	public static boolean isDeprecatedBlessedStyleType(String type) {
 		return type.equals("text/x-oeb1-css");
 	}
 
-	static boolean isBlessedImageType(String type) {
+	public static boolean isBlessedImageType(String type) {
 		return type.equals("image/gif") || type.equals("image/png")
 				|| type.equals("image/jpeg") || type.equals("image/svg+xml");
 	}
 
-	private void checkItem(OPFItem item, OPFHandler opfHandler) {
+	protected void checkItem(OPFItem item, OPFHandler opfHandler) {
 		String mimeType = item.getMimeType();
 		String fallback = item.getFallback();
 		if (mimeType == null || mimeType.equals("")) {
@@ -367,7 +299,7 @@ public class OPFChecker implements DocumentValidator {
 								+ mimeType + "'");
 		}
 		if (opfHandler.getOpf12PackageFile() && fallback == null) {
-			if (isBlessedItemType(mimeType, version))
+			if (isBlessedItemType(mimeType))
 				report.warning(
 						path,
 						item.getLineNumber(),
@@ -401,32 +333,27 @@ public class OPFChecker implements DocumentValidator {
 		}
 	}
 
-	private void checkItemContent(OPFItem item, OPFHandler opfHandler) {
+	protected void checkItemContent(OPFItem item, OPFHandler opfHandler) {
 		String mimeType = item.getMimeType();
 		String path = item.getPath();
 		if (mimeType != null) {
 			ContentCheckerFactory checkerFactory;
 			if (item.isNcx())
 				checkerFactory = NCXCheckerFactory.getInstance();
-			else if (item.isNav())
-				checkerFactory = NavCheckerFactory.getInstance();
 			else
 				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
-						.get(new OPSType(mimeType, version));
-
+						.get(mimeType);
 			if (checkerFactory == null)
 				checkerFactory = GenericContentCheckerFactory.getInstance();
 			if (checkerFactory != null) {
-				ContentChecker checker;
-
-				checker = checkerFactory.newInstance(ocf, report, path,
-						mimeType, xrefChecker, version);
+				ContentChecker checker = checkerFactory.newInstance(ocf,
+						report, path, mimeType, xrefChecker, version);
 				checker.runChecks();
 			}
 		}
 	}
 
-	private void checkSpineItem(OPFItem item, OPFHandler opfHandler) {
+	protected void checkSpineItem(OPFItem item, OPFHandler opfHandler) {
 		// These checks are okay to be done on <spine> items, but they really
 		// should be done on all
 		// <manifest> items instead. I am avoiding making this change now
@@ -434,28 +361,22 @@ public class OPFChecker implements DocumentValidator {
 		// resolutions in the EPUB Maint Working Group (e.g. embedded fonts not
 		// needing fallbacks).
 		// [GC 11/15/09]
-
 		String mimeType = item.getMimeType();
-		// FIXME this is a temporary fix; This class should be refactored.
-
 		if (mimeType != null) {
-			if (isBlessedSpineItemType(mimeType, version)
-					|| checkItemFallbacks(item, opfHandler))
-				return;
-
 			if (isBlessedStyleType(mimeType)
 					|| isDeprecatedBlessedStyleType(mimeType)
-					|| isBlessedImageType(mimeType)) {
+					|| isBlessedImageType(mimeType))
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "'" + mimeType
 								+ "' is not a permissible spine media-type");
-				System.out.println("greselutza");
-			} else if (!isDeprecatedBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType)
+					&& !isDeprecatedBlessedItemType(mimeType)
 					&& item.getFallback() == null)
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "non-standard media-type '"
 								+ mimeType + "' with no fallback");
-			else if (!isDeprecatedBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType)
+					&& !isDeprecatedBlessedItemType(mimeType)
 					&& !checkItemFallbacks(item, opfHandler))
 				report.error(
 						path,
@@ -467,16 +388,15 @@ public class OPFChecker implements DocumentValidator {
 		}
 	}
 
-	private boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
+	protected boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
 		String fallback = item.getFallback();
 		if (fallback != null) {
 			OPFItem fallbackItem = opfHandler.getItemById(fallback);
 			if (fallbackItem != null) {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
-					if (isBlessedSpineItemType(mimeType, version)
-							|| (isDeprecatedBlessedItemType(mimeType))
-							&& version == EPUBVersion.VERSION_2)
+					if (isBlessedItemType(mimeType)
+							|| isDeprecatedBlessedItemType(mimeType))
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
 						return true;
@@ -498,7 +418,7 @@ public class OPFChecker implements DocumentValidator {
 		return false;
 	}
 
-	private boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
+	protected boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
 		String fallback = item.getFallback();
 		if (fallback != null) {
 			OPFItem fallbackItem = opfHandler.getItemById(fallback);
