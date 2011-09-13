@@ -38,7 +38,10 @@ public class OPFCheckerFactory implements DocumentValidatorFactory {
 			GenericResourceProvider resourceProvider, String mimeType,
 			EPUBVersion version) {
 
-		return new OPFChecker(path, resourceProvider, report);
+		if (version == EPUBVersion.VERSION_2)
+			return new OPFChecker(path, resourceProvider, report);
+		else
+			return new OPFChecker30(path, resourceProvider, report);
 	}
 
 }

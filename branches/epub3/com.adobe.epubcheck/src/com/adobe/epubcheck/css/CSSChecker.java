@@ -30,6 +30,7 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.Messages;
 
 public class CSSChecker implements ContentChecker {
@@ -38,19 +39,22 @@ public class CSSChecker implements ContentChecker {
 	private Report report;
 	private String path;
 	private XRefChecker xrefChecker;
+	private EPUBVersion version;
 
 	public CSSChecker(OCFPackage ocf, Report report, String path,
-			XRefChecker xrefChecker) {
+			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
+		this.version = version;
 	}
 
 	public void runChecks() {
 		try {
 			if (!ocf.hasEntry(path)) {
-				report.error(null, 0, 0, String.format(Messages.MISSING_FILE, path));
+				report.error(null, 0, 0,
+						String.format(Messages.MISSING_FILE, path));
 				return;
 			}
 
@@ -60,7 +64,8 @@ public class CSSChecker implements ContentChecker {
 			ParserFactory pf = new ParserFactory();
 			Parser parser = pf.makeParser();
 
-			parser.setDocumentHandler(new CSSHandler(path, xrefChecker, report));
+			parser.setDocumentHandler(new CSSHandler(path, xrefChecker, report,
+					version));
 
 			InputSource input = new InputSource();
 

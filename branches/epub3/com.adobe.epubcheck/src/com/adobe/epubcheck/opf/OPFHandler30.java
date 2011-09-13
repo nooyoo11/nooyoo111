@@ -110,7 +110,6 @@ public class OPFHandler30 extends OPFHandler {
 			processItemProperties(e.getAttribute("properties"));
 		else if (name.equals("itemref"))
 			processItemrefProperties(e.getAttribute("properties"));
-
 	}
 
 	private void processItemrefProperties(String property) {

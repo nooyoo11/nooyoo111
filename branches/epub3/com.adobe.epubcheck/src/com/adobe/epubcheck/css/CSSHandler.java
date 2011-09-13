@@ -30,7 +30,9 @@ import org.w3c.css.sac.SACMediaList;
 import org.w3c.css.sac.SelectorList;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 
@@ -42,6 +44,10 @@ class CSSHandler implements DocumentHandler {
 
 	Report report;
 
+	boolean fontFace = false;
+
+	EPUBVersion version;
+
 	public void comment(String text) throws CSSException {
 	}
 
@@ -49,6 +55,7 @@ class CSSHandler implements DocumentHandler {
 	}
 
 	public void endFontFace() throws CSSException {
+		fontFace = false;
 	}
 
 	public void endMedia(SACMediaList media) throws CSSException {
@@ -71,10 +78,12 @@ class CSSHandler implements DocumentHandler {
 			throws CSSException {
 	}
 
-	public CSSHandler(String path, XRefChecker xrefChecker, Report report) {
+	public CSSHandler(String path, XRefChecker xrefChecker, Report report,
+			EPUBVersion version) {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 		this.report = report;
+		this.version = version;
 	}
 
 	public void property(String name, LexicalUnit value, boolean arg2)
@@ -90,7 +99,16 @@ class CSSHandler implements DocumentHandler {
 					uri = PathUtil.resolveRelativeReference(path, uri);
 
 					xrefChecker.registerReference(path, -1, -1, uri,
-							XRefChecker.RT_HYPERLINK);
+							XRefChecker.RT_GENERIC);
+
+					if (fontFace && version == EPUBVersion.VERSION_3) {
+						String fontMimeType = xrefChecker.getMimeType(uri);
+						if (!OPFChecker30.isBlessedFontType(fontMimeType))
+							report.error(path, -1, -1, "Font-face reference "
+									+ uri + "to non-standard font type "
+									+ fontMimeType);
+					}
+
 				} else
 					report.error(path, -1, -1, Messages.NULL_REF);
 	}
@@ -99,6 +117,7 @@ class CSSHandler implements DocumentHandler {
 	}
 
 	public void startFontFace() throws CSSException {
+		fontFace = true;
 	}
 
 	public void startMedia(SACMediaList media) throws CSSException {

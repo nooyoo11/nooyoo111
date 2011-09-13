@@ -28,6 +28,7 @@ import java.util.Hashtable;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
+import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.OPSType;
@@ -135,8 +136,14 @@ public class OCFChecker {
 		// reported by the
 		// validation step on META-INF/container.xml.
 		if (rootPath != null) {
-			OPFChecker opfChecker = new OPFChecker(ocf, report, rootPath,
-					containerHandler.getContainerEntries(), version);
+			OPFChecker opfChecker = null;
+
+			if (version == EPUBVersion.VERSION_2)
+				opfChecker = new OPFChecker(ocf, report, rootPath,
+						containerHandler.getContainerEntries(), version);
+			else
+				opfChecker = new OPFChecker30(ocf, report, rootPath,
+						containerHandler.getContainerEntries(), version);
 			opfChecker.runChecks();
 		}
 	}

@@ -42,7 +42,7 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 
 	String path;
 
-	XRefChecker xrefChecker;
+	XRefChecker xrefChecker = null;
 
 	GenericResourceProvider resourceProvider;
 
@@ -72,10 +72,9 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, 0, "OPS/XHTML file " + path + " is missing");
+			report.error(null, 0, 0, "File " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, 0, "OPS/XHTML file " + path
-					+ " cannot be decrypted");
+			report.error(null, 0, 0, "File " + path + " cannot be decrypted");
 		else {
 			validate();
 		}
