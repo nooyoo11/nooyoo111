@@ -157,7 +157,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentCoverImage() {
-		testValidateDocument("invalid/cover-image.opf", 1, 0,
+		testValidateDocument("invalid/cover-image.opf", 2, 0,
 				EPUBVersion.VERSION_3);
 	}
 
@@ -216,6 +216,12 @@ public class OPFCheckerTest {
 	}
 
 	@Test
+	public void testValidateDocumentForeign() {
+		testValidateDocument("invalid/foreign.opf", 1, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
 	public void testValidateDocumentModified() {
 		testValidateDocument("invalid/modified.opf", 1, 0,
 				EPUBVersion.VERSION_3);
@@ -233,7 +239,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentNav003() {
-		testValidateDocument("invalid/nav-003.opf", 1, 0, EPUBVersion.VERSION_3);
+		testValidateDocument("invalid/nav-003.opf", 2, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
@@ -283,6 +289,12 @@ public class OPFCheckerTest {
 	@Test
 	public void testValidateDocumentPrefixDeclaration() {
 		testValidateDocument("invalid/prefix-declaration.opf", 14, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentItemProperties() {
+		testValidateDocument("invalid/item-properties.opf", 1, 0,
 				EPUBVersion.VERSION_3);
 	}
 }

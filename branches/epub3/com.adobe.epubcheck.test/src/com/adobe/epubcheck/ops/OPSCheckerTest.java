@@ -202,6 +202,18 @@ public class OPSCheckerTest {
 	}
 
 	@Test
+	public void testValidateXHTMLData() {
+		testValidateDocument("xhtml/valid/data.xhtml", "application/xhtml+xml",
+				0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLVideo() {
+		testValidateDocument("xhtml/valid/video.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
 	public void testValidateXHTML_OPSMATHML001() {
 		testValidateDocument("xhtml/invalid/ops-mathml-001.xhtml",
 				"application/xhtml+xml", 4, 0, EPUBVersion.VERSION_3);
