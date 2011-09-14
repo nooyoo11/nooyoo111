@@ -31,13 +31,14 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public class BitmapCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
 		return new BitmapChecker(ocf, report, path, mimeType);
 	}
 
 	static private BitmapCheckerFactory instance = new BitmapCheckerFactory();
-	
+
 	static public BitmapCheckerFactory getInstance() {
 		return instance;
 	}

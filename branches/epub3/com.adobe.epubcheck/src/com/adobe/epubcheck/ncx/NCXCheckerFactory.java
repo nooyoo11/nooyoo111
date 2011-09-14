@@ -31,16 +31,16 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public class NCXCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
-		return new NCXChecker( ocf, report, path, xrefChecker );
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
+		return new NCXChecker(ocf, report, path, xrefChecker);
 	}
-	
+
 	static private NCXCheckerFactory instance = new NCXCheckerFactory();
-	
+
 	static public NCXCheckerFactory getInstance() {
 		return instance;
 	}
-	
 
 }

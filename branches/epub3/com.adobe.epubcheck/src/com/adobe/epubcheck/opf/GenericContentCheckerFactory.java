@@ -28,15 +28,16 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public class GenericContentCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
 		return new GenericContentChecker(ocf, report, path);
 	}
 
 	static private GenericContentCheckerFactory instance = new GenericContentCheckerFactory();
-	
+
 	static public GenericContentCheckerFactory getInstance() {
 		return instance;
 	}
-	
+
 }

@@ -67,7 +67,7 @@ public class NavCheckerTest {
 			resourceProvider = new FileResourceProvider(path + fileName);
 
 		navChecker = new NavChecker(resourceProvider, testReport, path
-				+ fileName, EPUBVersion.VERSION_3);
+				+ fileName, "application/xhtml+xml", EPUBVersion.VERSION_3);
 
 		navChecker.validate();
 

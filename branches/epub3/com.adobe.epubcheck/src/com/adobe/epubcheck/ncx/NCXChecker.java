@@ -43,7 +43,8 @@ public class NCXChecker implements ContentChecker {
 
 	static XMLValidator ncxValidator = new XMLValidator("schema/20/rng/ncx.rng");
 
-	static XMLValidator ncxSchematronValidator = new XMLValidator("schema/20/sch/ncx.sch");
+	static XMLValidator ncxSchematronValidator = new XMLValidator(
+			"schema/20/sch/ncx.sch");
 
 	public NCXChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker) {
@@ -63,7 +64,7 @@ public class NCXChecker implements ContentChecker {
 			// relaxng
 			XMLParser ncxParser = null;
 			try {
-				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+				ncxParser = new XMLParser(ocf.getInputStream(path), path, "",
 						report);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -78,7 +79,7 @@ public class NCXChecker implements ContentChecker {
 			// TODO: do it in a single step
 			try {
 				ncxParser = new XMLParser(ocf.getInputStream(path), path,
-						report);
+						"application/x-dtbncx+xml", report);
 				ncxParser.addValidator(ncxSchematronValidator);
 				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 				ncxParser.process();

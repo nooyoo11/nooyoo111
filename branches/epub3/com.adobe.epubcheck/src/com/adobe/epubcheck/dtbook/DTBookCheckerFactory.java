@@ -31,16 +31,16 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public class DTBookCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
-		return new DTBookChecker( ocf, report, path, xrefChecker );
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
+		return new DTBookChecker(ocf, report, path, xrefChecker);
 	}
-	
+
 	static private DTBookCheckerFactory instance = new DTBookCheckerFactory();
-	
+
 	static public DTBookCheckerFactory getInstance() {
 		return instance;
 	}
-	
 
 }

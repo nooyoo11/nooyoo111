@@ -36,9 +36,9 @@ public class NavCheckerFactory implements ContentCheckerFactory,
 		DocumentValidatorFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
-			String path, String mimeType, XRefChecker xrefChecker,
-			EPUBVersion version) {
-		return new NavChecker(ocf, report, path, version);
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
+		return new NavChecker(ocf, report, path, mimeType, properties, version);
 	}
 
 	static private NavCheckerFactory instance = new NavCheckerFactory();
@@ -50,7 +50,7 @@ public class NavCheckerFactory implements ContentCheckerFactory,
 	public DocumentValidator newInstance(Report report, String path,
 			GenericResourceProvider resourceProvider, String mimeType,
 			EPUBVersion version) {
-		return new NavChecker(resourceProvider, report, path, version);
+		return new NavChecker(resourceProvider, report, path, mimeType, version);
 	}
 
 }

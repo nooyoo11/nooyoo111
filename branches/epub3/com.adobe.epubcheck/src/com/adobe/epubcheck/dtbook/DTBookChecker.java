@@ -62,7 +62,7 @@ public class DTBookChecker implements ContentChecker {
 			XMLParser dtbookParser = null;
 			try {
 				dtbookParser = new XMLParser(ocf.getInputStream(path), path,
-						report);
+						"application/x-dtbook+xml", report);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -73,5 +73,4 @@ public class DTBookChecker implements ContentChecker {
 			dtbookParser.process();
 		}
 	}
-
 }

@@ -87,7 +87,8 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 
 		try {
 			XMLParser overlayParser = new XMLParser(
-					resourceProvider.getInputStream(path), path, report);
+					resourceProvider.getInputStream(path), path,
+					"application/smil+xml", report);
 			overlayParser.addValidator(mediaOverlayValidator_30_RNC);
 			overlayParser.addValidator(mediaOverlayValidator_30_SCH);
 			overlayParser.addXMLHandler(overlayHandler);

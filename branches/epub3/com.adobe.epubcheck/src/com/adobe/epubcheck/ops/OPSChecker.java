@@ -29,8 +29,6 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
-import com.adobe.epubcheck.opf.OPFHandler;
-import com.adobe.epubcheck.opf.OPFHandler30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
@@ -67,6 +65,8 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	GenericResourceProvider resourceProvider;
 
+	String properties;
+
 	static XMLValidator xhtmlValidator_20_NVDL = new XMLValidator(
 			"schema/20/rng/ops20.nvdl");
 	static XMLValidator svgValidator_20_RNG = new XMLValidator(
@@ -101,7 +101,8 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 	}
 
 	public OPSChecker(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
+			String mimeType, String properties, XRefChecker xrefChecker,
+			EPUBVersion version) {
 		initEpubValidatorMap();
 		this.ocf = ocf;
 		this.resourceProvider = ocf;
@@ -110,6 +111,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		this.xrefChecker = xrefChecker;
 		this.mimeType = mimeType;
 		this.version = version;
+		this.properties = properties;
 	}
 
 	public OPSChecker(String path, String mimeType,
@@ -121,6 +123,7 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		this.report = report;
 		this.path = path;
 		this.version = version;
+		this.properties = "singleFileValidation";
 	}
 
 	public void runChecks() {
@@ -160,12 +163,13 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			XMLValidator schValidator) throws IOException {
 
 		XMLParser opsParser = new XMLParser(
-				resourceProvider.getInputStream(path), path, report);
+				resourceProvider.getInputStream(path), path, mimeType, report);
 
 		if (version == EPUBVersion.VERSION_2)
 			opsHandler = new OPSHandler(path, xrefChecker, report);
 		else
-			opsHandler = new OPSHandler30(path, xrefChecker, report);
+			opsHandler = new OPSHandler30(path, mimeType, properties,
+					xrefChecker, report);
 
 		opsParser.addXMLHandler(opsHandler);
 

@@ -36,8 +36,10 @@ public class OPSCheckerFactory implements ContentCheckerFactory,
 		DocumentValidatorFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
-			String path, String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
-		return new OPSChecker(ocf, report, path, mimeType, xrefChecker, version);
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
+		return new OPSChecker(ocf, report, path, mimeType, properties,
+				xrefChecker, version);
 	}
 
 	static private OPSCheckerFactory instance = new OPSCheckerFactory();

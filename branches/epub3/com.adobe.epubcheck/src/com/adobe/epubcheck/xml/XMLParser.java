@@ -47,6 +47,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
@@ -128,10 +129,14 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		systemIdMap = map;
 	}
 
-	public XMLParser(InputStream resourceIn, String entryName, Report report) {
+	String mimeType;
+
+	public XMLParser(InputStream resourceIn, String entryName, String mimeType,
+			Report report) {
 		this.report = report;
 		this.resource = entryName;
 		this.resourceIn = resourceIn;
+		this.mimeType = mimeType;
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
@@ -149,23 +154,21 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		} catch (Exception e) {
 		}
 		/*
-		 * mgy: remove this for now TODO add 3.0 test forbidding xml 1.1 and so on
-		if (!hasXML11) {
-			System.err
-					.println("Your configuration does not support XML 1.1 parsing");
-			System.err
-					.println("\tAre you using off-the-shelf saxon.jar? It contains file named");
-			System.err
-					.println("\tMETA-INF/services/javax.xml.parsers.SAXParserFactory");
-			System.err
-					.println("\tThis interferes with Java default XML-1.1-compliant parser.");
-			System.err
-					.println("\tEither remove that file from saxon.jar or define");
-			System.err
-					.println("\tjavax.xml.parsers.SAXParserFactory system property");
-			System.err.println("\tto point to XML-1.1-compliant parser.");
-		}
-		*/
+		 * mgy: remove this for now TODO add 3.0 test forbidding xml 1.1 and so
+		 * on if (!hasXML11) { System.err
+		 * .println("Your configuration does not support XML 1.1 parsing");
+		 * System.err .println(
+		 * "\tAre you using off-the-shelf saxon.jar? It contains file named");
+		 * System.err
+		 * .println("\tMETA-INF/services/javax.xml.parsers.SAXParserFactory");
+		 * System.err
+		 * .println("\tThis interferes with Java default XML-1.1-compliant parser."
+		 * ); System.err
+		 * .println("\tEither remove that file from saxon.jar or define");
+		 * System.err
+		 * .println("\tjavax.xml.parsers.SAXParserFactory system property");
+		 * System.err.println("\tto point to XML-1.1-compliant parser."); }
+		 */
 		try {
 			parser = factory.newSAXParser();
 			XMLReader reader = parser.getXMLReader();
@@ -314,8 +317,6 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws SAXException, IOException {
-		// System.out.println(publicId);
-		// System.out.println(systemId);
 
 		String resourcePath = (String) systemIdMap.get(systemId);
 		if (resourcePath != null) {
@@ -491,6 +492,17 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void startElement(String namespaceURI, String localName,
 			String qName, Attributes atts) throws SAXException {
+
+		if (mimeType.equals("application/xhtml+xml")) {
+			AttributesImpl correctedAttributes = new AttributesImpl(atts);
+
+			int calen = correctedAttributes.getLength();
+			for (int i = 0; i < calen; i++)
+				if (correctedAttributes.getLocalName(i).startsWith("data-"))
+					correctedAttributes.removeAttribute(i);
+
+			atts = correctedAttributes;
+		}
 		int vlen = validatorContentHandlers.size();
 		for (int i = 0; i < vlen; i++) {
 			((ContentHandler) validatorContentHandlers.elementAt(i))
