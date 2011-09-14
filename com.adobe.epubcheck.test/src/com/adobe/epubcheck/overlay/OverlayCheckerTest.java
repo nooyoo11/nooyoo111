@@ -123,4 +123,9 @@ public class OverlayCheckerTest {
 	public void testValidateDocumentInvalidOverlay006() {
 		testValidateDocument("invalid/overlay-006.smil", 5, 0);
 	}
+	
+	@Test
+	public void testValidateDocumentValidOverlay007() {
+		testValidateDocument("valid/overlay-007.smil", 0, 0);
+	}
 }

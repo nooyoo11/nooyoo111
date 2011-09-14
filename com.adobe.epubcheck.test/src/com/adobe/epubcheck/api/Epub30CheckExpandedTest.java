@@ -89,4 +89,25 @@ public class Epub30CheckExpandedTest {
 	public void testValidateEPUBLoremxhtmlsch1() {
 		testValidateDocument("invalid/lorem-xhtml-sch-1", 1, 0);
 	}
+	
+	@Test
+	public void testValidateEPUBPLoremBasicMathml() {
+		testValidateDocument("invalid/lorem-basic-switch", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBPLoremBasicSwitch() {
+		testValidateDocument("valid/lorem-basic-switch", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBPLoremForeign() {
+		testValidateDocument("valid/lorem-foreign", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBPInvalidLoremForeign() {
+		testValidateDocument("invalid/lorem-foreign", 1, 0);
+	}
+
 }

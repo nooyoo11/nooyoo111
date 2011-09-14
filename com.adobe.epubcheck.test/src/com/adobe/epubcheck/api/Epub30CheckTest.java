@@ -93,11 +93,10 @@ public class Epub30CheckTest {
 	}
 
 	// TODO -- check for fallback cycles
-/*	@Test
-	public void testValidateEPUBPFallbackCycle() {
-		testValidateDocument("invalid/fallback-cycle.epub", 0, 0, true);
-	}
-*/
+	/*
+	 * @Test public void testValidateEPUBPFallbackCycle() {
+	 * testValidateDocument("invalid/fallback-cycle.epub", 0, 0, true); }
+	 */
 	@Test
 	public void testValidateEPUBPvalid30() {
 		testValidateDocument("valid/lorem.epub", 0, 0);
