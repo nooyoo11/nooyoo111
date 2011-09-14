@@ -98,14 +98,14 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		String mimeType = item.getMimeType();
 		String fallback = item.getFallback();
 		if (mimeType == null || mimeType.equals("")) {
-			report.error(path, item.getLineNumber(), item.getColumnNumber(),
-					"empty media-type attribute");
+			// report.error(path, item.getLineNumber(), item.getColumnNumber(),
+			// "empty media-type attribute");
 			return;
 		}
 
 		if (!mimeType.matches("[a-zA-Z0-9!#$&+-^_]+/[a-zA-Z0-9!#$&+-^_]+")) {
-			report.error(path, item.getLineNumber(), item.getColumnNumber(),
-					"invalid content for media-type attribute");
+			// report.error(path, item.getLineNumber(), item.getColumnNumber(),
+			// "invalid content for media-type attribute");
 			return;
 		}
 
