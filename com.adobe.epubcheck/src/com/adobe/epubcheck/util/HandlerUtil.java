@@ -32,8 +32,6 @@ public class HandlerUtil {
 				report.error(path, line, column, "URL expected instead of "
 						+ prefixArray[i - 1]);
 			else if (validPrefix) {
-				// System.out.println(prefixArray[i - 1].substring(0,
-				// prefixArray[i - 1].length() - 1));
 				prefixSet.add(prefixArray[i - 1].substring(0,
 						prefixArray[i - 1].length() - 1));
 			}

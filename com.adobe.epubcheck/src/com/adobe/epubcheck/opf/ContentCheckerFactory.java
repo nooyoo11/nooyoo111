@@ -28,6 +28,8 @@ import com.adobe.epubcheck.util.EPUBVersion;
 
 public interface ContentCheckerFactory {
 
-	public ContentChecker newInstance( OCFPackage ocf, Report report, String path, String mimeType, XRefChecker xrefChecker, EPUBVersion version );
-	
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version);
+
 }

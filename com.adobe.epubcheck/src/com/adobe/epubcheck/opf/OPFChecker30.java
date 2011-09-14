@@ -38,8 +38,9 @@ import com.adobe.epubcheck.xml.XMLValidator;
 
 public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 
-	static {
-		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
+	private void initContentCheckerFactoryMap() {
+		Hashtable<String, ContentCheckerFactory> map = contentCheckerFactoryMap;
+		map.clear();
 		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
 		map.put("application/x-dtbook+xml", DTBookCheckerFactory.getInstance());
 		map.put("image/jpeg", BitmapCheckerFactory.getInstance());
@@ -49,7 +50,6 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		map.put("text/css", CSSCheckerFactory.getInstance());
 		map.put("application/smil+xml", OPSCheckerFactory.getInstance());
 		map.put("application/smil+xml", OverlayCheckerFactory.getInstance());
-
 		contentCheckerFactoryMap = map;
 	}
 
@@ -64,7 +64,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		this.xrefChecker = new XRefChecker(ocf, report, version);
 		this.version = version;
 		initValidators();
-
+		initContentCheckerFactoryMap();
 	}
 
 	public OPFChecker30(String path, GenericResourceProvider resourceProvider,
@@ -75,6 +75,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		this.path = path;
 		this.version = EPUBVersion.VERSION_3;
 		initValidators();
+		initContentCheckerFactoryMap();
 	}
 
 	public OPFChecker30() {

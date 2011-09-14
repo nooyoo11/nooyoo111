@@ -56,25 +56,33 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 
 	XRefChecker xrefChecker;
 
+	String properties;
+
+	String mimeType;
+
 	GenericResourceProvider resourceProvider;
 
 	public NavChecker(GenericResourceProvider resourceProvider, Report report,
-			String path, EPUBVersion version) {
+			String path, String mimeType, EPUBVersion version) {
 		if (version == EPUBVersion.VERSION_2)
 			report.error(path, 0, 0, Messages.NAV_NOT_SUPPORTED);
 		this.report = report;
 		this.path = path;
 		this.resourceProvider = resourceProvider;
+		this.properties = "singleFileValidation";
+		this.mimeType = mimeType;
 	}
 
 	public NavChecker(OCFPackage ocf, Report report, String path,
-			EPUBVersion version) {
+			String mimeType, String properties, EPUBVersion version) {
 		if (version == EPUBVersion.VERSION_2)
 			report.error(path, 0, 0, Messages.NAV_NOT_SUPPORTED);
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.resourceProvider = ocf;
+		this.properties = properties;
+		this.mimeType = mimeType;
 	}
 
 	public void runChecks() {
@@ -93,9 +101,11 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		int warnings = report.getWarningCount();
 		try {
 			XMLParser navParser = new XMLParser(
-					resourceProvider.getInputStream(path), path, report);
+					resourceProvider.getInputStream(path), path,
+					"application/xhtml+xml", report);
 
-			XMLHandler navHandler = new OPSHandler30(path, xrefChecker, report);
+			XMLHandler navHandler = new OPSHandler30(path, mimeType,
+					properties, xrefChecker, report);
 			navParser.addXMLHandler(navHandler);
 			navParser.addValidator(navValidator_30_RNC);
 			navParser.addValidator(xhtmlValidator_30_ISOSCH);

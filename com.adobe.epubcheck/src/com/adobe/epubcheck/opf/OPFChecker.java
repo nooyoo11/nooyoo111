@@ -59,7 +59,7 @@ public class OPFChecker implements DocumentValidator {
 
 	XRefChecker xrefChecker;
 
-	static Hashtable contentCheckerFactoryMap;
+	protected Hashtable contentCheckerFactoryMap;
 
 	OPFHandler opfHandler = null;
 
@@ -67,7 +67,7 @@ public class OPFChecker implements DocumentValidator {
 
 	protected GenericResourceProvider resourceProvider = null;
 
-	static {
+	private void initContentCheckerFactoryMap() {
 		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
 		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
 		map.put("text/html", OPSCheckerFactory.getInstance());
@@ -91,6 +91,7 @@ public class OPFChecker implements DocumentValidator {
 		this.containerEntries = containerEntries;
 		this.xrefChecker = new XRefChecker(ocf, report, version);
 		this.version = version;
+		initContentCheckerFactoryMap();
 	}
 
 	public OPFChecker(String path, GenericResourceProvider resourceProvider,
@@ -100,6 +101,7 @@ public class OPFChecker implements DocumentValidator {
 		this.report = report;
 		this.path = path;
 		this.version = EPUBVersion.VERSION_2;
+		initContentCheckerFactoryMap();
 	}
 
 	public OPFChecker() {
@@ -138,7 +140,9 @@ public class OPFChecker implements DocumentValidator {
 
 		for (int i = 0; i < itemCount; i++) {
 			OPFItem item = opfHandler.getItem(i);
-			checkItemContent(item, opfHandler);
+
+			if (!item.path.startsWith("http://"))
+				checkItemContent(item, opfHandler);
 		}
 
 		try {
@@ -202,7 +206,7 @@ public class OPFChecker implements DocumentValidator {
 		try {
 
 			opfParser = new XMLParser(new BufferedInputStream(
-					resourceProvider.getInputStream(path)), path, report);
+					resourceProvider.getInputStream(path)), path, "opf", report);
 
 			opfParser.addXMLHandler(opfHandler);
 
@@ -336,6 +340,8 @@ public class OPFChecker implements DocumentValidator {
 	protected void checkItemContent(OPFItem item, OPFHandler opfHandler) {
 		String mimeType = item.getMimeType();
 		String path = item.getPath();
+		String properties = item.getProperties();
+
 		if (mimeType != null) {
 			ContentCheckerFactory checkerFactory;
 			if (item.isNcx())
@@ -347,7 +353,8 @@ public class OPFChecker implements DocumentValidator {
 				checkerFactory = GenericContentCheckerFactory.getInstance();
 			if (checkerFactory != null) {
 				ContentChecker checker = checkerFactory.newInstance(ocf,
-						report, path, mimeType, xrefChecker, version);
+						report, path, mimeType, properties, xrefChecker,
+						version);
 				checker.runChecks();
 			}
 		}

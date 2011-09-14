@@ -37,7 +37,7 @@ public class OPFItem {
 	String namespace;
 
 	int lineNumber;
-	
+
 	int columnNumber;
 
 	boolean ncx;
@@ -46,8 +46,11 @@ public class OPFItem {
 
 	boolean nav;
 
+	String properties;
+
 	OPFItem(String id, String path, String mimeType, String fallback,
-			String fallbackStyle, String namespace, int lineNumber, int columnNumber) {
+			String fallbackStyle, String namespace, String properties,
+			int lineNumber, int columnNumber) {
 		this.fallback = fallback;
 		this.fallbackStyle = fallbackStyle;
 		this.id = id;
@@ -56,6 +59,7 @@ public class OPFItem {
 		this.mimeType = mimeType;
 		this.namespace = namespace;
 		this.path = path;
+		this.properties = properties;
 	}
 
 	public String getFallback() {
@@ -78,6 +82,10 @@ public class OPFItem {
 		return path;
 	}
 
+	public String getProperties() {
+		return properties;
+	}
+
 	public String getNamespace() {
 		return namespace;
 	}
@@ -85,8 +93,8 @@ public class OPFItem {
 	public int getLineNumber() {
 		return lineNumber;
 	}
-	
-	public int getColumnNumber(){
+
+	public int getColumnNumber() {
 		return columnNumber;
 	}
 

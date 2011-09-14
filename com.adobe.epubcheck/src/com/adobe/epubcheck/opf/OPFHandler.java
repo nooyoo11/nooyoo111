@@ -209,7 +209,7 @@ public class OPFHandler implements XMLHandler {
 			} else if (name.equals("item")) {
 				String id = e.getAttribute("id");
 				String href = e.getAttribute("href");
-				if (href != null) {
+				if (href != null && !href.startsWith("http://")) {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
@@ -223,8 +223,17 @@ public class OPFHandler implements XMLHandler {
 				String namespace = e.getAttribute("island-type");
 				String properties = e.getAttribute("properties");
 
+				if (href.startsWith("http://")
+						&& (!mimeType.startsWith("audio") && !mimeType
+								.startsWith("video"))) {
+					report.error(path, line, column,
+							"Only audio and video foreign resources are permitted");
+					return;
+				}
+
 				OPFItem item = new OPFItem(id, href, mimeType, fallback,
-						fallbackStyle, namespace, line, column);
+						fallbackStyle, namespace, properties, line, column);
+
 				if (id != null)
 					itemMapById.put(id, item);
 				if (properties != null) {

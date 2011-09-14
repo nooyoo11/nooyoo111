@@ -36,7 +36,8 @@ public class OverlayCheckerFactory implements ContentCheckerFactory,
 		DocumentValidatorFactory {
 
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
-			String path, String mimeType, XRefChecker xrefChecker, EPUBVersion version) {
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
 		return new OverlayChecker(ocf, report, path, xrefChecker);
 	}
 

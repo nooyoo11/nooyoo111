@@ -22,6 +22,7 @@
 
 package com.adobe.epubcheck.opf;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import com.adobe.epubcheck.api.Report;
@@ -73,6 +74,19 @@ public class OPFHandler30 extends OPFHandler {
 		set.add("switch");
 		itemPropertySet = set;
 	}
+	static HashMap<String, String> itemPropertyTypeMap;
+	static {
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put("cover-image", "image/gif image/jpeg image/png image/svg+xml");
+		map.put("mathml", "application/xhtml+xml image/svg+xml");// ops
+		map.put("nav", "application/xhtml+xml");
+		map.put("remote-resources",
+				"application/xhtml+xml image/svg+xml text/css");// ops + css
+		map.put("scripted", "application/xhtml+xml image/svg+xml");// ops
+		map.put("svg", "application/xhtml+xml");// ops
+		map.put("switch", "application/xhtml+xml image/svg+xml");// ops
+		itemPropertyTypeMap = map;
+	}
 
 	Report report;
 
@@ -107,7 +121,8 @@ public class OPFHandler30 extends OPFHandler {
 		else if (name.equals("link"))
 			processLinkRel(e.getAttribute("rel"));
 		else if (name.equals("item"))
-			processItemProperties(e.getAttribute("properties"));
+			processItemProperties(e.getAttribute("properties"),
+					e.getAttribute("media-type"));
 		else if (name.equals("itemref"))
 			processItemrefProperties(e.getAttribute("properties"));
 	}
@@ -140,10 +155,12 @@ public class OPFHandler30 extends OPFHandler {
 					"itemref can't have both page-spread-right and page-spread-left properties!");
 	}
 
-	private void processItemProperties(String property) {
+	private void processItemProperties(String property, String mimeType) {
 		if (property == null)
 			return;
+		property = property.trim();
 		property = property.replaceAll("[\\s]+", " ");
+		mimeType = mimeType.trim();
 
 		String propertyArray[] = property.split(" ");
 		for (int i = 0; i < propertyArray.length; i++)
@@ -153,7 +170,22 @@ public class OPFHandler30 extends OPFHandler {
 			else if (propertyArray[i].contains(":"))
 				checkPrefix(propertyArray[i].substring(0,
 						propertyArray[i].indexOf(':')));
-			else if (!itemPropertySet.contains(propertyArray[i]))
+			else if (itemPropertySet.contains(propertyArray[i])) {
+				boolean match = false;
+				String expectedType = itemPropertyTypeMap.get(propertyArray[i]);
+				String expectedTypeArray[] = expectedType.split(" ");
+
+				for (int j = 0; j < expectedTypeArray.length; j++)
+					if (expectedTypeArray[j].equals(mimeType)) {
+						match = true;
+						break;
+					}
+				if (!match)
+					report.error(path, line, column, "Item property: "
+							+ propertyArray[i]
+							+ " is not defined for media type: " + mimeType);
+
+			} else
 				report.error(path, line, column, "Undefined item property: "
 						+ propertyArray[i]);
 	}
