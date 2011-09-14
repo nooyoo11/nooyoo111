@@ -28,6 +28,7 @@ import java.util.HashSet;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.HandlerUtil;
+import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 
 public class OPFHandler30 extends OPFHandler {
@@ -119,12 +120,39 @@ public class OPFHandler30 extends OPFHandler {
 		else if (name.equals("meta"))
 			processMeta(e);
 		else if (name.equals("link"))
-			processLinkRel(e.getAttribute("rel"));
+			processLink(e);
 		else if (name.equals("item"))
 			processItemProperties(e.getAttribute("properties"),
 					e.getAttribute("media-type"));
 		else if (name.equals("itemref"))
 			processItemrefProperties(e.getAttribute("properties"));
+	}
+
+	private void processLink(XMLElement e) {
+		processLinkRel(e.getAttribute("rel"));
+
+		String id = e.getAttribute("id");
+		String href = e.getAttribute("href");
+		if (href != null && !href.startsWith("http://")) {
+			try {
+				href = PathUtil.resolveRelativeReference(path, href);
+			} catch (IllegalArgumentException ex) {
+				report.error(path, line, column, ex.getMessage());
+				href = null;
+			}
+		}
+		String mimeType = e.getAttribute("media-type");
+
+		OPFItem item = new OPFItem(id, href, mimeType, "", "", "", null, line,
+				column);
+
+		if (id != null)
+			itemMapById.put(id, item);
+
+		if (href != null) {
+			itemMapByPath.put(href, item);
+			items.add(item);
+		}
 	}
 
 	private void processItemrefProperties(String property) {

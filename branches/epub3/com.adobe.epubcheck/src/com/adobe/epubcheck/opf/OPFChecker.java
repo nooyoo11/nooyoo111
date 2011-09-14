@@ -273,8 +273,8 @@ public class OPFChecker implements DocumentValidator {
 		String fallback = item.getFallback();
 		if (mimeType == null || mimeType.equals("")) {
 			// Ensures that media-type attribute is not empty
-			report.error(path, item.getLineNumber(), item.getColumnNumber(),
-					"empty media-type attribute");
+//			report.error(path, item.getLineNumber(), item.getColumnNumber(),
+//					"empty media-type attribute");
 		} else if (!mimeType
 				.matches("[a-zA-Z0-9!#$&+-^_]+/[a-zA-Z0-9!#$&+-^_]+")) {
 			/*
@@ -283,8 +283,8 @@ public class OPFChecker implements DocumentValidator {
 			 * allowable content for the media-type attribute is defined in
 			 * RFC4288 section 4.2
 			 */
-			report.error(path, item.getLineNumber(), item.getColumnNumber(),
-					"invalid content for media-type attribute");
+//			report.error(path, item.getLineNumber(), item.getColumnNumber(),
+//					"invalid content for media-type attribute");
 		} else if (isDeprecatedBlessedItemType(mimeType)
 				|| isDeprecatedBlessedStyleType(mimeType)) {
 			if (opfHandler.getOpf20PackageFile()
