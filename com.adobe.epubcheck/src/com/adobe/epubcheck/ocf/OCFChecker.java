@@ -97,6 +97,8 @@ public class OCFChecker {
 		this.report = report;
 	}
 
+	XMLParser parser = null;
+
 	public void runChecks() {
 
 		String rootPath;
@@ -114,7 +116,7 @@ public class OCFChecker {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		OCFHandler containerHandler = new OCFHandler();
+		OCFHandler containerHandler = new OCFHandler(containerParser);
 		containerParser.addXMLHandler(containerHandler);
 		containerParser.process();
 
@@ -151,8 +153,8 @@ public class OCFChecker {
 	public void parse(String path, XMLHandler handler, Report report,
 			XMLValidator validator) throws IOException {
 
-		XMLParser parser = new XMLParser(ocf.getInputStream(path),
-				containerEntry, "xml", report);
+		parser = new XMLParser(ocf.getInputStream(path), containerEntry, "xml",
+				report);
 		parser.addXMLHandler(handler);
 		parser.addValidator(validator);
 		parser.process();
@@ -161,13 +163,13 @@ public class OCFChecker {
 	public boolean validate() {
 		try {
 			// validate container
-			XMLHandler handler = new OCFHandler();
+			XMLHandler handler = new OCFHandler(parser);
 			parse(containerEntry, handler, report,
 					xmlValidatorMap.get(new OPSType(containerEntry, version)));
 
 			// Validate encryption.xml
 			if (ocf.hasEntry(encryptionEntry)) {
-				handler = new EncryptionHandler(ocf);
+				handler = new EncryptionHandler(ocf, parser);
 				parse(encryptionEntry, handler, report,
 						xmlValidatorMap.get(new OPSType(encryptionEntry,
 								version)));
@@ -175,7 +177,7 @@ public class OCFChecker {
 
 			// validate encryption.xml
 			if (ocf.hasEntry(signatureEntry)) {
-				handler = new OCFHandler();
+				handler = new OCFHandler(parser);
 				parse(signatureEntry, handler, report,
 						xmlValidatorMap
 								.get(new OPSType(signatureEntry, version)));

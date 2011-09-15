@@ -32,6 +32,7 @@ import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class OPSHandler implements XMLHandler {
 
@@ -41,9 +42,7 @@ public class OPSHandler implements XMLHandler {
 
 	static HashSet<String> regURISchemes = fillRegURISchemes();
 
-	int line;
-
-	int column;
+	XMLParser parser;
 
 	Report report;
 
@@ -68,10 +67,12 @@ public class OPSHandler implements XMLHandler {
 		return null;
 	}
 
-	public OPSHandler(String path, XRefChecker xrefChecker, Report report) {
+	public OPSHandler(String path, XRefChecker xrefChecker, XMLParser parser,
+			Report report) {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 		this.report = report;
+		this.parser = parser;
 	}
 
 	private void checkPaint(XMLElement e, String attr) {
@@ -80,8 +81,8 @@ public class OPSHandler implements XMLHandler {
 				&& paint.endsWith(")")) {
 			String href = paint.substring(4, paint.length() - 1);
 			href = PathUtil.resolveRelativeReference(path, href);
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_SVG_PAINT);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), href, XRefChecker.RT_SVG_PAINT);
 		}
 	}
 
@@ -93,8 +94,8 @@ public class OPSHandler implements XMLHandler {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_IMAGE);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), href, XRefChecker.RT_IMAGE);
 		}
 	}
 
@@ -102,8 +103,8 @@ public class OPSHandler implements XMLHandler {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_OBJECT);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), href, XRefChecker.RT_OBJECT);
 		}
 	}
 
@@ -113,8 +114,8 @@ public class OPSHandler implements XMLHandler {
 		if (xrefChecker != null && href != null && rel != null
 				&& rel.indexOf("stylesheet") >= 0) {
 			href = PathUtil.resolveRelativeReference(path, href);
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_STYLESHEET);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), href, XRefChecker.RT_STYLESHEET);
 		}
 	}
 
@@ -122,8 +123,8 @@ public class OPSHandler implements XMLHandler {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
 			href = PathUtil.resolveRelativeReference(path, href);
-			xrefChecker.registerReference(path, line, column, href,
-					XRefChecker.RT_SVG_SYMBOL);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), href, XRefChecker.RT_SVG_SYMBOL);
 		}
 	}
 
@@ -145,7 +146,8 @@ public class OPSHandler implements XMLHandler {
 			// This if statement is needed to make sure XML Fragment identifiers
 			// are not reported as non-registered URI schema types
 			else if (href.indexOf(':') > 0) {
-				report.warning(path, line, column,
+				report.warning(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
 						"use of non-registered URI schema type in href: "
 								+ href);
 				return;
@@ -153,11 +155,13 @@ public class OPSHandler implements XMLHandler {
 			try {
 				href = PathUtil.resolveRelativeReference(path, href);
 			} catch (IllegalArgumentException err) {
-				report.error(path, line, column, err.getMessage());
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), err.getMessage());
 				return;
 			}
 			if (xrefChecker != null)
-				xrefChecker.registerReference(path, line, column, href,
+				xrefChecker.registerReference(path, parser.getLineNumber(),
+						parser.getColumnNumber(), href,
 						XRefChecker.RT_HYPERLINK);
 		}
 	}
@@ -179,17 +183,16 @@ public class OPSHandler implements XMLHandler {
 			return false;
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
+	public void startElement() {
 
-		this.line = line;
-		this.column = column;
+		XMLElement e = parser.getCurrentElement();
 		String id = e.getAttribute("id");
 		String ns = e.getNamespace();
 		String name = e.getName();
 		int resourceType = XRefChecker.RT_GENERIC;
 		if (ns != null) {
 			if (ns.equals("http://www.w3.org/2000/svg")) {
-				if (name.equals("linearGradient")
+				if (name.equals("parser.getLineNumber()arGradient")
 						|| name.equals("radialGradient")
 						|| name.equals("pattern"))
 					resourceType = XRefChecker.RT_SVG_PAINT;
@@ -219,21 +222,19 @@ public class OPSHandler implements XMLHandler {
 			}
 		}
 		if (xrefChecker != null && id != null)
-			xrefChecker.registerAnchor(path, line, column, id, resourceType);
+			xrefChecker.registerAnchor(path, parser.getLineNumber(),
+					parser.getColumnNumber(), id, resourceType);
 	}
 
-	public void endElement(XMLElement e, int line, int column) {
+	public void endElement() {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line, int column) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line, int column) {
+	public void characters(char[] chars, int arg1, int arg2) {
 	}
 
-	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line, int column) {
+	public void processingInstruction(String arg0, String arg1) {
 	}
 }

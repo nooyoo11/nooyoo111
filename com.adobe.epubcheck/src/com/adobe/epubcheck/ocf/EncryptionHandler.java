@@ -27,20 +27,25 @@ import java.net.URLDecoder;
 
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class EncryptionHandler implements XMLHandler {
 
 	OCFPackage ocf;
 
-	EncryptionHandler(OCFPackage ocf) {
+	XMLParser parser;
+
+	EncryptionHandler(OCFPackage ocf, XMLParser parser) {
 		this.ocf = ocf;
+		this.parser = parser;
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
+	public void startElement() {
 
 		// if the element is <CipherReference>, then the element name
 		// is stripped of rootBase, and URLDecoded, and finally put into
 		// encryptedItemsSet.
+		XMLElement e = parser.getCurrentElement();
 		if (e.getName().equals("CipherReference")) {
 			String algorithm = null;
 			XMLElement parent = e.getParent();
@@ -77,19 +82,16 @@ public class EncryptionHandler implements XMLHandler {
 		}
 	}
 
-	public void endElement(XMLElement e, int line, int column) {
+	public void endElement() {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line, int column) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line, int column) {
+	public void characters(char[] chars, int arg1, int arg2) {
 	}
 
-	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line, int column) {
+	public void processingInstruction(String arg0, String arg1) {
 	}
 
 }

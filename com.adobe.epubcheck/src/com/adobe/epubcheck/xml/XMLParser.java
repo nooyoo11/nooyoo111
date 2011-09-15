@@ -404,7 +404,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).characters(arg0, arg1,
-					arg2, currentElement, getLineNumber(), getColumnNumber());
+					arg2);
 	}
 
 	public void endDocument() throws SAXException {
@@ -424,8 +424,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		}
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
-			((XMLHandler) contentHandlers.elementAt(i)).endElement(
-					currentElement, getLineNumber(), getColumnNumber());
+			((XMLHandler) contentHandlers.elementAt(i)).endElement();
 		currentElement = currentElement.getParent();
 	}
 
@@ -447,8 +446,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).ignorableWhitespace(
-					arg0, arg1, arg2, currentElement, getLineNumber(),
-					getColumnNumber());
+					arg0, arg1, arg2);
 	}
 
 	public void processingInstruction(String arg0, String arg1)
@@ -461,8 +459,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
 			((XMLHandler) contentHandlers.elementAt(i)).processingInstruction(
-					arg0, arg1, currentElement, getLineNumber(),
-					getColumnNumber());
+					arg0, arg1);
 	}
 
 	public void setDocumentLocator(Locator locator) {
@@ -540,8 +537,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 				currentElement);
 		int len = contentHandlers.size();
 		for (int i = 0; i < len; i++)
-			((XMLHandler) contentHandlers.elementAt(i)).startElement(
-					currentElement, getLineNumber(), getColumnNumber());
+			((XMLHandler) contentHandlers.elementAt(i)).startElement();
 	}
 
 	public void startPrefixMapping(String arg0, String arg1)

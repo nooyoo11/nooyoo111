@@ -10,7 +10,8 @@
     </metadata> 
     <manifest>
         <item id="t001" href="contents.xhtml" properties="nav" media-type="application/xhtml+xml" />        
-		<item id="t002" href="http://test.com/contents.xhtml" media-type="application/xhtml+xml" />        
+		<item id="t002" href="http://test.com/contents.xhtml" 
+				media-type="application/xhtml+xml" />        
     </manifest>
     <spine>
         <itemref idref="t001" />
