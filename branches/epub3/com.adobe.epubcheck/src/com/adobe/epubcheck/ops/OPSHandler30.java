@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.opf.OPFChecker;
 import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EpubTypeAttributes;
@@ -110,6 +111,17 @@ public class OPSHandler30 extends OPSHandler {
 		video = true;
 
 		String posterSrc = e.getAttribute("poster");
+
+		String posterMimeType = null;
+		if (xrefChecker != null && posterSrc != null)
+			posterMimeType = xrefChecker.getMimeType(PathUtil
+					.resolveRelativeReference(path, posterSrc));
+
+		if (posterMimeType != null
+				&& !OPFChecker.isBlessedImageType(posterMimeType))
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
+					"Video poster must have core media image type!");
 
 		if (posterSrc != null) {
 			hasValidFallback = true;
