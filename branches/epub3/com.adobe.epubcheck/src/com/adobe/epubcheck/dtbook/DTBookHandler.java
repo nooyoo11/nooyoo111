@@ -43,15 +43,14 @@ public class DTBookHandler implements XMLHandler {
 		this.xrefChecker = xrefChecker;
 	}
 
-	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line, int column) {
+	public void characters(char[] chars, int arg1, int arg2) {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line, int column) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
+	public void startElement() {
+		XMLElement e = parser.getCurrentElement();
 		String ns = e.getNamespace();
 		String name = e.getName();
 		String id = e.getAttribute("id");
@@ -99,10 +98,9 @@ public class DTBookHandler implements XMLHandler {
 		}
 	}
 
-	public void endElement(XMLElement e, int line, int column) {
+	public void endElement() {
 	}
 
-	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line, int column) {
+	public void processingInstruction(String arg0, String arg1) {
 	}
 }

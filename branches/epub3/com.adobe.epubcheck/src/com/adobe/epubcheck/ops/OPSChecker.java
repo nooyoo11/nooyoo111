@@ -132,10 +132,9 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 		else if (!ocf.canDecrypt(path))
 			report.error(null, 0, 0, "OPS/XHTML file " + path
 					+ " cannot be decrypted");
-		else {
-			opsHandler = new OPSHandler(path, xrefChecker, report);
+		else
 			validate();
-		}
+
 	}
 
 	public boolean validate() {
@@ -166,10 +165,10 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 				resourceProvider.getInputStream(path), path, mimeType, report);
 
 		if (version == EPUBVersion.VERSION_2)
-			opsHandler = new OPSHandler(path, xrefChecker, report);
+			opsHandler = new OPSHandler(path, xrefChecker, opsParser, report);
 		else
 			opsHandler = new OPSHandler30(path, mimeType, properties,
-					xrefChecker, report);
+					xrefChecker, opsParser, report);
 
 		opsParser.addXMLHandler(opsHandler);
 

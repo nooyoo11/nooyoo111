@@ -10,6 +10,7 @@ import com.adobe.epubcheck.util.EpubTypeAttributes;
 import com.adobe.epubcheck.util.HandlerUtil;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class OPSHandler30 extends OPSHandler {
 
@@ -28,8 +29,8 @@ public class OPSHandler30 extends OPSHandler {
 	boolean hasValidFallback = false;
 
 	public OPSHandler30(String path, String mimeType, String properties,
-			XRefChecker xrefChecker, Report report) {
-		super(path, xrefChecker, report);
+			XRefChecker xrefChecker, XMLParser parser, Report report) {
+		super(path, xrefChecker, parser, report);
 		this.mimeType = mimeType;
 		this.properties = properties;
 		prefixSet = new HashSet<String>();
@@ -39,7 +40,8 @@ public class OPSHandler30 extends OPSHandler {
 	boolean checkPrefix(String prefix) {
 		prefix = prefix.trim();
 		if (!prefixSet.contains(prefix)) {
-			report.error(path, line, column, "Undecleared prefix: " + prefix);
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "Undecleared prefix: " + prefix);
 			return false;
 		}
 		return true;
@@ -56,28 +58,23 @@ public class OPSHandler30 extends OPSHandler {
 				checkPrefix(typeArray[i]
 						.substring(0, typeArray[i].indexOf(':')));
 			else if (!EpubTypeAttributes.EpubTypeSet.contains(typeArray[i]))
-				report.error(path, line, column, "Undefined epub:type: "
-						+ typeArray[i]);
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), "Undefined epub:type: "
+								+ typeArray[i]);
 	}
 
 	@Override
-	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line, int column) {
-		super.characters(chars, arg1, arg2, e, line, column);
-		this.line = line;
-		this.column = column;
-
+	public void characters(char[] chars, int arg1, int arg2) {
+		super.characters(chars, arg1, arg2);
 		String str = new String(chars, arg1, arg2);
 		str = str.trim();
 		if (!str.equals("") && (audio || video))
 			hasValidFallback = true;
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
-		super.startElement(e, line, column);
-
-		this.line = line;
-		this.column = column;
+	public void startElement() {
+		super.startElement();
+		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 
 		processSrc(e.getAttribute("src"));
@@ -85,7 +82,8 @@ public class OPSHandler30 extends OPSHandler {
 		if (name.equals("html"))
 			HandlerUtil.processPrefixes(
 					e.getAttributeNS("http://www.idpf.org/2007/ops", "prefix"),
-					prefixSet, report, path, line, column);
+					prefixSet, report, path, parser.getLineNumber(),
+					parser.getColumnNumber());
 		else if (name.equals("object"))
 			processObject(e);
 		else if (name.equals("math"))
@@ -129,8 +127,8 @@ public class OPSHandler30 extends OPSHandler {
 		else
 			src = PathUtil.resolveRelativeReference(path, src);
 
-		xrefChecker.registerReference(path, line, column, src,
-				XRefChecker.RT_GENERIC);
+		xrefChecker.registerReference(path, parser.getLineNumber(),
+				parser.getColumnNumber(), src, XRefChecker.RT_GENERIC);
 
 		String srcMimeType = xrefChecker.getMimeType(src);
 
@@ -155,11 +153,9 @@ public class OPSHandler30 extends OPSHandler {
 	}
 
 	@Override
-	public void endElement(XMLElement e, int line, int column) {
-		super.endElement(e, line, column);
-		this.line = line;
-		this.column = column;
-
+	public void endElement() {
+		super.endElement();
+		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 		if (name.equals("html") || name.equals("svg"))
 			checkProperties();
@@ -177,8 +173,9 @@ public class OPSHandler30 extends OPSHandler {
 		if (hasValidFallback)
 			hasValidFallback = false;
 		else
-			report.error(path, line, column, elementType
-					+ " element doesn't provide fallback!");
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), elementType
+							+ " element doesn't provide fallback!");
 	}
 
 	private void checkProperties() {

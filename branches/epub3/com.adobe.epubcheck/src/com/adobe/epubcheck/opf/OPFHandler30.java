@@ -31,6 +31,7 @@ import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.HandlerUtil;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class OPFHandler30 extends OPFHandler {
 
@@ -90,28 +91,25 @@ public class OPFHandler30 extends OPFHandler {
 		itemPropertyTypeMap = map;
 	}
 
-	int line;
-
-	int column;
-
 	OPFHandler30(OCFPackage ocf, String path, Report report,
-			XRefChecker xrefChecker, EPUBVersion version) {
-		super(ocf, path, report, xrefChecker, version);
+			XRefChecker xrefChecker, XMLParser parser, EPUBVersion version) {
+		super(ocf, path, report, xrefChecker, parser, version);
 		prefixSet = new HashSet<String>();
 
 		for (int i = 0; i < predefinedPrefixes.length; i++)
 			prefixSet.add(predefinedPrefixes[i]);
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
-		super.startElement(e, line, column);
-		this.line = line;
-		this.column = column;
+	public void startElement() {
+		super.startElement();
+
+		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 
 		if (name.equals("package"))
 			HandlerUtil.processPrefixes(e.getAttribute("prefix"), prefixSet,
-					report, path, line, column);
+					report, path, parser.getLineNumber(),
+					parser.getColumnNumber());
 		else if (name.equals("meta"))
 			processMeta(e);
 		else if (name.equals("link"))
@@ -132,14 +130,15 @@ public class OPFHandler30 extends OPFHandler {
 			try {
 				href = PathUtil.resolveRelativeReference(path, href);
 			} catch (IllegalArgumentException ex) {
-				report.error(path, line, column, ex.getMessage());
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), ex.getMessage());
 				href = null;
 			}
 		}
 		String mimeType = e.getAttribute("media-type");
 
-		OPFItem item = new OPFItem(id, href, mimeType, "", "", "", null, line,
-				column);
+		OPFItem item = new OPFItem(id, href, mimeType, "", "", "", null,
+				parser.getLineNumber(), parser.getColumnNumber());
 
 		if (id != null)
 			itemMapById.put(id, item);
@@ -160,7 +159,8 @@ public class OPFHandler30 extends OPFHandler {
 
 		for (int i = 0; i < propertyArray.length; i++)
 			if (propertyArray[i].endsWith(":"))
-				report.error(path, line, column,
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
 						"Property is not allowed to be composed only by a prefix!");
 			else if (propertyArray[i].contains(":"))
 				checkPrefix(propertyArray[i].substring(0,
@@ -170,11 +170,13 @@ public class OPFHandler30 extends OPFHandler {
 			else if (propertyArray[i].equals("page-spread-right"))
 				right = true;
 			else
-				report.error(path, line, column, "Undefined itemref property: "
-						+ propertyArray[i]);
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
+						"Undefined itemref property: " + propertyArray[i]);
 
 		if (right && left)
-			report.error(path, line, column,
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
 					"itemref can't have both page-spread-right and page-spread-left properties!");
 	}
 
@@ -188,7 +190,8 @@ public class OPFHandler30 extends OPFHandler {
 		String propertyArray[] = property.split(" ");
 		for (int i = 0; i < propertyArray.length; i++)
 			if (propertyArray[i].endsWith(":"))
-				report.error(path, line, column,
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
 						"Property is not allowed to be composed only by a prefix!");
 			else if (propertyArray[i].contains(":"))
 				checkPrefix(propertyArray[i].substring(0,
@@ -204,13 +207,16 @@ public class OPFHandler30 extends OPFHandler {
 						break;
 					}
 				if (!match)
-					report.error(path, line, column, "Item property: "
-							+ propertyArray[i]
-							+ " is not defined for media type: " + mimeType);
+					report.error(path, parser.getLineNumber(),
+							parser.getColumnNumber(), "Item property: "
+									+ propertyArray[i]
+									+ " is not defined for media type: "
+									+ mimeType);
 
 			} else
-				report.error(path, line, column, "Undefined item property: "
-						+ propertyArray[i]);
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), "Undefined item property: "
+								+ propertyArray[i]);
 	}
 
 	private void processLinkRel(String rel) {
@@ -221,13 +227,15 @@ public class OPFHandler30 extends OPFHandler {
 		String relArray[] = rel.split(" ");
 		for (int i = 0; i < relArray.length; i++)
 			if (relArray[i].endsWith(":"))
-				report.error(path, line, column,
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
 						"Link rel is not allowed to be composed only by a prefix!");
 			else if (relArray[i].contains(":"))
 				checkPrefix(relArray[i].substring(0, relArray[i].indexOf(':')));
 			else if (!linkRelSet.contains(relArray[i]))
-				report.error(path, line, column, "Undefined link rel: "
-						+ relArray[i]);
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), "Undefined link rel: "
+								+ relArray[i]);
 	}
 
 	private void processMeta(XMLElement e) {
@@ -243,17 +251,20 @@ public class OPFHandler30 extends OPFHandler {
 		if (scheme.contains(":") && !scheme.endsWith(":")) {
 			checkPrefix(scheme.substring(0, scheme.indexOf(':')));
 		} else if (scheme.endsWith(":"))
-			report.error(path, line, column,
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
 					"Property is not allowed to be composed only by a prefix!");
 		else
-			report.error(path, line, column,
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
 					"Unprefixed values for scheme attribute not allowed!");
 	}
 
 	boolean checkPrefix(String prefix) {
 		prefix = prefix.trim();
 		if (!prefixSet.contains(prefix)) {
-			report.error(path, line, column, "Undecleared prefix: " + prefix);
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "Undecleared prefix: " + prefix);
 			return false;
 		}
 		return true;
@@ -266,9 +277,11 @@ public class OPFHandler30 extends OPFHandler {
 		if (property.contains(":") && !property.endsWith(":")) {
 			checkPrefix(property.substring(0, property.indexOf(':')));
 		} else if (property.endsWith(":"))
-			report.error(path, line, column,
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
 					"Meta property is not allowed to be composed only by a prefix!");
 		else if (!metaPropertySet.contains(property))
-			report.error(path, line, column, "Undefined propery " + property);
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "Undefined propery " + property);
 	}
 }

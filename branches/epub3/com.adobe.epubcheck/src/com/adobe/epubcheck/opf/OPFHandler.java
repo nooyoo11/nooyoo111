@@ -34,6 +34,7 @@ import com.adobe.epubcheck.util.InvalidDateException;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class OPFHandler implements XMLHandler {
 
@@ -44,6 +45,8 @@ public class OPFHandler implements XMLHandler {
 	Hashtable<String, OPFItem> itemMapByPath = new Hashtable<String, OPFItem>();
 
 	Hashtable encryptedItems;
+
+	XMLParser parser;
 
 	Vector<OPFItem> spine = new Vector<OPFItem>();
 	Vector<OPFItem> items = new Vector<OPFItem>();
@@ -107,11 +110,12 @@ public class OPFHandler implements XMLHandler {
 	}
 
 	OPFHandler(OCFPackage ocf, String path, Report report,
-			XRefChecker xrefChecker, EPUBVersion version) {
+			XRefChecker xrefChecker, XMLParser parser, EPUBVersion version) {
 		this.ocf = ocf;
 		this.path = path;
 		this.report = report;
 		this.xrefChecker = xrefChecker;
+		this.parser = parser;
 		this.version = version;
 	}
 
@@ -179,9 +183,9 @@ public class OPFHandler implements XMLHandler {
 		return validRoles.contains(role) || role.startsWith("oth.");
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
+	public void startElement() {
 		boolean registerEntry = true;
-
+		XMLElement e = parser.getCurrentElement();
 		String ns = e.getNamespace();
 		if (ns == null
 				|| ns.equals("")
@@ -190,7 +194,8 @@ public class OPFHandler implements XMLHandler {
 			String name = e.getName();
 			if (name.equals("package")) {
 				if (!ns.equals("http://www.idpf.org/2007/opf")) {
-					report.warning(path, line, column,
+					report.warning(path, parser.getLineNumber(),
+							parser.getColumnNumber(),
 							"OPF file is using OEBPS 1.2 syntax allowing backwards compatibility");
 					opf12PackageFile = true;
 				}
@@ -206,8 +211,8 @@ public class OPFHandler implements XMLHandler {
 				} else {
 					report.error(
 							path,
-							line,
-							column,
+							parser.getLineNumber(),
+							parser.getColumnNumber(),
 							"unique-identifier attribute in package element must be present and have a value");
 				}
 			} else if (name.equals("item")) {
@@ -219,7 +224,8 @@ public class OPFHandler implements XMLHandler {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
-						report.error(path, line, column, ex.getMessage());
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(), ex.getMessage());
 						href = null;
 					}
 				}
@@ -233,17 +239,19 @@ public class OPFHandler implements XMLHandler {
 						&& href.startsWith("http://")
 						&& !OPFChecker30.isBlessedAudioType(mimeType))
 					if (OPFChecker30.isCoreMediaType(mimeType)) {
-						report.error(path, line, column,
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(),
 								"Only audio and video foreign resources are permitted!");
 					} else
 						report.warning(
 								path,
-								line,
-								column,
+								parser.getLineNumber(),
+								parser.getColumnNumber(),
 								"Only audio and video foreign resources are permitted! The checker can't validate foreign resources!");
 
 				OPFItem item = new OPFItem(id, href, mimeType, fallback,
-						fallbackStyle, namespace, properties, line, column);
+						fallbackStyle, namespace, properties,
+						parser.getLineNumber(), parser.getColumnNumber());
 
 				if (id != null)
 					itemMapById.put(id, item);
@@ -266,23 +274,27 @@ public class OPFHandler implements XMLHandler {
 				if (href != null && xrefChecker != null) {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
-						xrefChecker.registerReference(path, line, column, href,
+						xrefChecker.registerReference(path,
+								parser.getLineNumber(),
+								parser.getColumnNumber(), href,
 								XRefChecker.RT_HYPERLINK);
 					} catch (IllegalArgumentException ex) {
-						report.error(path, line, column, ex.getMessage());
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(), ex.getMessage());
 						href = null;
 					}
 				}
-				OPFReference ref = new OPFReference(type, title, href, line,
-						column);
+				OPFReference ref = new OPFReference(type, title, href,
+						parser.getLineNumber(), parser.getColumnNumber());
 				refs.add(ref);
 			} else if (name.equals("spine")) {
 				String idref = e.getAttribute("toc");
 				if (idref != null) {
 					toc = (OPFItem) itemMapById.get(idref);
 					if (toc == null)
-						report.error(path, line, column, "item with id '"
-								+ idref + "' not found");
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(), "item with id '"
+										+ idref + "' not found");
 					else {
 						toc.setNcx(true);
 						if (toc.getMimeType() != null
@@ -290,8 +302,8 @@ public class OPFHandler implements XMLHandler {
 										"application/x-dtbncx+xml"))
 							report.error(
 									path,
-									line,
-									column,
+									parser.getLineNumber(),
+									parser.getColumnNumber(),
 									"toc attribute references resource with non-NCX mime type; \"application/x-dtbncx+xml\" is expected");
 					}
 				}
@@ -303,13 +315,15 @@ public class OPFHandler implements XMLHandler {
 						spine.add(item);
 						item.setInSpine(true);
 					} else {
-						report.error(path, line, column, "item with id '"
-								+ idref + "' not found");
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(), "item with id '"
+										+ idref + "' not found");
 					}
 				}
 			} else if (name.equals("dc-metadata") || name.equals("x-metadata")) {
 				if (!opf12PackageFile)
-					report.error(path, line, column,
+					report.error(path, parser.getLineNumber(),
+							parser.getColumnNumber(),
 							"use of deprecated element '" + name + "'");
 			}
 		} else if (ns.equals("http://purl.org/dc/elements/1.1/")) {
@@ -330,8 +344,9 @@ public class OPFHandler implements XMLHandler {
 						"role");
 				if (role != null && !role.equals("")) {
 					if (!isValidRole(role))
-						report.error(path, line, column, "role value '" + role
-								+ "' is not valid");
+						report.error(path, parser.getLineNumber(),
+								parser.getColumnNumber(), "role value '" + role
+										+ "' is not valid");
 				}
 			}
 		}
@@ -362,8 +377,9 @@ public class OPFHandler implements XMLHandler {
 
 	}
 
-	public void endElement(XMLElement e, int line, int column) {
+	public void endElement() {
 
+		XMLElement e = parser.getCurrentElement();
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
 			if (name.equals("identifier")) {
@@ -390,8 +406,8 @@ public class OPFHandler implements XMLHandler {
 				if (!iso8601) {
 					report.error(
 							path,
-							line,
-							column,
+							parser.getLineNumber(),
+							parser.getColumnNumber(),
 							"date value '"
 									+ (dateval == null ? "" : dateval)
 									+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
@@ -400,12 +416,12 @@ public class OPFHandler implements XMLHandler {
 		}
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line, int column) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void characters(char[] chars, int start, int len, XMLElement e,
-			int line, int column) {
+	public void characters(char[] chars, int start, int len) {
+
+		XMLElement e = parser.getCurrentElement();
 
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
@@ -421,7 +437,6 @@ public class OPFHandler implements XMLHandler {
 		}
 	}
 
-	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line, int column) {
+	public void processingInstruction(String arg0, String arg1) {
 	}
 }

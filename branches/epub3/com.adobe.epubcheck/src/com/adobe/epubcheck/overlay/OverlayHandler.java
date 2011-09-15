@@ -10,6 +10,7 @@ import com.adobe.epubcheck.util.HandlerUtil;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class OverlayHandler implements XMLHandler {
 
@@ -21,26 +22,26 @@ public class OverlayHandler implements XMLHandler {
 
 	HashSet<String> prefixSet;
 
-	int line;
+	XMLParser parser;
 
-	int column;
-
-	public OverlayHandler(String path, XRefChecker xrefChecker, Report report) {
+	public OverlayHandler(String path, XRefChecker xrefChecker,
+			XMLParser parser, Report report) {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 		this.report = report;
+		this.parser = parser;
 		prefixSet = new HashSet<String>();
 	}
 
-	public void startElement(XMLElement e, int line, int column) {
-		this.line = line;
-		this.column = column;
+	public void startElement() {
+		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 
 		if (name.equals("smil"))
 			HandlerUtil.processPrefixes(
 					e.getAttributeNS("http://www.idpf.org/2007/ops", "prefix"),
-					prefixSet, report, path, line, column);
+					prefixSet, report, path, parser.getLineNumber(),
+					parser.getColumnNumber());
 		else if (name.equals("seq"))
 			processSeq(e);
 		else if (name.equals("text"))
@@ -54,7 +55,8 @@ public class OverlayHandler implements XMLHandler {
 	boolean checkPrefix(String prefix) {
 		prefix = prefix.trim();
 		if (!prefixSet.contains(prefix)) {
-			report.error(path, line, column, "Undecleared prefix: " + prefix);
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "Undecleared prefix: " + prefix);
 			return false;
 		}
 		return true;
@@ -71,8 +73,9 @@ public class OverlayHandler implements XMLHandler {
 				checkPrefix(typeArray[i]
 						.substring(0, typeArray[i].indexOf(':')));
 			else if (!EpubTypeAttributes.EpubTypeSet.contains(typeArray[i]))
-				report.error(path, line, column, "Undefined epub:type: "
-						+ typeArray[i]);
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(), "Undefined epub:type: "
+								+ typeArray[i]);
 	}
 
 	private void processSrc(XMLElement e) {
@@ -87,11 +90,13 @@ public class OverlayHandler implements XMLHandler {
 				String mimeType = xrefChecker.getMimeType(ref);
 				if (mimeType != null
 						&& !OPFChecker30.isBlessedAudioType(mimeType))
-					report.error(path, line, column,
+					report.error(path, parser.getLineNumber(),
+							parser.getColumnNumber(),
 							"Media Overlay audio refernence " + ref
 									+ " to non-standard audio type " + mimeType);
 			}
-			xrefChecker.registerReference(path, line, column, ref, type);
+			xrefChecker.registerReference(path, parser.getLineNumber(),
+					parser.getColumnNumber(), ref, type);
 		}
 	}
 
@@ -101,19 +106,16 @@ public class OverlayHandler implements XMLHandler {
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
 	}
 
-	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
-			int line, int column) {
+	public void characters(char[] chars, int arg1, int arg2) {
 	}
 
-	public void endElement(XMLElement e, int line, int column) {
+	public void endElement() {
 	}
 
-	public void ignorableWhitespace(char[] chars, int arg1, int arg2,
-			XMLElement e, int line, int column) {
+	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void processingInstruction(String arg0, String arg1, XMLElement e,
-			int line, int column) {
+	public void processingInstruction(String arg0, String arg1) {
 	}
 
 }

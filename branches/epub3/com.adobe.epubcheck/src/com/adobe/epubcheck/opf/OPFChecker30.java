@@ -86,7 +86,8 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 
 	@Override
 	public void initHandler() {
-		opfHandler = new OPFHandler30(ocf, path, report, xrefChecker, version);
+		opfHandler = new OPFHandler30(ocf, path, report, xrefChecker,
+				opfParser, version);
 	}
 
 	@Override

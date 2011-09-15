@@ -67,6 +67,8 @@ public class OPFChecker implements DocumentValidator {
 
 	protected GenericResourceProvider resourceProvider = null;
 
+	XMLParser opfParser = null;
+
 	private void initContentCheckerFactoryMap() {
 		Hashtable<String, ContentCheckerFactory> map = new Hashtable<String, ContentCheckerFactory>();
 		map.put("application/xhtml+xml", OPSCheckerFactory.getInstance());
@@ -188,22 +190,20 @@ public class OPFChecker implements DocumentValidator {
 	}
 
 	public void initHandler() {
-		opfHandler = new OPFHandler(ocf, path, report, xrefChecker, version);
+		opfHandler = new OPFHandler(ocf, path, report, xrefChecker, opfParser,
+				version);
 	}
 
 	@Override
 	public boolean validate() {
-		XMLParser opfParser = null;
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
-
-		initHandler();
 
 		try {
 
 			opfParser = new XMLParser(new BufferedInputStream(
 					resourceProvider.getInputStream(path)), path, "opf", report);
-
+			initHandler();
 			opfParser.addXMLHandler(opfHandler);
 
 			opfParser.addValidator(opfValidator);
