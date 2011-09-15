@@ -29,6 +29,7 @@ import java.util.Vector;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.DateParser;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.InvalidDateException;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
@@ -74,6 +75,8 @@ public class OPFHandler implements XMLHandler {
 
 	boolean opf12PackageFile = false;
 
+	EPUBVersion version;
+
 	static {
 		String[] list = { "acp", "act", "adp", "aft", "anl", "anm", "ann",
 				"ant", "app", "aqt", "arc", "ard", "arr", "art", "asg", "asn",
@@ -104,11 +107,12 @@ public class OPFHandler implements XMLHandler {
 	}
 
 	OPFHandler(OCFPackage ocf, String path, Report report,
-			XRefChecker xrefChecker) {
+			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
 		this.path = path;
 		this.report = report;
 		this.xrefChecker = xrefChecker;
+		this.version = version;
 	}
 
 	public boolean getOpf12PackageFile() {
@@ -209,7 +213,9 @@ public class OPFHandler implements XMLHandler {
 			} else if (name.equals("item")) {
 				String id = e.getAttribute("id");
 				String href = e.getAttribute("href");
-				if (href != null && !href.startsWith("http://")) {
+				if (href != null
+						&& !(version == EPUBVersion.VERSION_3 && href
+								.startsWith("http://"))) {
 					try {
 						href = PathUtil.resolveRelativeReference(path, href);
 					} catch (IllegalArgumentException ex) {
@@ -223,13 +229,18 @@ public class OPFHandler implements XMLHandler {
 				String namespace = e.getAttribute("island-type");
 				String properties = e.getAttribute("properties");
 
-				if (href.startsWith("http://")
-						&& (!mimeType.startsWith("audio") && !mimeType
-								.startsWith("video"))) {
-					report.error(path, line, column,
-							"Only audio and video foreign resources are permitted");
-					return;
-				}
+				if (version == EPUBVersion.VERSION_3
+						&& href.startsWith("http://")
+						&& !OPFChecker30.isBlessedAudioType(mimeType))
+					if (OPFChecker30.isCoreMediaType(mimeType)) {
+						report.error(path, line, column,
+								"Only audio and video foreign resources are permitted!");
+					} else
+						report.warning(
+								path,
+								line,
+								column,
+								"Only audio and video foreign resources are permitted! The checker can't validate foreign resources!");
 
 				OPFItem item = new OPFItem(id, href, mimeType, fallback,
 						fallbackStyle, namespace, properties, line, column);

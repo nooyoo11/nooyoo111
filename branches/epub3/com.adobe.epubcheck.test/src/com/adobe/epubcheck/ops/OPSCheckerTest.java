@@ -228,7 +228,7 @@ public class OPSCheckerTest {
 	@Test
 	public void testValidateXHTML_SCH001() {
 		testValidateDocument("xhtml/invalid/sch-001.xhtml",
-				"application/xhtml+xml", 47, 0, EPUBVersion.VERSION_3);
+				"application/xhtml+xml", 48, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test

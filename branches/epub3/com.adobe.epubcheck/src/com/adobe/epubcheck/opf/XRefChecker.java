@@ -245,7 +245,7 @@ public class XRefChecker {
 							"hyperlink to non-standard resource '"
 									+ ref.refResource + "' of type '"
 									+ res.mimeType + "'");
-				if (!res.mimeType.equals("font/opentype") && !res.inSpine)
+				if (/* !res.mimeType.equals("font/opentype") && */!res.inSpine)
 					report.warning(ref.resource, ref.lineNumber,
 							ref.columnNumber,
 							"hyperlink to resource outside spine '"

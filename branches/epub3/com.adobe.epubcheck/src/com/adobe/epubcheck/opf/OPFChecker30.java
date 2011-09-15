@@ -78,10 +78,6 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		initContentCheckerFactoryMap();
 	}
 
-	public OPFChecker30() {
-		// TODO Auto-generated constructor stub
-	}
-
 	private void initValidators() {
 		opfValidator = new XMLValidator("schema/30/package-30.rnc");
 		opfSchematronValidator = new XMLValidator(
@@ -90,7 +86,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 
 	@Override
 	public void initHandler() {
-		opfHandler = new OPFHandler30(ocf, path, report, xrefChecker);
+		opfHandler = new OPFHandler30(ocf, path, report, xrefChecker, version);
 	}
 
 	@Override
