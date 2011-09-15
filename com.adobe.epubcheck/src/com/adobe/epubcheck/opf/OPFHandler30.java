@@ -27,6 +27,7 @@ import java.util.HashSet;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.HandlerUtil;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
@@ -89,19 +90,13 @@ public class OPFHandler30 extends OPFHandler {
 		itemPropertyTypeMap = map;
 	}
 
-	Report report;
-
-	String path;
-
 	int line;
 
 	int column;
 
 	OPFHandler30(OCFPackage ocf, String path, Report report,
-			XRefChecker xrefChecker) {
-		super(ocf, path, report, xrefChecker);
-		this.report = report;
-		this.path = path;
+			XRefChecker xrefChecker, EPUBVersion version) {
+		super(ocf, path, report, xrefChecker, version);
 		prefixSet = new HashSet<String>();
 
 		for (int i = 0; i < predefinedPrefixes.length; i++)

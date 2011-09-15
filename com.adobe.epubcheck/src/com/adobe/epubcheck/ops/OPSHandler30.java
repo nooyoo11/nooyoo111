@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EpubTypeAttributes;
 import com.adobe.epubcheck.util.HandlerUtil;
@@ -11,16 +12,6 @@ import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 
 public class OPSHandler30 extends OPSHandler {
-
-	String path;
-
-	XRefChecker xrefChecker;
-
-	Report report;
-
-	int line;
-
-	int column;
 
 	String properties;
 
@@ -30,14 +21,17 @@ public class OPSHandler30 extends OPSHandler {
 
 	String mimeType;
 
+	boolean video = false;
+
+	boolean audio = false;
+
+	boolean hasValidFallback = false;
+
 	public OPSHandler30(String path, String mimeType, String properties,
 			XRefChecker xrefChecker, Report report) {
 		super(path, xrefChecker, report);
-		this.path = path;
 		this.mimeType = mimeType;
 		this.properties = properties;
-		this.xrefChecker = xrefChecker;
-		this.report = report;
 		prefixSet = new HashSet<String>();
 		propertiesSet = new HashSet<String>();
 	}
@@ -66,6 +60,19 @@ public class OPSHandler30 extends OPSHandler {
 						+ typeArray[i]);
 	}
 
+	@Override
+	public void characters(char[] chars, int arg1, int arg2, XMLElement e,
+			int line, int column) {
+		super.characters(chars, arg1, arg2, e, line, column);
+		this.line = line;
+		this.column = column;
+
+		String str = new String(chars, arg1, arg2);
+		str = str.trim();
+		if (!str.equals("") && (audio || video))
+			hasValidFallback = true;
+	}
+
 	public void startElement(XMLElement e, int line, int column) {
 		super.startElement(e, line, column);
 
@@ -89,8 +96,28 @@ public class OPSHandler30 extends OPSHandler {
 			propertiesSet.add("scripted");
 		else if (name.equals("switch"))
 			propertiesSet.add("switch");
+		else if (name.equals("audio"))
+			processAudio(e);
+		else if (name.equals("video"))
+			processVideo(e);
 
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
+	}
+
+	private void processAudio(XMLElement e) {
+		audio = true;
+	}
+
+	private void processVideo(XMLElement e) {
+		video = true;
+
+		String posterSrc = e.getAttribute("poster");
+
+		if (posterSrc != null) {
+			hasValidFallback = true;
+			processSrc(posterSrc);
+		}
+
 	}
 
 	private void processSrc(String src) {
@@ -114,6 +141,9 @@ public class OPSHandler30 extends OPSHandler {
 				&& srcMimeType.equals("image/svg+xml"))
 			propertiesSet.add("svg");
 
+		if (audio && OPFChecker30.isBlessedAudioType(srcMimeType))
+			hasValidFallback = true;
+
 	}
 
 	private void processObject(XMLElement e) {
@@ -126,9 +156,29 @@ public class OPSHandler30 extends OPSHandler {
 
 	@Override
 	public void endElement(XMLElement e, int line, int column) {
+		super.endElement(e, line, column);
+		this.line = line;
+		this.column = column;
+
 		String name = e.getName();
 		if (name.equals("html") || name.equals("svg"))
 			checkProperties();
+		else if (name.equals("video"))
+			checkFallback("Video");
+		else if (name.equals("audio"))
+			checkFallback("Audio");
+
+	}
+
+	/*
+	 * This function checks fallbacks for video and audio resources
+	 */
+	private void checkFallback(String elementType) {
+		if (hasValidFallback)
+			hasValidFallback = false;
+		else
+			report.error(path, line, column, elementType
+					+ " element doesn't provide fallback!");
 	}
 
 	private void checkProperties() {

@@ -217,8 +217,7 @@ public class OPFCheckerTest {
 
 	@Test
 	public void testValidateDocumentForeign() {
-		testValidateDocument("invalid/foreign.opf", 1, 0,
-				EPUBVersion.VERSION_3);
+		testValidateDocument("invalid/foreign.opf", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test

@@ -102,12 +102,12 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUBPLoremForeign() {
-		testValidateDocument("valid/lorem-foreign", 0, 0);
+		testValidateDocument("valid/lorem-foreign", 0, 1);
 	}
 	
 	@Test
 	public void testValidateEPUBPInvalidLoremForeign() {
-		testValidateDocument("invalid/lorem-foreign", 1, 0);
+		testValidateDocument("invalid/lorem-foreign", 1, 1);
 	}
 
 }
