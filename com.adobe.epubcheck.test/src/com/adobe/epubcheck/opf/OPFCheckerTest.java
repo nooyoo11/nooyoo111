@@ -121,6 +121,11 @@ public class OPFCheckerTest {
 	}
 
 	@Test
+	public void testValidateDocumentValidOPFSvg() {
+		testValidateDocument("valid/lorem-svg.opf", 0, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
 	public void testValidateDocumentMalformed() {
 		testValidateDocument("invalid/malformed.opf", 2, 0,
 				EPUBVersion.VERSION_3);
