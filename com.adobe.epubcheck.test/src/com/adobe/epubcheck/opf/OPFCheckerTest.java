@@ -307,4 +307,11 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/item-properties.opf", 1, 0,
 				EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testValidateRedeclaredReservedPrefixes() {
+		//TODO should generate 2 errors (2 invalid redeclarations)
+		testValidateDocument("invalid/prefixes-redeclare.opf", 0, 0,
+				EPUBVersion.VERSION_3);
+	}
 }
