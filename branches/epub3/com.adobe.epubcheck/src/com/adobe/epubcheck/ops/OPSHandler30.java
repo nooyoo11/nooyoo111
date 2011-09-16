@@ -78,7 +78,7 @@ public class OPSHandler30 extends OPSHandler {
 		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 
-		processSrc(e.getAttribute("src"));
+		processSrc(e.getName(), e.getAttribute("src"));
 
 		if (name.equals("html"))
 			HandlerUtil.processPrefixes(
@@ -125,12 +125,12 @@ public class OPSHandler30 extends OPSHandler {
 
 		if (posterSrc != null) {
 			hasValidFallback = true;
-			processSrc(posterSrc);
+			processSrc(e.getName(), posterSrc);
 		}
 
 	}
 
-	private void processSrc(String src) {
+	private void processSrc(String name, String src) {
 		if (src == null || xrefChecker == null)
 			return;
 
@@ -151,7 +151,8 @@ public class OPSHandler30 extends OPSHandler {
 				&& srcMimeType.equals("image/svg+xml"))
 			propertiesSet.add("svg");
 
-		if (audio && OPFChecker30.isBlessedAudioType(srcMimeType))
+		if ((name.equals("source") || name.equals("audio")) && audio
+				&& OPFChecker30.isBlessedAudioType(srcMimeType))
 			hasValidFallback = true;
 
 	}
