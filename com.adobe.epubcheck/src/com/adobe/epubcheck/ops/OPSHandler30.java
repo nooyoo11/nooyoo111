@@ -9,6 +9,7 @@ import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EpubTypeAttributes;
 import com.adobe.epubcheck.util.HandlerUtil;
+import com.adobe.epubcheck.util.MetaUtils;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLParser;
@@ -51,17 +52,10 @@ public class OPSHandler30 extends OPSHandler {
 	private void checkType(String type) {
 		if (type == null)
 			return;
-		type = type.replaceAll("[\\s]+", " ");
+		MetaUtils.validateProperties(type, EpubTypeAttributes.EpubTypeSet,
+				prefixSet, path, parser.getLineNumber(),
+				parser.getColumnNumber(), report, false);
 
-		String typeArray[] = type.split(" ");
-		for (int i = 0; i < typeArray.length; i++)
-			if (typeArray[i].contains(":"))
-				checkPrefix(typeArray[i]
-						.substring(0, typeArray[i].indexOf(':')));
-			else if (!EpubTypeAttributes.EpubTypeSet.contains(typeArray[i]))
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(), "Undefined epub:type: "
-								+ typeArray[i]);
 	}
 
 	@Override

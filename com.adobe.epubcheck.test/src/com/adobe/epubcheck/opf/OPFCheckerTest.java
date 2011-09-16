@@ -291,14 +291,50 @@ public class OPFCheckerTest {
 	}
 
 	@Test
-	public void testValidateDocumentPrefixes() {
-		testValidateDocument("invalid/prefixes.opf", 11, 0,
+	public void testValidateDocumentPrefixes001() {
+		testValidateDocument("invalid/prefixes-001.opf", 2, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentPrefixes002() {
+		testValidateDocument("invalid/prefixes-002.opf", 1, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentPrefixes003() {
+		testValidateDocument("invalid/prefixes-003.opf", 1, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentPrefixes004() {
+		testValidateDocument("invalid/prefixes-004.opf", 1, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentScheme() {
+		testValidateDocument("valid/scheme-001.opf", 0, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentInvalidScheme001() {
+		testValidateDocument("invalid/scheme-001.opf", 1, 0,
+				EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateDocumentInvalidScheme002() {
+		testValidateDocument("invalid/scheme-002.opf", 3, 0,
 				EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateDocumentPrefixDeclaration() {
-		testValidateDocument("invalid/prefix-declaration.opf", 14, 0,
+		testValidateDocument("invalid/prefix-declaration.opf", 5, 0,
 				EPUBVersion.VERSION_3);
 	}
 
