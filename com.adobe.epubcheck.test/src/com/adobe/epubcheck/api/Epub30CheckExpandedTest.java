@@ -79,6 +79,11 @@ public class Epub30CheckExpandedTest {
 	public void testValidateEPUBWastelandBasic() {
 		testValidateDocument("valid/wasteland-basic", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUBLoremAudio() {
+		testValidateDocument("valid/lorem-audio", 0, 0, true);
+	}
 
 	@Test
 	public void testValidateEPUBLoremxhtmlrng1() {

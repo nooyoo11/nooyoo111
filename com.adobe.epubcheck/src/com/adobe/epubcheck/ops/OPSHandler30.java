@@ -78,8 +78,6 @@ public class OPSHandler30 extends OPSHandler {
 		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 
-		processSrc(e.getName(), e.getAttribute("src"));
-
 		if (name.equals("html"))
 			HandlerUtil.processPrefixes(
 					e.getAttributeNS("http://www.idpf.org/2007/ops", "prefix"),
@@ -99,6 +97,8 @@ public class OPSHandler30 extends OPSHandler {
 			processAudio(e);
 		else if (name.equals("video"))
 			processVideo(e);
+
+		processSrc(e.getName(), e.getAttribute("src"));
 
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
 	}

@@ -48,7 +48,6 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		map.put("image/png", BitmapCheckerFactory.getInstance());
 		map.put("image/svg+xml", OPSCheckerFactory.getInstance());
 		map.put("text/css", CSSCheckerFactory.getInstance());
-		map.put("application/smil+xml", OPSCheckerFactory.getInstance());
 		map.put("application/smil+xml", OverlayCheckerFactory.getInstance());
 		contentCheckerFactoryMap = map;
 	}
