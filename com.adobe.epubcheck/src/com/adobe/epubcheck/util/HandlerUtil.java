@@ -32,8 +32,19 @@ public class HandlerUtil {
 				report.error(path, line, column, "URL expected instead of "
 						+ prefixArray[i - 1]);
 			else if (validPrefix) {
-				prefixSet.add(prefixArray[i - 1].substring(0,
-						prefixArray[i - 1].length() - 1));
+				if (!prefixSet.contains(prefixArray[i - 1].substring(0,
+						prefixArray[i - 1].length() - 1)))
+					prefixSet.add(prefixArray[i - 1].substring(0,
+							prefixArray[i - 1].length() - 1));
+				else
+					report.error(
+							path,
+							line,
+							column,
+							"Redeclaration of "
+									+ prefixArray[i - 1].substring(0,
+											prefixArray[i - 1].length() - 1)
+									+ " prefix! Make sure it is not a reserved prefix!");
 			}
 		}
 
