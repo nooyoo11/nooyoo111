@@ -123,7 +123,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 		if (mimeType == null)
 			return;
 
-		if (isBlessedItemType(mimeType))
+		if (isBlessedItemType(mimeType, version))
 			return;
 
 		if (item.getFallback() == null)
@@ -145,7 +145,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 			if (fallbackItem != null) {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
-					if (isBlessedItemType(mimeType))
+					if (OPFChecker.isBlessedItemType(mimeType, version))
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
 						return true;
@@ -153,11 +153,6 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 			}
 		}
 		return false;
-	}
-
-	public static boolean isBlessedItemType(String type) {
-		return type.equals("application/xhtml+xml")
-				|| type.equals("image/svg+xml");
 	}
 
 	public static boolean isBlessedAudioType(String type) {
@@ -171,8 +166,8 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 
 	public static boolean isCoreMediaType(String type) {
 		return isBlessedAudioType(type) || isBlessedFontType(type)
-				|| isBlessedItemType(type) || isBlessedImageType(type)
-				|| type.equals("text/javascript")
+				|| isBlessedItemType(type, EPUBVersion.VERSION_3)
+				|| isBlessedImageType(type) || type.equals("text/javascript")
 				|| type.equals("application/pls+xml")
 				|| type.equals("application/smil+xml");
 

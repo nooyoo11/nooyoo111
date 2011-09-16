@@ -121,6 +121,11 @@ public class Epub30CheckExpandedTest {
 	}
 
 	@Test
+	public void testValidateEPUBPLoremSvgHyperlink() {
+		testValidateDocument("valid/lorem-svg-hyperlink", 0, 0);
+	}
+
+	@Test
 	public void testValidateEPUBPInvalidLoremPoster() {
 		testValidateDocument("invalid/lorem-poster", 1, 1);
 	}

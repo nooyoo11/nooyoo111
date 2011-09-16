@@ -236,7 +236,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType)
+						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)
@@ -294,7 +294,7 @@ public class XRefChecker {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already
 				if (res.mimeType != null
-						&& !OPFChecker.isBlessedItemType(res.mimeType)
+						&& !OPFChecker.isBlessedItemType(res.mimeType, version)
 						&& !OPFChecker
 								.isDeprecatedBlessedItemType(res.mimeType)
 						&& !res.hasValidItemFallback)

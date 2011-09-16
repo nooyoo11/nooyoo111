@@ -241,10 +241,13 @@ public class OPFChecker implements DocumentValidator {
 				&& warningsSoFar == report.getWarningCount();
 	}
 
-	public static boolean isBlessedItemType(String type) {
-		return type.equals("application/xhtml+xml")
-				|| type.equals("application/x-dtbook+xml");
-
+	public static boolean isBlessedItemType(String type, EPUBVersion version) {
+		if (version == EPUBVersion.VERSION_2)
+			return type.equals("application/xhtml+xml")
+					|| type.equals("application/x-dtbook+xml");
+		else
+			return type.equals("application/xhtml+xml")
+					|| type.equals("image/svg+xml");
 	}
 
 	public static boolean isDeprecatedBlessedItemType(String type) {
@@ -299,7 +302,7 @@ public class OPFChecker implements DocumentValidator {
 								+ mimeType + "'");
 		}
 		if (opfHandler.getOpf12PackageFile() && fallback == null) {
-			if (isBlessedItemType(mimeType))
+			if (isBlessedItemType(mimeType, version))
 				report.warning(
 						path,
 						item.getLineNumber(),
@@ -372,13 +375,13 @@ public class OPFChecker implements DocumentValidator {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "'" + mimeType
 								+ "' is not a permissible spine media-type");
-			else if (!isBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType, version)
 					&& !isDeprecatedBlessedItemType(mimeType)
 					&& item.getFallback() == null)
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), "non-standard media-type '"
 								+ mimeType + "' with no fallback");
-			else if (!isBlessedItemType(mimeType)
+			else if (!isBlessedItemType(mimeType, version)
 					&& !isDeprecatedBlessedItemType(mimeType)
 					&& !checkItemFallbacks(item, opfHandler))
 				report.error(
@@ -398,7 +401,7 @@ public class OPFChecker implements DocumentValidator {
 			if (fallbackItem != null) {
 				String mimeType = fallbackItem.getMimeType();
 				if (mimeType != null) {
-					if (isBlessedItemType(mimeType)
+					if (isBlessedItemType(mimeType, version)
 							|| isDeprecatedBlessedItemType(mimeType))
 						return true;
 					if (checkItemFallbacks(fallbackItem, opfHandler))
