@@ -24,11 +24,14 @@ package com.adobe.epubcheck.opf;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.HandlerUtil;
+import com.adobe.epubcheck.util.MetaUtils;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLParser;
@@ -52,6 +55,14 @@ public class OPFHandler30 extends OPFHandler {
 		set.add("role");
 		set.add("title-type");
 		metaPropertySet = set;
+	}
+
+	static HashSet<String> itemrefSet;
+	static {
+		HashSet<String> set = new HashSet<String>();
+		set.add("page-spread-right");
+		set.add("page-spread-left");
+		itemrefSet = set;
 	}
 
 	static HashSet<String> linkRelSet;
@@ -152,90 +163,53 @@ public class OPFHandler30 extends OPFHandler {
 	private void processItemrefProperties(String property) {
 		if (property == null)
 			return;
-		property = property.replaceAll("[\\s]+", " ");
-
-		String propertyArray[] = property.split(" ");
-		boolean right = false, left = false;
-
-		for (int i = 0; i < propertyArray.length; i++)
-			if (propertyArray[i].endsWith(":"))
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(),
-						"Property is not allowed to be composed only by a prefix!");
-			else if (propertyArray[i].contains(":"))
-				checkPrefix(propertyArray[i].substring(0,
-						propertyArray[i].indexOf(':')));
-			else if (propertyArray[i].equals("page-spread-left"))
-				left = true;
-			else if (propertyArray[i].equals("page-spread-right"))
-				right = true;
-			else
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(),
-						"Undefined itemref property: " + propertyArray[i]);
-
-		if (right && left)
+		int propertiesNumber = MetaUtils.validateProperties(property,
+				itemrefSet, prefixSet, path, parser.getLineNumber(),
+				parser.getColumnNumber(), report, false).size();
+		if (propertiesNumber == 2)
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(),
 					"itemref can't have both page-spread-right and page-spread-left properties!");
+
 	}
 
 	private void processItemProperties(String property, String mimeType) {
 		if (property == null)
 			return;
-		property = property.trim();
-		property = property.replaceAll("[\\s]+", " ");
+
+		Set<String> properties = MetaUtils.validateProperties(property,
+				itemPropertySet, prefixSet, path, parser.getLineNumber(),
+				parser.getColumnNumber(), report, false);
 		mimeType = mimeType.trim();
+		Iterator<String> it = properties.iterator();
+		while (it.hasNext()) {
+			boolean match = false;
+			String propertyValue = it.next();
+			String expectedType = itemPropertyTypeMap.get(propertyValue);
+			String expectedTypeArray[] = expectedType.split(" ");
 
-		String propertyArray[] = property.split(" ");
-		for (int i = 0; i < propertyArray.length; i++)
-			if (propertyArray[i].endsWith(":"))
+			for (int j = 0; j < expectedTypeArray.length; j++)
+				if (expectedTypeArray[j].equals(mimeType)) {
+					match = true;
+					break;
+				}
+			if (!match)
 				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(),
-						"Property is not allowed to be composed only by a prefix!");
-			else if (propertyArray[i].contains(":"))
-				checkPrefix(propertyArray[i].substring(0,
-						propertyArray[i].indexOf(':')));
-			else if (itemPropertySet.contains(propertyArray[i])) {
-				boolean match = false;
-				String expectedType = itemPropertyTypeMap.get(propertyArray[i]);
-				String expectedTypeArray[] = expectedType.split(" ");
+						parser.getColumnNumber(), "Item property: "
+								+ propertyValue
+								+ " is not defined for media type: " + mimeType);
 
-				for (int j = 0; j < expectedTypeArray.length; j++)
-					if (expectedTypeArray[j].equals(mimeType)) {
-						match = true;
-						break;
-					}
-				if (!match)
-					report.error(path, parser.getLineNumber(),
-							parser.getColumnNumber(), "Item property: "
-									+ propertyArray[i]
-									+ " is not defined for media type: "
-									+ mimeType);
-
-			} else
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(), "Undefined item property: "
-								+ propertyArray[i]);
+		}
 	}
 
 	private void processLinkRel(String rel) {
 		if (rel == null)
 			return;
-		rel = rel.replaceAll("[\\s]+", " ");
 
-		String relArray[] = rel.split(" ");
-		for (int i = 0; i < relArray.length; i++)
-			if (relArray[i].endsWith(":"))
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(),
-						"Link rel is not allowed to be composed only by a prefix!");
-			else if (relArray[i].contains(":"))
-				checkPrefix(relArray[i].substring(0, relArray[i].indexOf(':')));
-			else if (!linkRelSet.contains(relArray[i]))
-				report.error(path, parser.getLineNumber(),
-						parser.getColumnNumber(), "Undefined link rel: "
-								+ relArray[i]);
+		MetaUtils
+				.validateProperties(rel, linkRelSet, prefixSet, path,
+						parser.getLineNumber(), parser.getColumnNumber(),
+						report, false);
 	}
 
 	private void processMeta(XMLElement e) {
@@ -246,42 +220,15 @@ public class OPFHandler30 extends OPFHandler {
 	private void processMetaScheme(String scheme) {
 		if (scheme == null)
 			return;
-		scheme = scheme.replaceAll("[\\s]+", " ");
-
-		if (scheme.contains(":") && !scheme.endsWith(":")) {
-			checkPrefix(scheme.substring(0, scheme.indexOf(':')));
-		} else if (scheme.endsWith(":"))
-			report.error(path, parser.getLineNumber(),
-					parser.getColumnNumber(),
-					"Property is not allowed to be composed only by a prefix!");
-		else
-			report.error(path, parser.getLineNumber(),
-					parser.getColumnNumber(),
-					"Unprefixed values for scheme attribute not allowed!");
-	}
-
-	boolean checkPrefix(String prefix) {
-		prefix = prefix.trim();
-		if (!prefixSet.contains(prefix)) {
-			report.error(path, parser.getLineNumber(),
-					parser.getColumnNumber(), "Undecleared prefix: " + prefix);
-			return false;
-		}
-		return true;
+		MetaUtils.validateProperties(scheme, null, prefixSet, path,
+				parser.getLineNumber(), parser.getColumnNumber(), report, true);
 	}
 
 	private void processMetaProperty(String property) {
 		if (property == null)
 			return;
-		property = property.trim();
-		if (property.contains(":") && !property.endsWith(":")) {
-			checkPrefix(property.substring(0, property.indexOf(':')));
-		} else if (property.endsWith(":"))
-			report.error(path, parser.getLineNumber(),
-					parser.getColumnNumber(),
-					"Meta property is not allowed to be composed only by a prefix!");
-		else if (!metaPropertySet.contains(property))
-			report.error(path, parser.getLineNumber(),
-					parser.getColumnNumber(), "Undefined propery " + property);
+		MetaUtils.validateProperties(property, metaPropertySet, prefixSet,
+				path, parser.getLineNumber(), parser.getColumnNumber(), report,
+				true);
 	}
 }
