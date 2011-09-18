@@ -96,7 +96,12 @@ public class Epub20CheckTest {
 	public void testValidateEPUBvalid20() {
 		testValidateDocument("valid/lorem.epub", 0, 0);
 	}
-	
+
+	@Test
+	public void testValidateEPUBInvalid20() {
+		testValidateDocument("invalid/lorem-mimetype.epub", 1, 0);
+	}
+
 	@Test
 	public void testValidateEPUBPageMap20() {
 		testValidateDocument("PageMap20.epub", 1, 0);

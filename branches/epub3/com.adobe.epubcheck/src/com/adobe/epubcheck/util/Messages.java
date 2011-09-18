@@ -32,7 +32,7 @@ public class Messages {
 
 	public static String INVALID_OPF_Version = "Failed obtaining OPF version: %1$s .";
 
-	public static String NAV_NOT_SUPPORTED = "The nav file is not supported for epub versions less than 3.0!";
+	public static String NAV_NOT_SUPPORTED = "The nav file is not supported for epub versions other than 3.0!";
 
 	public static String OPV_VERSION_TEST = "Tests are done only for the OPF version!";
 
