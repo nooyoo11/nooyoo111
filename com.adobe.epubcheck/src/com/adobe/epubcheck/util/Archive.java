@@ -78,18 +78,25 @@ public class Archive {
 
 				ZipEntry entry = new ZipEntry(names.get(index));
 				entry.setMethod(ZipEntry.STORED);
-				entry.setCompressedSize(20);
-				entry.setSize(20);
+				int len, size = 0;
+				while ((len = in.read(buf)) > 0)
+					size += len;
+
+				in = new FileInputStream(paths.get(index));
+
+				entry.setCompressedSize(size);
+				entry.setSize(size);
+
 				CRC32 crc = new CRC32();
 				entry.setCrc(crc.getValue());
 				out.putNextEntry(entry);
 
-				int len;
 				while ((len = in.read(buf)) > 0) {
 					crc.update(buf, 0, len);
-					entry.setCrc(crc.getValue());
 					out.write(buf, 0, len);
 				}
+
+				entry.setCrc(crc.getValue());
 
 				paths.remove(index);
 				names.remove(index);

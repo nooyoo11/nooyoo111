@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
 import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.OPSType;
@@ -126,6 +127,14 @@ public class OCFChecker {
 			try {
 				version = ResourceUtil.retrieveOpfVersion(ocf
 						.getInputStream(rootPath));
+
+				// checking mimeType file for trailing spaces
+				if (ocf.hasEntry("mimetype")
+						&& !CheckUtil.checkTrailingSpaces(
+								ocf.getInputStream("mimetype"), version))
+					report.error("mimetype", 0, 0,
+							"Mimetype file should contain only the string \"application/epub+zip\".");
+
 				validate();
 			} catch (InvalidVersionException e) {
 				report.error(rootPath, -1, -1, e.getMessage());
@@ -186,10 +195,6 @@ public class OCFChecker {
 		}
 
 		return false;
-	}
-
-	public void setVersion(EPUBVersion version) {
-		this.version = version;
 	}
 
 	/**
