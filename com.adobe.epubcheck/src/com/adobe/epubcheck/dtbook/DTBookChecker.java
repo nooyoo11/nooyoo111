@@ -22,6 +22,8 @@
 
 package com.adobe.epubcheck.dtbook;
 
+import java.io.IOException;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
@@ -38,28 +40,37 @@ public class DTBookChecker implements ContentChecker {
 	String path;
 
 	XRefChecker xrefChecker;
-	
-	static XMLValidator dtbookValidator = new XMLValidator("rng/dtbook-2005-2.rng");
-	
-	public DTBookChecker(OCFPackage ocf, Report report, String path, XRefChecker xrefChecker) {
+
+	static XMLValidator dtbookValidator = new XMLValidator(
+			"schema/20/rng/dtbook-2005-2.rng");
+
+	public DTBookChecker(OCFPackage ocf, Report report, String path,
+			XRefChecker xrefChecker) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 	}
-	
+
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "DTBook file " + path + " is missing");
+			report.error(null, 0, 0, "DTBook file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "DTBook file " + path + " cannot be decrypted");
+			report.error(null, 0, 0, "DTBook file " + path
+					+ " cannot be decrypted");
 		else {
-			XMLParser dtbookParser = new XMLParser(ocf, path, report);
+			XMLParser dtbookParser = null;
+			try {
+				dtbookParser = new XMLParser(ocf.getInputStream(path), path,
+						"application/x-dtbook+xml", report);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			dtbookParser.addValidator(dtbookValidator);
-			DTBookHandler dtbookHandler = new DTBookHandler(dtbookParser, path, xrefChecker);
+			DTBookHandler dtbookHandler = new DTBookHandler(dtbookParser, path,
+					xrefChecker);
 			dtbookParser.addXMLHandler(dtbookHandler);
 			dtbookParser.process();
-		}		
+		}
 	}
-
 }

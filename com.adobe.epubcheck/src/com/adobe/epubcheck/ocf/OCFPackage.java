@@ -8,76 +8,78 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class OCFPackage {
+import com.adobe.epubcheck.util.GenericResourceProvider;
 
-        ZipFile zip;
-        Hashtable enc;
-        String uniqueIdentifier;
+public class OCFPackage implements GenericResourceProvider {
 
-        public OCFPackage(ZipFile zip) {
-                this.zip = zip;
-                this.enc = new Hashtable();
-        }
+	ZipFile zip;
+	Hashtable<String, EncryptionFilter> enc;
+	String uniqueIdentifier;
 
-        public void setEncryption(String name, EncryptionFilter encryptionFilter) {
-                enc.put(name, encryptionFilter);
-        }
+	public OCFPackage(ZipFile zip) {
+		this.zip = zip;
+		this.enc = new Hashtable<String, EncryptionFilter>();
+	}
 
-        public void setUniqueIdentifier(String idval) {
-                uniqueIdentifier = idval;
-        }
+	public void setEncryption(String name, EncryptionFilter encryptionFilter) {
+		enc.put(name, encryptionFilter);
+	}
 
-        public String getUniqueIdentifier() {
-                return uniqueIdentifier;
-        }
+	public void setUniqueIdentifier(String idval) {
+		uniqueIdentifier = idval;
+	}
 
-        public boolean hasEntry(String name) {
-                return zip.getEntry(name) != null;
-        }
+	public String getUniqueIdentifier() {
+		return uniqueIdentifier;
+	}
 
-        public boolean canDecrypt(String name) {
-                EncryptionFilter filter = (EncryptionFilter) enc.get(name);
-                if (filter == null)
-                        return true;
-                return filter.canDecrypt();
-        }
+	public boolean hasEntry(String name) {
+		return zip.getEntry(name) != null;
+	}
 
-        public InputStream getInputStream(String name) throws IOException {
-                ZipEntry entry = zip.getEntry(name);
-                if (entry == null)
-                        return null;
-                InputStream in = zip.getInputStream(entry);
-                EncryptionFilter filter = (EncryptionFilter) enc.get(name);
-                if (filter == null)
-                        return in;
-                if( filter.canDecrypt() )
-                        return filter.decrypt(in);
-                return null;
-        }
+	public boolean canDecrypt(String name) {
+		EncryptionFilter filter = (EncryptionFilter) enc.get(name);
+		if (filter == null)
+			return true;
+		return filter.canDecrypt();
+	}
 
-        public HashSet getFileEntries() throws IOException {
-            HashSet entryNames = new HashSet();
+	public InputStream getInputStream(String name) throws IOException {
+		ZipEntry entry = zip.getEntry(name);
+		if (entry == null)
+			return null;
+		InputStream in = zip.getInputStream(entry);
+		EncryptionFilter filter = (EncryptionFilter) enc.get(name);
+		if (filter == null)
+			return in;
+		if (filter.canDecrypt())
+			return filter.decrypt(in);
+		return null;
+	}
 
-            for (Enumeration entries = zip.entries(); entries.hasMoreElements();) {
-                ZipEntry entry = (ZipEntry)entries.nextElement();
-                if (! entry.isDirectory()) {
-                    entryNames.add(entry.getName());
-                }
-            }
+	public HashSet<String> getFileEntries() throws IOException {
+		HashSet<String> entryNames = new HashSet<String>();
 
-            return entryNames;
-        }
+		for (Enumeration entries = zip.entries(); entries.hasMoreElements();) {
+			ZipEntry entry = (ZipEntry) entries.nextElement();
+			if (!entry.isDirectory()) {
+				entryNames.add(entry.getName());
+			}
+		}
 
-        public HashSet getDirectoryEntries() throws IOException {
-            HashSet entryNames = new HashSet();
+		return entryNames;
+	}
 
-            for (Enumeration entries = zip.entries(); entries.hasMoreElements();) {
-                ZipEntry entry = (ZipEntry)entries.nextElement();
-                if (entry.isDirectory()) {
-                    entryNames.add(entry.getName());
-                }
-            }
+	public HashSet<String> getDirectoryEntries() throws IOException {
+		HashSet<String> entryNames = new HashSet<String>();
 
-            return entryNames;
-        }
+		for (Enumeration entries = zip.entries(); entries.hasMoreElements();) {
+			ZipEntry entry = (ZipEntry) entries.nextElement();
+			if (entry.isDirectory()) {
+				entryNames.add(entry.getName());
+			}
+		}
+
+		return entryNames;
+	}
 }

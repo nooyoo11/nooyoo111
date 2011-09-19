@@ -27,19 +27,20 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.ContentCheckerFactory;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 
 public class DTBookCheckerFactory implements ContentCheckerFactory {
 
-	public ContentChecker newInstance(OCFPackage ocf, Report report, String path,
-			String mimeType, XRefChecker xrefChecker) {
-		return new DTBookChecker( ocf, report, path, xrefChecker );
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version) {
+		return new DTBookChecker(ocf, report, path, xrefChecker);
 	}
-	
+
 	static private DTBookCheckerFactory instance = new DTBookCheckerFactory();
-	
+
 	static public DTBookCheckerFactory getInstance() {
 		return instance;
 	}
-	
 
 }

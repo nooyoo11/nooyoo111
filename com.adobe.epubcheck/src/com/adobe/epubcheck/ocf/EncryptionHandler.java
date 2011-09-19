@@ -35,16 +35,17 @@ public class EncryptionHandler implements XMLHandler {
 
 	XMLParser parser;
 
-	EncryptionHandler(XMLParser parser, OCFPackage ocf) {
-		this.parser = parser;
+	EncryptionHandler(OCFPackage ocf, XMLParser parser) {
 		this.ocf = ocf;
+		this.parser = parser;
 	}
 
 	public void startElement() {
-		XMLElement e = parser.getCurrentElement();
+
 		// if the element is <CipherReference>, then the element name
 		// is stripped of rootBase, and URLDecoded, and finally put into
 		// encryptedItemsSet.
+		XMLElement e = parser.getCurrentElement();
 		if (e.getName().equals("CipherReference")) {
 			String algorithm = null;
 			XMLElement parent = e.getParent();

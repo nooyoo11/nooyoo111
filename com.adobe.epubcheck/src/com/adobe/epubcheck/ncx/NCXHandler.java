@@ -41,7 +41,7 @@ public class NCXHandler implements XMLHandler {
 		this.path = path;
 		this.xrefChecker = xrefChecker;
 	}
-	
+
 	public void characters(char[] chars, int arg1, int arg2) {
 	}
 
@@ -57,10 +57,11 @@ public class NCXHandler implements XMLHandler {
 				String href = e.getAttribute("src");
 				if (href != null) {
 					href = PathUtil.resolveRelativeReference(path, href);
-					xrefChecker.registerReference(path, parser.getLineNumber(), href,
+					xrefChecker.registerReference(path, parser.getLineNumber(),
+							parser.getColumnNumber(), href,
 							XRefChecker.RT_HYPERLINK);
 				}
-		
+
 			}
 		}
 	}
@@ -70,5 +71,4 @@ public class NCXHandler implements XMLHandler {
 
 	public void processingInstruction(String arg0, String arg1) {
 	}
-
 }

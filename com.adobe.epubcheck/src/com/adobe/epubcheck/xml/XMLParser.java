@@ -47,10 +47,10 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
-import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
 import com.thaiopensource.util.PropertyMapBuilder;
@@ -60,106 +60,115 @@ import com.thaiopensource.validate.Validator;
 public class XMLParser extends DefaultHandler implements LexicalHandler,
 		DeclHandler {
 
-	OCFPackage ocf;
-
 	SAXParser parser;
 
 	Report report;
 
 	String resource;
 
-	Vector contentHandlers = new Vector();
+	InputStream resourceIn;
+
+	Vector<XMLHandler> contentHandlers = new Vector<XMLHandler>();
 
 	XMLElement currentElement;
 
 	// ContentHandler validatorContentHandler;
-	Vector validatorContentHandlers = new Vector();
+	Vector<ContentHandler> validatorContentHandlers = new Vector<ContentHandler>();
 
 	// DTDHandler validatorDTDHandler;
-	Vector validatorDTDHandlers = new Vector();
+	Vector<DTDHandler> validatorDTDHandlers = new Vector<DTDHandler>();
 
 	Locator documentLocator;
 
 	static String zipRoot = "file:///epub-root/";
 
-	static Hashtable systemIdMap;
+	static Hashtable<String, String> systemIdMap;
 
-	HashSet entities = new HashSet();
+	HashSet<String> entities = new HashSet<String>();
 
 	static {
-		Hashtable map = new Hashtable();
+		Hashtable<String, String> map = new Hashtable<String, String>();
 
 		// fully-resolved names
-		map.put("http://www.idpf.org/dtds/2007/opf.dtd", ResourceUtil
-				.getResourcePath("dtd/opf20.dtd"));
-		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent", ResourceUtil
-				.getResourcePath("dtd/oeb12.dtdinc"));
+		map.put("http://www.idpf.org/dtds/2007/opf.dtd",
+				ResourceUtil.getResourcePath("schema/20/dtd/opf20.dtd"));
+		map.put("http://openebook.org/dtds/oeb-1.2/oeb12.ent",
+				ResourceUtil.getResourcePath("schema/20/dtd/oeb12.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd",
-				ResourceUtil.getResourcePath("dtd/xhtml1-transitional.dtd"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml1-transitional.dtd"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd",
-				ResourceUtil.getResourcePath("dtd/xhtml1-strict.dtd"));
-		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-lat1.dtdinc"));
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml1-strict.dtd"));
+		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent",
+				ResourceUtil.getResourcePath("schema/20/dtd/xhtml-lat1.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent",
-				ResourceUtil.getResourcePath("dtd/xhtml-symbol.dtdinc"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml-symbol.dtdinc"));
 		map.put("http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent",
-				ResourceUtil.getResourcePath("dtd/xhtml-special.dtdinc"));
+				ResourceUtil
+						.getResourcePath("schema/20/dtd/xhtml-special.dtdinc"));
 		map.put("http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd",
-				ResourceUtil.getResourcePath("dtd/svg11.dtd"));
-		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", ResourceUtil
-				.getResourcePath("dtd/opf20.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/svg11.dtd"));
+		map.put("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd",
+				ResourceUtil.getResourcePath("schema/20/dtd/opf20.dtd"));
 		map.put("http://www.daisy.org/z3986/2005/dtbook-2005-2.dtd",
-				ResourceUtil.getResourcePath("dtd/dtbook-2005-2.dtd"));
-		map.put("http://www.daisy.org/z3986/2005/ncx-2005-1.dtd", ResourceUtil
-				.getResourcePath("dtd/ncx-2005-1.dtd"));
+				ResourceUtil.getResourcePath("schema/20/dtd/dtbook-2005-2.dtd"));
+		map.put("http://www.daisy.org/z3986/2005/ncx-2005-1.dtd",
+				ResourceUtil.getResourcePath("schema/20/dtd/ncx-2005-1.dtd"));
 
 		// non-resolved names; Saxon (which schematron requires and registers as
 		// preferred parser, it seems)
 		// passes us those (bad, bad!), work around it
-		map.put("xhtml-lat1.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-lat1.dtdinc"));
-		map.put("xhtml-symbol.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-symbol.dtdinc"));
-		map.put("xhtml-special.ent", ResourceUtil
-				.getResourcePath("dtd/xhtml-special.dtdinc"));
+		map.put("xhtml-lat1.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-lat1.dtdinc"));
+		map.put("xhtml-symbol.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-symbol.dtdinc"));
+		map.put("xhtml-special.ent",
+				ResourceUtil.getResourcePath("dtd/xhtml-special.dtdinc"));
 
 		systemIdMap = map;
 	}
 
-	public XMLParser(OCFPackage ocf, String entryName, Report report) {
+	String mimeType;
+
+	public XMLParser(InputStream resourceIn, String entryName, String mimeType,
+			Report report) {
 		this.report = report;
 		this.resource = entryName;
-		this.ocf = ocf;
+		this.resourceIn = resourceIn;
+		this.mimeType = mimeType;
+
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		boolean hasXML11 = false;
-		
+
 		// XML predefined
 		entities.add("gt");
 		entities.add("lt");
 		entities.add("amp");
 		entities.add("quot");
-		
+
 		try {
 			hasXML11 = factory
 					.getFeature("http://xml.org/sax/features/xml-1.1");
 		} catch (Exception e) {
 		}
-		if (!hasXML11) {
-			System.err
-					.println("Your configuration does not support XML 1.1 parsing");
-			System.err
-					.println("\tAre you using off-the-shelf saxon.jar? It contains file named");
-			System.err
-					.println("\tMETA-INF/services/javax.xml.parsers.SAXParserFactory");
-			System.err
-					.println("\tThis interferes with Java default XML-1.1-compliant parser.");
-			System.err
-					.println("\tEither remove that file from saxon.jar or define");
-			System.err
-					.println("\tjavax.xml.parsers.SAXParserFactory system property");
-			System.err.println("\tto point to XML-1.1-compliant parser.");
-		}
+		/*
+		 * mgy: remove this for now TODO add 3.0 test forbidding xml 1.1 and so
+		 * on if (!hasXML11) { System.err
+		 * .println("Your configuration does not support XML 1.1 parsing");
+		 * System.err .println(
+		 * "\tAre you using off-the-shelf saxon.jar? It contains file named");
+		 * System.err
+		 * .println("\tMETA-INF/services/javax.xml.parsers.SAXParserFactory");
+		 * System.err
+		 * .println("\tThis interferes with Java default XML-1.1-compliant parser."
+		 * ); System.err
+		 * .println("\tEither remove that file from saxon.jar or define");
+		 * System.err
+		 * .println("\tjavax.xml.parsers.SAXParserFactory system property");
+		 * System.err.println("\tto point to XML-1.1-compliant parser."); }
+		 */
 		try {
 			parser = factory.newSAXParser();
 			XMLReader reader = parser.getXMLReader();
@@ -186,7 +195,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	}
 
 	public void addXMLHandler(XMLHandler handler) {
-		contentHandlers.add(handler);
+		if (handler != null)
+			contentHandlers.add(handler);
 	}
 
 	public void addValidator(XMLValidator xv) {
@@ -276,13 +286,14 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void process() {
 		try {
-			InputStream in = ocf.getInputStream(resource);
+			InputStream in = resourceIn;
 			if (!in.markSupported())
 				in = new BufferedInputStream(in);
+
 			String encoding = sniffEncoding(in);
 			if (encoding != null && !encoding.equals("UTF-8")
 					&& !encoding.equals("UTF-16")) {
-				report.error(resource, 0,
+				report.error(resource, 0, 0,
 						"Only UTF-8 and UTF-16 encodings are allowed for XML, detected "
 								+ encoding);
 			}
@@ -290,20 +301,23 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			ins.setSystemId(zipRoot + resource);
 			parser.parse(ins, this);
 			in.close();
-		} catch( MalformedByteSequenceException e ) {
-			report.error(resource, 0, "Malformed byte sequence: " + e.getMessage() + " Check encoding");
+		} catch (MalformedByteSequenceException e) {
+			report.error(resource, 0, 0,
+					"Malformed byte sequence: " + e.getMessage()
+							+ " Check encoding");
 		} catch (IOException e) {
-			report.error(null, 0, "I/O error reading " + resource);
+			report.error(null, 0, 0, "I/O error reading " + resource);
 		} catch (IllegalArgumentException e) {
-			report.error(null, 0, "could not parse " + resource + ": "
-					+ e.getMessage());
+			report.error(null, 0, 0,
+					"could not parse " + resource + ": " + e.getMessage());
 		} catch (SAXException e) {
-			report.error(resource, 0, e.getMessage());
+			report.error(resource, 0, 0, e.getMessage());
 		}
 	}
 
 	public InputSource resolveEntity(String publicId, String systemId)
 			throws SAXException, IOException {
+
 		String resourcePath = (String) systemIdMap.get(systemId);
 		if (resourcePath != null) {
 			InputStream resourceStream = ResourceUtil
@@ -323,20 +337,20 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			source.setSystemId(systemId);
 			return source;
 		} else if (systemId.startsWith(zipRoot)) {
-			String rname = systemId.substring(zipRoot.length());
-			if (!ocf.hasEntry(rname))
-				throw new SAXException("Could not resolve local XML entity '"
-						+ rname + "'");
-			if (!ocf.canDecrypt(rname))
-				throw new SAXException("Could not decrypt local XML entity '"
-						+ rname + "'");
-			InputStream resourceStream = ocf.getInputStream(rname);
-			InputSource source = new InputSource(resourceStream);
-			source.setPublicId(publicId);
-			source.setSystemId(systemId);
-			return source;
+			/*
+			 * String rname = systemId.substring(zipRoot.length()); if
+			 * (!ocf.hasEntry(rname)) throw new
+			 * SAXException("Could not resolve local XML entity '" + rname +
+			 * "'"); if (!ocf.canDecrypt(rname)) throw new
+			 * SAXException("Could not decrypt local XML entity '" + rname +
+			 * "'"); InputStream resourceStream = ocf.getInputStream(rname);
+			 * InputSource source = new InputSource(resourceStream);
+			 * source.setPublicId(publicId); source.setSystemId(systemId);
+			 * return source;
+			 */
+			return null;
 		} else {
-			report.warning(resource, 0, "Unresolved external XML entity '"
+			report.warning(resource, 0, 0, "Unresolved external XML entity '"
 					+ systemId + "'");
 			InputStream urlStream = new URL(systemId).openStream();
 			InputSource source = new InputSource(urlStream);
@@ -366,15 +380,18 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	}
 
 	public void error(SAXParseException ex) throws SAXException {
-		report.error(resource, ex.getLineNumber(), ex.getMessage());
+		report.error(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void fatalError(SAXParseException ex) throws SAXException {
-		report.error(resource, ex.getLineNumber(), ex.getMessage());
+		report.error(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void warning(SAXParseException ex) throws SAXException {
-		report.warning(resource, ex.getLineNumber(), ex.getMessage());
+		report.warning(resource, ex.getLineNumber(), ex.getColumnNumber(),
+				ex.getMessage());
 	}
 
 	public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
@@ -472,6 +489,17 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void startElement(String namespaceURI, String localName,
 			String qName, Attributes atts) throws SAXException {
+
+		if (mimeType.equals("application/xhtml+xml")) {
+			AttributesImpl correctedAttributes = new AttributesImpl(atts);
+
+			int calen = correctedAttributes.getLength();
+			for (int i = 0; i < calen; i++)
+				if (correctedAttributes.getLocalName(i).startsWith("data-"))
+					correctedAttributes.removeAttribute(i);
+
+			atts = correctedAttributes;
+		}
 		int vlen = validatorContentHandlers.size();
 		for (int i = 0; i < vlen; i++) {
 			((ContentHandler) validatorContentHandlers.elementAt(i))
@@ -542,8 +570,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void startEntity(String ent) throws SAXException {
 		if (!entities.contains(ent) && !ent.equals("[dtd]"))
-			report.error(resource, getLineNumber(), "Entity '" + ent
-					+ "' is undeclared");
+			report.error(resource, getLineNumber(), getColumnNumber(),
+					"Entity '" + ent + "' is undeclared");
 	}
 
 	public void attributeDecl(String name, String name2, String type,
@@ -573,6 +601,10 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public int getLineNumber() {
 		return documentLocator.getLineNumber();
+	}
+
+	public int getColumnNumber() {
+		return documentLocator.getColumnNumber();
 	}
 
 }
