@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<project default="build-Epubchecker">
+
+	<tstamp>
+		<format property="ISO-TODAY" pattern="yyyy-MM-dd" />
+	</tstamp>
+
+	<!-- <property name="version" value="${ISO-TODAY}"/> -->
+	<!-- Also change src/com/adobe/epubcheck/api/EpubCheck.java to match this version number -->
+	<property name="version" value="3.0b2" />
+
+	<!--cobertura directory -->
+	<property name="cobertura.dir" value="../tools/cobertura-1.9.4.1" />
+
+	<!--junit directory -->
+	<property name="junit.dir" value="../tools/JUnit" />
+
+	<!--project directories -->
+	<property name="epubcheck.base.dir" value="./" />
+	<property name="src.dir" value="${epubcheck.base.dir}/src" />
+	<property name="build.dir" value="${epubcheck.base.dir}/bin" />
+	<property name="distribution.dir" value="${epubcheck.base.dir}/dist" />
+	<property name="instrumented.dir" value="${epubcheck.base.dir}/instrumented" />
+
+	<property name="epubcheck.test.dir" location="../com.adobe.epubcheck.test" />
+	<property name="tests.dir" location="${epubcheck.test.dir}/src/com/adobe/epubcheck" />
+	<property name="temp.dir" location="${epubcheck.base.dir}/temp" />
+	<property name="reports.dir" location="${temp.dir}/reports" />
+	<property name="test.build.dir" value="${epubcheck.test.dir}/bin" />
+	<property name="junit.xml.dir" location="${reports.dir}/JunitXml" />
+	<property name="junit.html.dir" location="${reports.dir}/JunitHtml" />
+
+	<property name="coverage.xml.dir" value="${reports.dir}/cobertura-xml" />
+	<property name="coverage.summaryxml.dir" value="${reports.dir}/cobertura-sumary-xml" />
+	<property name="coverage.html.dir" value="${reports.dir}/cobertura-html" />
+
+	<property name="util.dir" value="${epubcheck.base.dir}/util" />
+	<property name="lib.dir" value="${epubcheck.base.dir}/lib" />
+
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura.dir}">
+			<include name="cobertura.jar" />
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
+
+	<fileset dir="${junit.dir}" id="junit.libs">
+		<include name="*.jar" />
+	</fileset>
+
+
+	<fileset dir="${epubcheck.base.dir}/lib" id="libs">
+		<include name="jing.jar" />
+		<include name="saxon9he.jar" />
+		<include name="sac.jar" />
+		<include name="flute.jar" />
+	</fileset>
+
+	<path id="classpath">
+		<dirset dir="${epubcheck.base.dir}">
+			<include name="src/com/adobe/**" />
+		</dirset>
+		<fileset refid="libs" />
+	</path>
+
+	<target name="init" depends="clean-all">
+		<mkdir dir="${junit.xml.dir}" />
+		<mkdir dir="${junit.html.dir}" />
+		<mkdir dir="${instrumented.dir}" />
+		<mkdir dir="${coverage.xml.dir}" />
+		<mkdir dir="${coverage.summaryxml.dir}" />
+		<mkdir dir="${coverage.html.dir}" />
+		<mkdir dir="${distribution.dir}" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${test.build.dir}" />
+		<mkdir dir="${build.dir}/META-INF" />
+	</target>
+
+	<target name="remove-classes" description="Cleans up old class files so that the new ones can be built." depends="init">
+		<delete>
+			<fileset dir="${build.dir}" includes="**/*.*" />
+		</delete>
+	</target>
+
+
+	<target name="compile" description="Compiles all src classes" depends="remove-classes">
+
+		<javac srcdir="${epubcheck.base.dir}" destdir="${build.dir}" source="1.5" classpathref="classpath" includes="**/*.*" debug="true" debuglevel="vars,lines,source">
+			<compilerarg value="-Xlint:unchecked" />
+		</javac>
+
+		<!-- copy the resource files needed at runtime-->
+		<copy todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.*" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+
+	<path id="junit.classpath">
+		<pathelement location="${build.dir}" />
+		<pathelement location="${test.build.dir}" />
+		<pathelement location="${epubcheck.test.dir}" />
+		<fileset refid="libs" />
+		<fileset refid="junit.libs" />
+	</path>
+
+	<target name="compile-Epubcheck-test" description="Compiles all src classes" depends="remove-classes">
+
+		<javac srcdir="${tests.dir}" destdir="${test.build.dir}" classpathref="junit.classpath" includes="**/*.*" debug="true">
+			<compilerarg value="-Xlint:unchecked" />
+		</javac>
+	</target>
+
+	<!--
+	****************************
+	***  instrument classes  ***
+	****************************
+	-->
+
+	<target name="instrument" depends="init">
+		<delete file="cobertura.ser" />
+		<delete dir="${instrumented.dir}" />
+
+		<cobertura-instrument todir="${instrumented.dir}">
+			<ignore regex="org.apache.log4j.*" />
+
+			<fileset dir="${build.dir}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<!--
+	****************************
+	***    run JUnit tests   ***
+	****************************
+	-->
+
+	<target name="run-tests" depends="instrument">
+		<junit fork="yes" dir="${epubcheck.test.dir}/.." printsummary="yes">
+
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="${epubcheck.base.dir}/cobertura.ser" />
+
+			<classpath location="${instrumented.dir}" />
+			<classpath refid="junit.classpath" />
+
+			<classpath refid="cobertura.classpath" />
+
+			<batchtest todir="${junit.xml.dir}">
+				<fileset dir="${test.build.dir}">
+					<include name="**/*Test*" />
+				</fileset>
+			</batchtest>
+
+			<formatter type="xml" />
+
+		</junit>
+
+		<junitreport todir="${junit.xml.dir}">
+			<fileset dir="${junit.xml.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${junit.html.dir}" />
+		</junitreport>
+	</target>
+
+	<!--
+	****************************
+	***print coverage reports***
+	****************************
+	-->
+
+	<target name="coverage-report">
+		<cobertura-report srcdir="${src.dir}" destdir="${coverage.xml.dir}" format="xml" />
+	</target>
+
+	<target name="summary-coverage-report">
+		<cobertura-report srcdir="${src.dir}" destdir="${coverage.summaryxml.dir}" format="summaryXml" />
+	</target>
+
+	<target name="alternate-coverage-report">
+		<cobertura-report destdir="${coverage.html.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+
+	<!--
+	****************************
+	*** binary epubcheck.jar ***
+	****************************
+	-->
+	<target name="buildJar" description="Creates binary epubcheck.jar in the distribution folder" depends="compile,compile-Epubcheck-test,run-tests,init">
+		<mkdir dir="${distribution.dir}" />
+
+		<jar jarfile="${distribution.dir}/epubcheck-${version}.jar">
+			<fileset dir="${build.dir}">
+				<include name="com/**/*.*" />
+				<include name="org/**/*.*" />
+			</fileset>
+			<metainf dir="${build.dir}/META-INF">
+				<include name="services/**/*.*" />
+			</metainf>
+			<manifest>
+				<attribute name="Manifest-Version" value="1.0" />
+				<attribute name="Main-Class" value="com.adobe.epubcheck.tool.Checker" />
+				<attribute name="Class-Path" value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar" />
+			</manifest>
+		</jar>
+	</target>
+
+
+	<!--
+	*******************************
+	*** java binary zip ***
+	*******************************
+	-->
+	<target name="buildBinZip" depends="buildJar,coverage-report,summary-coverage-report,alternate-coverage-report" description="Build a zip including epubcheck.jar and 3d party dependencies in ./lib/*.jar">
+		<delete file="${distribution.dir}/epubcheck-${version}.zip" />
+		<zip zipfile="${distribution.dir}/epubcheck-${version}.zip">
+			<fileset dir="${distribution.dir}">
+				<include name="epubcheck-${version}.jar" />
+			</fileset>
+			<fileset dir="${epubcheck.base.dir}">
+				<include name="lib/*.jar" />
+				<include name="*.txt" />
+			</fileset>
+		</zip>
+	</target>
+
+	<!-- 
+	*******************************
+	*** java source zip package ***
+	*******************************
+	-->
+	<target name="buildSrcZip" depends="init,iso-sch-prep" description="Creates a epubcheck_src_${version}.zip with *.java files in the distribution folder">
+
+		<zip zipfile="${distribution.dir}/epubcheck-src-${version}.zip">
+			<fileset dir="${epubcheck.base.dir}" includes="**/*.*" excludes="dist/**/*.* bin/**/*.*" />
+		</zip>
+	</target>
+
+	<!-- 
+	********************
+	*** All Packages ***
+	********************
+	-->
+	<target name="build-Epubchecker" description="Creates binary jar zip and source zip" depends="iso-sch-prep,buildSrcZip,
+					 buildBinZip,clean-build-final
+					" />
+
+	<target name="clean-build">
+		<delete dir="${build.dir}" />
+		<delete dir="${instrumented.dir}" />
+		<delete file="cobertura.ser" />
+		<delete dir="${test.build.dir}" />
+	</target>
+
+	<target name="clean-build-final">
+		<delete dir="${build.dir}" />
+		<delete dir="${instrumented.dir}" />
+		<delete file="cobertura.ser" />
+		<delete dir="${test.build.dir}" />
+	</target>
+
+	<target name="clean" depends="clean-build">
+		<delete dir="${temp.dir}" />
+	</target>
+
+	<target name="clean-all" depends="clean">
+		<delete dir="${distribution.dir}" />
+	</target>
+
+	<target name="iso-sch-prep" description="temporary solution for iso sch validation; resolve includes and abstract patterns
+                    and store alongside the originals in the schema dir">
+
+		<property name="schema.30.dir" value="${src.dir}/com/adobe/epubcheck/schema/30" />
+		<iso-sch in="${schema.30.dir}/package-30.sch" out="${schema.30.dir}/package-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-xhtml-30.sch" out="${schema.30.dir}/epub-xhtml-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-svg-30.sch" out="${schema.30.dir}/epub-svg-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/epub-nav-30.sch" out="${schema.30.dir}/epub-nav-30-PREP.sch" />
+		<iso-sch in="${schema.30.dir}/media-overlay-30.sch" out="${schema.30.dir}/media-overlay-30-PREP.sch" />
+	</target>
+
+	<macrodef name="iso-sch">
+		<attribute name="in" />
+		<attribute name="out" />
+		<sequential>
+			<java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+				<arg value="-s:@{in}" />
+				<arg value="-xsl:${util.dir}/sch/iso-sch-include.xsl" />
+				<arg value="-o:${temp.dir}/isosch-1.sch" />
+			</java>
+			<java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+				<arg value="-s:${temp.dir}/isosch-1.sch" />
+				<arg value="-xsl:${util.dir}/sch/iso-sch-abstract.xsl" />
+				<arg value="-o:@{out}" />
+			</java>
+		</sequential>
+	</macrodef>
+</project>
