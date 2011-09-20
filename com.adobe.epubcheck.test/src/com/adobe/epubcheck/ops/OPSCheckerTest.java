@@ -154,6 +154,19 @@ public class OPSCheckerTest {
 	}
 
 	@Test
+	public void testValidateXHTMLCanvas() {
+		testValidateDocument("xhtml/valid/canvas.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLInvalidCanvasFallback() {
+		testValidateDocument("xhtml/invalid/canvas-fallback.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3, true);
+	}
+
+	
+	@Test
 	public void testValidateXHTMLSCH001() {
 		testValidateDocument("xhtml/valid/sch-001.xhtml",
 				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);

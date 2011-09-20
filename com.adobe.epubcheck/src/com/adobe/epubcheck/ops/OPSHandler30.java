@@ -32,6 +32,8 @@ public class OPSHandler30 extends OPSHandler {
 
 	int imbricatedObjects = 0;
 
+	int imbricatedCanvases = 0;
+
 	public OPSHandler30(String path, String mimeType, String properties,
 			XRefChecker xrefChecker, XMLParser parser, Report report) {
 		super(path, xrefChecker, parser, report);
@@ -65,7 +67,8 @@ public class OPSHandler30 extends OPSHandler {
 		super.characters(chars, arg1, arg2);
 		String str = new String(chars, arg1, arg2);
 		str = str.trim();
-		if (!str.equals("") && (audio || video || imbricatedObjects > 0))
+		if (!str.equals("")
+				&& (audio || video || imbricatedObjects > 0 || imbricatedCanvases > 0))
 			hasValidFallback = true;
 	}
 
@@ -93,13 +96,23 @@ public class OPSHandler30 extends OPSHandler {
 			processAudio(e);
 		else if (name.equals("video"))
 			processVideo(e);
-		else if (name.equals("img")
-				&& (audio || video || imbricatedObjects > 0))
-			hasValidFallback = true;
+		else if (name.equals("canvas"))
+			processCanvas(e);
+		else if (name.equals("img"))
+			processImg(e);
 
 		processSrc(e.getName(), e.getAttribute("src"));
 
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
+	}
+
+	private void processImg(XMLElement e) {
+		if ((audio || video || imbricatedObjects > 0 || imbricatedCanvases > 0))
+			hasValidFallback = true;
+	}
+
+	private void processCanvas(XMLElement e) {
+		imbricatedCanvases++;
 	}
 
 	private void processAudio(XMLElement e) {
@@ -157,7 +170,7 @@ public class OPSHandler30 extends OPSHandler {
 				&& srcMimeType.equals("image/svg+xml"))
 			propertiesSet.add("svg");
 
-		if ((audio || video || imbricatedObjects > 0)
+		if ((audio || video || imbricatedObjects > 0 || imbricatedCanvases > 0)
 				&& OPFChecker30.isCoreMediaType(srcMimeType)
 				&& !name.equals("track"))
 			hasValidFallback = true;
@@ -207,14 +220,18 @@ public class OPSHandler30 extends OPSHandler {
 			checkProperties();
 		else if (name.equals("object")) {
 			imbricatedObjects--;
-			if (imbricatedObjects == 0)
+			if (imbricatedObjects == 0 && imbricatedCanvases == 0)
 				checkFallback("Object");
+		} else if (name.equals("canvas")) {
+			imbricatedCanvases--;
+			if (imbricatedObjects == 0 && imbricatedCanvases == 0)
+				checkFallback("Canvas");
 		} else if (name.equals("video")) {
-			if (imbricatedObjects == 0)
+			if (imbricatedObjects == 0 && imbricatedCanvases == 0)
 				checkFallback("Video");
 			video = false;
 		} else if (name.equals("audio")) {
-			if (imbricatedObjects == 0)
+			if (imbricatedObjects == 0 && imbricatedCanvases == 0)
 				checkFallback("Audio");
 			audio = false;
 		}
