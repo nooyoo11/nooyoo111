@@ -136,6 +136,8 @@ public class OPFChecker implements DocumentValidator {
 			checkItem(item, opfHandler);
 		}
 
+		checkBindings();
+
 		for (int i = 0; i < itemCount; i++) {
 			OPFItem item = opfHandler.getItem(i);
 
@@ -187,6 +189,10 @@ public class OPFChecker implements DocumentValidator {
 		}
 
 		xrefChecker.checkReferences();
+	}
+
+	protected void checkBindings() {
+		
 	}
 
 	public void initHandler() {
