@@ -46,6 +46,8 @@ public class OPFItem {
 
 	boolean nav;
 
+	boolean scripted;
+
 	String properties;
 
 	OPFItem(String id, String path, String mimeType, String fallback,
@@ -104,6 +106,14 @@ public class OPFItem {
 
 	public void setNcx(boolean ncx) {
 		this.ncx = ncx;
+	}
+
+	public boolean isScripted() {
+		return scripted;
+	}
+
+	public void setScripted(boolean scripted) {
+		this.scripted = scripted;
 	}
 
 	public boolean isNav() {

@@ -130,6 +130,35 @@ public class OPFHandler30 extends OPFHandler {
 					e.getAttribute("media-type"));
 		else if (name.equals("itemref"))
 			processItemrefProperties(e.getAttribute("properties"));
+		else if (name.equals("mediaType"))
+			processBinding(e);
+	}
+
+	private void processBinding(XMLElement e) {
+		String mimeType = e.getAttribute("media-type");
+		String handlerId = e.getAttribute("handler");
+
+		if (mimeType == null || handlerId == null)
+			return;
+
+		if (OPFChecker30.isCoreMediaType(mimeType)) {
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "The media-type " + mimeType
+							+ " is a core media type!");
+			return;
+		}
+
+		if (xrefChecker != null
+				&& xrefChecker.getBindingHandlerSrc(mimeType) != null) {
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), "The media-type " + mimeType
+							+ " has already been assigned a handler!");
+			return;
+		}
+
+		OPFItem handler = itemMapById.get(handlerId);
+		if (handler != null && xrefChecker != null)
+			xrefChecker.registerBinding(mimeType, handler.path);
 	}
 
 	private void processLink(XMLElement e) {

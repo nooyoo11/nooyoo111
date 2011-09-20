@@ -234,6 +234,8 @@ public class OPFHandler implements XMLHandler {
 				String fallbackStyle = e.getAttribute("fallback-style");
 				String namespace = e.getAttribute("island-type");
 				String properties = e.getAttribute("properties");
+				if (properties != null)
+					properties = properties.replaceAll("[\\s]+", " ");
 
 				if (version == EPUBVersion.VERSION_3
 						&& href.startsWith("http://")
@@ -257,11 +259,13 @@ public class OPFHandler implements XMLHandler {
 					itemMapById.put(id, item);
 				if (properties != null) {
 					String propertyArray[] = properties.split(" ");
-					for (int i = 0; i < propertyArray.length; i++)
-						if (propertyArray[i].equals("nav")) {
+					for (int i = 0; i < propertyArray.length; i++) {
+						if (propertyArray[i].equals("nav"))
 							item.setNav(true);
-							break;
-						}
+						if (propertyArray[i].equals("scripted"))
+							item.setScripted(true);
+					}
+
 				}
 				if (href != null && registerEntry) {
 					itemMapByPath.put(href, item);

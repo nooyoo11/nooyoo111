@@ -24,6 +24,8 @@ package com.adobe.epubcheck.opf;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
@@ -134,6 +136,25 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 			report.error(path, item.getLineNumber(), item.getColumnNumber(),
 					"Spine item with non-standard media-type '" + mimeType
 							+ "' with fallback to non-spine-allowed media-type");
+	}
+
+	@Override
+	protected void checkBindings() {
+		Set<String> mimeTypes = xrefChecker.getBindingsMimeTypes();
+		Iterator<String> it = mimeTypes.iterator();
+		String mimeType;
+		while (it.hasNext()) {
+			mimeType = it.next();
+			String handlerSrc = xrefChecker.getBindingHandlerSrc(mimeType);
+			OPFItem handler = opfHandler.getItemByPath(handlerSrc);
+			if (!handler.isScripted())
+				report.error(
+						handlerSrc,
+						handler.lineNumber,
+						handler.columnNumber,
+						"Item should have the scripted property set in order to be a valid mediaType handler.");
+		}
+
 	}
 
 	@Override

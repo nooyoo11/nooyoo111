@@ -30,6 +30,8 @@ public class OPSHandler30 extends OPSHandler {
 
 	boolean hasValidFallback = false;
 
+	int imbricatedObjects = 0;
+
 	public OPSHandler30(String path, String mimeType, String properties,
 			XRefChecker xrefChecker, XMLParser parser, Report report) {
 		super(path, xrefChecker, parser, report);
@@ -63,7 +65,7 @@ public class OPSHandler30 extends OPSHandler {
 		super.characters(chars, arg1, arg2);
 		String str = new String(chars, arg1, arg2);
 		str = str.trim();
-		if (!str.equals("") && (audio || video))
+		if (!str.equals("") && (audio || video || imbricatedObjects > 0))
 			hasValidFallback = true;
 	}
 
@@ -91,6 +93,9 @@ public class OPSHandler30 extends OPSHandler {
 			processAudio(e);
 		else if (name.equals("video"))
 			processVideo(e);
+		else if (name.equals("img")
+				&& (audio || video || imbricatedObjects > 0))
+			hasValidFallback = true;
 
 		processSrc(e.getName(), e.getAttribute("src"));
 
@@ -125,6 +130,13 @@ public class OPSHandler30 extends OPSHandler {
 	}
 
 	private void processSrc(String name, String src) {
+		if (src != null) {
+			src.trim();
+			if (src.equals(""))
+				report.error(path, parser.getLineNumber(),
+						parser.getColumnNumber(),
+						"The src attribute must not be epmty!");
+		}
 		if (src == null || xrefChecker == null)
 			return;
 
@@ -145,18 +157,45 @@ public class OPSHandler30 extends OPSHandler {
 				&& srcMimeType.equals("image/svg+xml"))
 			propertiesSet.add("svg");
 
-		if ((name.equals("source") || name.equals("audio")) && audio
-				&& OPFChecker30.isBlessedAudioType(srcMimeType))
+		if ((audio || video || imbricatedObjects > 0)
+				&& OPFChecker30.isCoreMediaType(srcMimeType)
+				&& !name.equals("track"))
 			hasValidFallback = true;
 
 	}
 
 	private void processObject(XMLElement e) {
+		imbricatedObjects++;
+
 		String type = e.getAttribute("type");
+		String data = e.getAttribute("data");
 
-		if (!mimeType.equals("image/svg+xml") && type.equals("image/svg+xml"))
-			propertiesSet.add("svg");
+		if (data != null) {
+			processSrc(e.getName(), data);
+			data = PathUtil.resolveRelativeReference(path, data);
+		}
 
+		if (type != null && data != null && xrefChecker != null
+				&& !type.equals(xrefChecker.getMimeType(data)))
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(),
+					"Object type and the item media-type declared in manifest, do not match!");
+
+		if (type != null) {
+			if (!mimeType.equals("image/svg+xml")
+					&& type.equals("image/svg+xml"))
+				propertiesSet.add("svg");
+
+			if (OPFChecker30.isCoreMediaType(type))
+				hasValidFallback = true;
+		}
+
+		if (hasValidFallback)
+			return;
+		// check bindings
+		if (xrefChecker != null
+				&& xrefChecker.getBindingHandlerSrc(type) != null)
+			hasValidFallback = true;
 	}
 
 	@Override
@@ -166,15 +205,24 @@ public class OPSHandler30 extends OPSHandler {
 		String name = e.getName();
 		if (name.equals("html") || name.equals("svg"))
 			checkProperties();
-		else if (name.equals("video"))
-			checkFallback("Video");
-		else if (name.equals("audio"))
-			checkFallback("Audio");
+		else if (name.equals("object")) {
+			imbricatedObjects--;
+			if (imbricatedObjects == 0)
+				checkFallback("Object");
+		} else if (name.equals("video")) {
+			if (imbricatedObjects == 0)
+				checkFallback("Video");
+			video = false;
+		} else if (name.equals("audio")) {
+			if (imbricatedObjects == 0)
+				checkFallback("Audio");
+			audio = false;
+		}
 
 	}
 
 	/*
-	 * This function checks fallbacks for video and audio resources
+	 * This function checks fallbacks for video, audio and object elements
 	 */
 	private void checkFallback(String elementType) {
 		if (hasValidFallback)

@@ -25,6 +25,7 @@ package com.adobe.epubcheck.opf;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import com.adobe.epubcheck.api.Report;
@@ -127,6 +128,8 @@ public class XRefChecker {
 
 	Vector<Reference> references = new Vector<Reference>();
 
+	Hashtable<String, String> bindings = new Hashtable<String, String>();
+
 	Report report;
 
 	OCFPackage ocf;
@@ -143,6 +146,18 @@ public class XRefChecker {
 	public String getMimeType(String path) {
 		return resources.get(path) != null ? resources.get(path).mimeType
 				: null;
+	}
+
+	public Set<String> getBindingsMimeTypes() {
+		return bindings.keySet();
+	}
+
+	public String getBindingHandlerSrc(String mimeType) {
+		return bindings.get(mimeType);
+	}
+
+	public void registerBinding(String mimeType, String handlerSrc) {
+		bindings.put(mimeType, handlerSrc);
 	}
 
 	public void registerResource(String resource, String mimeType,
@@ -199,6 +214,7 @@ public class XRefChecker {
 			Reference ref = (Reference) refs.nextElement();
 			checkReference(ref);
 		}
+
 	}
 
 	private void checkReference(Reference ref) {
