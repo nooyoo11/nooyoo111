@@ -209,16 +209,16 @@ public class OPSCheckerTest {
 
 	@Test
 	public void testValidateXHTMLPrefixes001() {
-		testValidateDocument("xhtml/valid/prefixes-001.xhtml", "application/xhtml+xml",
-				0, 0, EPUBVersion.VERSION_3);
+		testValidateDocument("xhtml/valid/prefixes-001.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
 
 	@Test
 	public void testValidateXHTMLInvalidPrefixes001() {
-		testValidateDocument("xhtml/invalid/prefixes-001.xhtml", "application/xhtml+xml",
-				2, 0, EPUBVersion.VERSION_3);
+		testValidateDocument("xhtml/invalid/prefixes-001.xhtml",
+				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_3);
 	}
-	
+
 	@Test
 	public void testValidateXHTMLVideo() {
 		testValidateDocument("xhtml/valid/video.xhtml",

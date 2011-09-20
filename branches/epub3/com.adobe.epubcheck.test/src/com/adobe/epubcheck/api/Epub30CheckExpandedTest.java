@@ -121,6 +121,21 @@ public class Epub30CheckExpandedTest {
 	}
 
 	@Test
+	public void testValidateEPUBPLoremObjectFallbacks() {
+		testValidateDocument("valid/lorem-object-fallbacks", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBPLoremBindings() {
+		testValidateDocument("valid/lorem-bindings", 0, 0);
+	}
+
+	@Test
+	public void testValidateEPUBPLoremInvalidBindings() {
+		testValidateDocument("invalid/lorem-bindings", 1, 0);
+	}
+	
+	@Test
 	public void testValidateEPUBPLoremPoster() {
 		testValidateDocument("valid/lorem-poster", 0, 1);
 	}
