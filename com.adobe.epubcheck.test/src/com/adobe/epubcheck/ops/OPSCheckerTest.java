@@ -162,7 +162,7 @@ public class OPSCheckerTest {
 	@Test
 	public void testValidateXHTMLInvalidCanvasFallback() {
 		testValidateDocument("xhtml/invalid/canvas-fallback.xhtml",
-				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3, true);
+				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
 	}
 
 	

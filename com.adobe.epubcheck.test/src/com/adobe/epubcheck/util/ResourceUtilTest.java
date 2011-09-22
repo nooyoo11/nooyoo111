@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.adobe.epubcheck.opf.VersionRetriever;
+
 public class ResourceUtilTest {
 
 	private ValidationReport testReport;
@@ -58,8 +60,9 @@ public class ResourceUtilTest {
 			resourceProvider = new FileResourceProvider(path + fileName);
 
 		try {
-			ResourceUtil.retrieveOpfVersion(resourceProvider
-					.getInputStream(path + fileName));
+			new VersionRetriever(fileName, testReport)
+					.retrieveOpfVersion(resourceProvider.getInputStream(path
+							+ fileName));
 		} catch (InvalidVersionException e) {
 			testReport.error(fileName, -1, -1, e.getMessage());
 		} catch (IOException e) {

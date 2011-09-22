@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
 import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.opf.VersionRetriever;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.InvalidVersionException;
@@ -125,8 +126,8 @@ public class OCFChecker {
 
 		if (rootPath != null && ocf.hasEntry(rootPath))
 			try {
-				version = ResourceUtil.retrieveOpfVersion(ocf
-						.getInputStream(rootPath));
+				version = new VersionRetriever(rootPath, report)
+						.retrieveOpfVersion(ocf.getInputStream(rootPath));
 
 				// checking mimeType file for trailing spaces
 				if (ocf.hasEntry("mimetype")
