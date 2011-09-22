@@ -284,12 +284,12 @@
 								<docletArtifact>
 									<groupId>org.jboss.apiviz</groupId>
 									<artifactId>apiviz</artifactId>
-									<version>1.3.0.GA</version>
+									<version>1.3.1.GA</version>
 								</docletArtifact>
 								<useStandardDocletOptions>true</useStandardDocletOptions>
-								<charset>UTF-8</charset>
-								<encoding>UTF-8</encoding>
-								<docencoding>UTF-8</docencoding>
+								<charset>${project.build.sourceEncoding}</charset>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<docencoding>${project.build.sourceEncoding}</docencoding>
 								<breakiterator>true</breakiterator>
 								<version>true</version>
 								<author>true</author>
@@ -324,10 +324,6 @@
 			<id>digital-publishing-snapshots</id>
 			<url>http://marsellus.corp.adobe.com:8081/nexus/content/repositories/digital-publishing-snapshots</url>
 		</snapshotRepository>
-		<site>
-			<name>Adobe internal ePubCheck report site</name>
-			<url>file:///var/www/sites/epubcheck</url>
-		</site>
 	</distributionManagement>
 
 	<ciManagement>
