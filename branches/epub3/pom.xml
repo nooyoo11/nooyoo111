@@ -16,6 +16,7 @@
 
 	<properties>
 		<javaCompileSource>1.6</javaCompileSource>
+		<project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
@@ -115,6 +116,7 @@
 				<configuration>
 					<source>${javaCompileSource}</source>
 					<target>${javaCompileSource}</target>
+					<encoding></encoding>
 				</configuration>
 			</plugin>
 			<plugin>
