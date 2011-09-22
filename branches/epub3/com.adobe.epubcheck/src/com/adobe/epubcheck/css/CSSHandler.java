@@ -88,8 +88,9 @@ class CSSHandler implements DocumentHandler {
 
 	public void property(String name, LexicalUnit value, boolean arg2)
 			throws CSSException {
-
-		if (name != null && name.equals("src"))
+		if (name == null)
+			return;
+		if (name.equals("src")) {
 			if (value != null
 					&& value.getLexicalUnitType() == LexicalUnit.SAC_URI)
 				if (value.getStringValue() != null) {
@@ -111,6 +112,20 @@ class CSSHandler implements DocumentHandler {
 
 				} else
 					report.error(path, -1, -1, Messages.NULL_REF);
+		} else if (name.equals("position") && value != null
+				&& value.getStringValue() != null
+				&& value.getStringValue().equals("fixed"))
+			report.error(
+					path,
+					-1,
+					-1,
+					"The fixed value of the position property is not part of the EPUB 3 CSS Profile.");
+		else if (name.equals("direction") || name.equals("unicode-bidi"))
+			report.error(
+					path,
+					-1,
+					-1,
+					"The direction and unicode-bidi properties must not be included in an EPUB Style Sheet.");
 	}
 
 	public void startDocument(InputSource source) throws CSSException {
