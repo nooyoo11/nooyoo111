@@ -80,4 +80,12 @@ public class Messages {
 	public static String MALFORMED_BYTE_SEQUENCE = "Malformed byte sequence: %1$s .  Check encoding!";
 
 	public static String FAILED_PERFORMING_SCHEMATRON_TESTS = "Failed performing OPF Schematron tests: %1$s !";
+
+	public static String FILENAME_DISALLOWED_CHARACTERS = "File name contains characters disallowed in OCF file names: ";
+
+	public static String SPACES_IN_FILENAME = "Filename contains spaces. Consider changing filename such that URI escaping is not necessary!";
+
+	public static String FILENAME_ENDS_IN_DOT = "Filename is not allowed to end in \'.\'.";
+
+	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filenames!";
 }

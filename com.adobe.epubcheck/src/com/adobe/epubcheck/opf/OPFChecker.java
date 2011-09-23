@@ -37,6 +37,7 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
@@ -59,7 +60,7 @@ public class OPFChecker implements DocumentValidator {
 
 	XRefChecker xrefChecker;
 
-	protected Hashtable contentCheckerFactoryMap;
+	protected Hashtable<String, ContentCheckerFactory> contentCheckerFactoryMap;
 
 	OPFHandler opfHandler = null;
 
@@ -162,6 +163,7 @@ public class OPFChecker implements DocumentValidator {
 							"item ("
 									+ entry
 									+ ") exists in the zip file, but is not declared in the OPF file");
+					checkCompatiblyEscaped(entry);
 				}
 			}
 
@@ -169,12 +171,14 @@ public class OPFChecker implements DocumentValidator {
 					.iterator();
 			while (directoriesIter.hasNext()) {
 				String directory = (String) directoriesIter.next();
+
 				boolean hasContents = false;
 				filesIter = ocf.getFileEntries().iterator();
 				while (filesIter.hasNext()) {
 					String file = (String) filesIter.next();
 					if (file.startsWith(directory)) {
 						hasContents = true;
+						break;
 					}
 				}
 				if (!hasContents) {
@@ -191,8 +195,56 @@ public class OPFChecker implements DocumentValidator {
 		xrefChecker.checkReferences();
 	}
 
+	public String checkNonAsciiFilename(final String str) {
+		String nonAscii = str.replaceAll("[\\p{ASCII}]", "");
+		if (nonAscii.length() > 0)
+			report.warning(str, 0, 0,
+					String.format(Messages.FILENAME_NON_ASCII, nonAscii));
+		return nonAscii;
+	}
+
+	public String checkCompatiblyEscaped(final String str) {
+		if (str.startsWith("http://"))
+			return "";
+
+		// the test strig will be used to compare test result
+		String test = checkNonAsciiFilename(str);
+
+		if (str.endsWith(".")) {
+			report.error(str, 0, 0, Messages.FILENAME_ENDS_IN_DOT);
+			test += ".";
+		}
+
+		boolean spaces = false;
+		final char[] ascciGraphic = new char[] { '<', '>', '"', '{', '}', '|',
+				'^', '`', '*', ':', '?' /* , '/', '\\' */};
+		String result = "";
+		char[] chars = str.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			char c = chars[i];
+			for (char a : ascciGraphic) {
+				if (c == a) {
+					result += "\"" + Character.toString(c) + "\",";
+					test += Character.toString(c);
+				}
+			}
+			if (Character.isSpaceChar(c)) {
+				spaces = true;
+				test += Character.toString(c);
+			}
+		}
+		if (result.length() > 1) {
+			result = result.substring(0, result.length() - 1);
+			report.error(str, 0, 0, Messages.FILENAME_DISALLOWED_CHARACTERS
+					+ result);
+		}
+		if (spaces)
+			report.warning(str, 0, 0, Messages.SPACES_IN_FILENAME);
+		return test;
+	}
+
 	protected void checkBindings() {
-		
+
 	}
 
 	public void initHandler() {
@@ -234,6 +286,7 @@ public class OPFChecker implements DocumentValidator {
 		int itemCount = opfHandler.getItemCount();
 		for (int i = 0; i < itemCount; i++) {
 			OPFItem item = opfHandler.getItem(i);
+			checkCompatiblyEscaped(item.getPath());
 			checkItem(item, opfHandler);
 		}
 
