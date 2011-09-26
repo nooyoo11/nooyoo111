@@ -2,6 +2,7 @@ package com.adobe.epubcheck.ops;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
@@ -9,6 +10,7 @@ import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EpubTypeAttributes;
 import com.adobe.epubcheck.util.HandlerUtil;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.MetaUtils;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
@@ -33,6 +35,17 @@ public class OPSHandler30 extends OPSHandler {
 	int imbricatedObjects = 0;
 
 	int imbricatedCanvases = 0;
+
+	public static HashSet<String> linkClassSet;
+
+	static {
+		HashSet<String> set = new HashSet<String>();
+		set.add("vertical");
+		set.add("horizontal");
+		set.add("day");
+		set.add("night");
+		linkClassSet = set;
+	}
 
 	public OPSHandler30(String path, String mimeType, String properties,
 			XRefChecker xrefChecker, XMLParser parser, Report report) {
@@ -82,6 +95,8 @@ public class OPSHandler30 extends OPSHandler {
 					e.getAttributeNS("http://www.idpf.org/2007/ops", "prefix"),
 					prefixSet, report, path, parser.getLineNumber(),
 					parser.getColumnNumber());
+		else if (name.equals("link"))
+			processLink(e);
 		else if (name.equals("object"))
 			processObject(e);
 		else if (name.equals("math"))
@@ -104,6 +119,41 @@ public class OPSHandler30 extends OPSHandler {
 		processSrc(e.getName(), e.getAttribute("src"));
 
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
+	}
+
+	private void processLink(XMLElement e) {
+		String classAttribute = e.getAttribute("class");
+		if (classAttribute == null)
+			return;
+
+		Set<String> values = MetaUtils.validateProperties(classAttribute,
+				linkClassSet, null, path, parser.getLineNumber(),
+				parser.getColumnNumber(), report, false);
+
+		if (values.size() == 1)
+			return;
+
+		boolean vertical = false, horizontal = false, day = false, night = false;
+
+		Iterator<String> it = values.iterator();
+
+		while (it.hasNext()) {
+			String attribute = it.next();
+			if (attribute.equals("vertical"))
+				vertical = true;
+			else if (attribute.equals("horizontal"))
+				horizontal = true;
+			else if (attribute.equals("day"))
+				day = true;
+			else if (attribute.equals("night"))
+				night = true;
+		}
+
+		if (vertical && horizontal || day && night)
+			report.error(path, parser.getLineNumber(),
+					parser.getColumnNumber(), Messages.CONFLICTING_ATTRIBUTES
+							+ classAttribute);
+
 	}
 
 	private void processImg(XMLElement e) {
@@ -239,7 +289,7 @@ public class OPSHandler30 extends OPSHandler {
 	}
 
 	/*
-	 * This function checks fallbacks for video, audio and object elements
+	 * Checks fallbacks for video, audio and object elements
 	 */
 	private void checkFallback(String elementType) {
 		if (hasValidFallback)

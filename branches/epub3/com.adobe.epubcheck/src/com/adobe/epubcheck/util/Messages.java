@@ -88,4 +88,6 @@ public class Messages {
 	public static String FILENAME_ENDS_IN_DOT = "Filename is not allowed to end in \'.\'.";
 
 	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filenames!";
+
+	public static String CONFLICTING_ATTRIBUTES = "Conflicting attributes found: ";
 }

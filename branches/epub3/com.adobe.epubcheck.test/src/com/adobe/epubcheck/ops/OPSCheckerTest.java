@@ -136,6 +136,18 @@ public class OPSCheckerTest {
 	}
 
 	@Test
+	public void testValidateXHTMLLINK() {
+		testValidateDocument("xhtml/valid/link.xhtml", "application/xhtml+xml",
+				0, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
+	public void testValidateXHTMLLINKInvalid() {
+		testValidateDocument("xhtml/invalid/link.xhtml",
+				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_3);
+	}
+
+	@Test
 	public void testValidateXHTMLOPSMATHML002() {
 		testValidateDocument("xhtml/valid/ops-mathml-002.xhtml",
 				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
@@ -165,7 +177,6 @@ public class OPSCheckerTest {
 				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
 	}
 
-	
 	@Test
 	public void testValidateXHTMLSCH001() {
 		testValidateDocument("xhtml/valid/sch-001.xhtml",
