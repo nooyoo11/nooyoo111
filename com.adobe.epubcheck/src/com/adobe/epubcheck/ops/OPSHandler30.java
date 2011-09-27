@@ -38,6 +38,8 @@ public class OPSHandler30 extends OPSHandler {
 
 	public static HashSet<String> linkClassSet;
 
+	boolean reportedUnsupportedXMLVersion;
+
 	static {
 		HashSet<String> set = new HashSet<String>();
 		set.add("vertical");
@@ -54,6 +56,7 @@ public class OPSHandler30 extends OPSHandler {
 		this.properties = properties;
 		prefixSet = new HashSet<String>();
 		propertiesSet = new HashSet<String>();
+		reportedUnsupportedXMLVersion = false;
 	}
 
 	boolean checkPrefix(String prefix) {
@@ -87,6 +90,10 @@ public class OPSHandler30 extends OPSHandler {
 
 	public void startElement() {
 		super.startElement();
+
+		if (!reportedUnsupportedXMLVersion)
+			reportedUnsupportedXMLVersion = HandlerUtil.checkXMLVersion(parser);
+
 		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 

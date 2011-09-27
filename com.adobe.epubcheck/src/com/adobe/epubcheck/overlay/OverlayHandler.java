@@ -25,6 +25,8 @@ public class OverlayHandler implements XMLHandler {
 
 	XMLParser parser;
 
+	boolean reportedUnsupportedXMLVersion;
+
 	public OverlayHandler(String path, XRefChecker xrefChecker,
 			XMLParser parser, Report report) {
 		this.path = path;
@@ -32,9 +34,13 @@ public class OverlayHandler implements XMLHandler {
 		this.report = report;
 		this.parser = parser;
 		prefixSet = new HashSet<String>();
+		reportedUnsupportedXMLVersion = false;
 	}
 
 	public void startElement() {
+		if (!reportedUnsupportedXMLVersion)
+			reportedUnsupportedXMLVersion = HandlerUtil.checkXMLVersion(parser);
+
 		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 

@@ -47,6 +47,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DeclHandler;
 import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.ext.Locator2;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -78,7 +79,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	// DTDHandler validatorDTDHandler;
 	Vector<DTDHandler> validatorDTDHandlers = new Vector<DTDHandler>();
 
-	Locator documentLocator;
+	Locator2 documentLocator;
 
 	static String zipRoot = "file:///epub-root/";
 
@@ -468,7 +469,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			((ContentHandler) validatorContentHandlers.elementAt(i))
 					.setDocumentLocator(locator);
 		}
-		documentLocator = locator;
+		documentLocator = new DocumentLocatorImpl(locator);
 	}
 
 	public void skippedEntity(String arg0) throws SAXException {
@@ -605,6 +606,18 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public int getColumnNumber() {
 		return documentLocator.getColumnNumber();
+	}
+
+	public String getXMLVersion() {
+		return documentLocator.getXMLVersion();
+	}
+
+	public String getEncoding() {
+		return documentLocator.getEncoding();
+	}
+
+	public String getResourceName() {
+		return resource;
 	}
 
 }
