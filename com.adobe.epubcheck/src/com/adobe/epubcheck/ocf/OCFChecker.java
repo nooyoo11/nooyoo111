@@ -114,7 +114,7 @@ public class OCFChecker {
 		XMLParser containerParser = null;
 		try {
 			containerParser = new XMLParser(ocf.getInputStream(containerEntry),
-					containerEntry, "xml", report);
+					containerEntry, "xml", report, version);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -164,7 +164,7 @@ public class OCFChecker {
 			XMLValidator validator) throws IOException {
 
 		parser = new XMLParser(ocf.getInputStream(path), containerEntry, "xml",
-				report);
+				report, version);
 		parser.addXMLHandler(handler);
 		parser.addValidator(validator);
 		parser.process();

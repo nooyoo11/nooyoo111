@@ -92,6 +92,8 @@ public class Messages {
 	public static String CONFLICTING_ATTRIBUTES = "Conflicting attributes found: ";
 
 	public static String INVALID_XML_VERSION = "Any Publication Resource that is an XML-Based Media Type must be a conformant XML 1.0 Document. XML Version retrieved: ";
-	
+
 	public static String XML_VERSION_NOT_SUPPORTED = "Your system doesn't support xml version verification. Make sure your xml files are conformant to xml 1.0!";
+
+	public static String EXTERNAL_ENTITIES_NOT_ALLOWED = "External entities are not allowed in XML. External entity declaration found: ";
 }

@@ -217,7 +217,7 @@ public class OPFChecker implements DocumentValidator {
 
 		boolean spaces = false;
 		final char[] ascciGraphic = new char[] { '<', '>', '"', '{', '}', '|',
-				'^', '`', '*',  '?' /* , ':','/', '\\' */};
+				'^', '`', '*', '?' /* , ':','/', '\\' */};
 		String result = "";
 		char[] chars = str.toCharArray();
 		for (int i = 0; i < chars.length; i++) {
@@ -260,7 +260,8 @@ public class OPFChecker implements DocumentValidator {
 		try {
 
 			opfParser = new XMLParser(new BufferedInputStream(
-					resourceProvider.getInputStream(path)), path, "opf", report);
+					resourceProvider.getInputStream(path)), path, "opf",
+					report, version);
 			initHandler();
 			opfParser.addXMLHandler(opfHandler);
 

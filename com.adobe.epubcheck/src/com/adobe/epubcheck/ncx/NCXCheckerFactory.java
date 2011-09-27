@@ -34,7 +34,7 @@ public class NCXCheckerFactory implements ContentCheckerFactory {
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
 			String path, String mimeType, String properties,
 			XRefChecker xrefChecker, EPUBVersion version) {
-		return new NCXChecker(ocf, report, path, xrefChecker);
+		return new NCXChecker(ocf, report, path, xrefChecker, version);
 	}
 
 	static private NCXCheckerFactory instance = new NCXCheckerFactory();

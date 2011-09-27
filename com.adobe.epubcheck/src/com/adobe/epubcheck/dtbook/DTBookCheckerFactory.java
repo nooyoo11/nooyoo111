@@ -34,7 +34,7 @@ public class DTBookCheckerFactory implements ContentCheckerFactory {
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
 			String path, String mimeType, String properties,
 			XRefChecker xrefChecker, EPUBVersion version) {
-		return new DTBookChecker(ocf, report, path, xrefChecker);
+		return new DTBookChecker(ocf, report, path, xrefChecker, version);
 	}
 
 	static private DTBookCheckerFactory instance = new DTBookCheckerFactory();

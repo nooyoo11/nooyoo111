@@ -52,6 +52,8 @@ import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.ResourceUtil;
 import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
 import com.thaiopensource.util.PropertyMapBuilder;
@@ -80,6 +82,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	Vector<DTDHandler> validatorDTDHandlers = new Vector<DTDHandler>();
 
 	Locator2 documentLocator;
+
+	EPUBVersion version;
 
 	static String zipRoot = "file:///epub-root/";
 
@@ -133,11 +137,12 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 	String mimeType;
 
 	public XMLParser(InputStream resourceIn, String entryName, String mimeType,
-			Report report) {
+			Report report, EPUBVersion version) {
 		this.report = report;
 		this.resource = entryName;
 		this.resourceIn = resourceIn;
 		this.mimeType = mimeType;
+		this.version = version;
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setNamespaceAware(true);
@@ -152,6 +157,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		try {
 			hasXML11 = factory
 					.getFeature("http://xml.org/sax/features/xml-1.1");
+			if (version == EPUBVersion.VERSION_3)
+				factory.setXIncludeAware(false);
 		} catch (Exception e) {
 		}
 		/*
@@ -584,6 +591,11 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 
 	public void externalEntityDecl(String name, String publicId, String systemId)
 			throws SAXException {
+		if (version == EPUBVersion.VERSION_3) {
+			report.error(resource, getLineNumber(), getColumnNumber(),
+					Messages.EXTERNAL_ENTITIES_NOT_ALLOWED + name);
+			return;
+		}
 		entities.add(name);
 	}
 

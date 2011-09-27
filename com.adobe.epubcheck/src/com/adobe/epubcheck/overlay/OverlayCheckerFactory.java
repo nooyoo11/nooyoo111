@@ -38,7 +38,7 @@ public class OverlayCheckerFactory implements ContentCheckerFactory,
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
 			String path, String mimeType, String properties,
 			XRefChecker xrefChecker, EPUBVersion version) {
-		return new OverlayChecker(ocf, report, path, xrefChecker);
+		return new OverlayChecker(ocf, report, path, xrefChecker, version);
 	}
 
 	static private OverlayCheckerFactory instance = new OverlayCheckerFactory();

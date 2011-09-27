@@ -60,6 +60,8 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 
 	String mimeType;
 
+	EPUBVersion version;
+
 	GenericResourceProvider resourceProvider;
 
 	public NavChecker(GenericResourceProvider resourceProvider, Report report,
@@ -71,6 +73,7 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		this.resourceProvider = resourceProvider;
 		this.properties = "singleFileValidation";
 		this.mimeType = mimeType;
+		this.version = version;
 	}
 
 	public NavChecker(OCFPackage ocf, Report report, String path,
@@ -83,6 +86,7 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		this.resourceProvider = ocf;
 		this.properties = properties;
 		this.mimeType = mimeType;
+		this.version = version;
 	}
 
 	public void runChecks() {
@@ -102,7 +106,7 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 		try {
 			XMLParser navParser = new XMLParser(
 					resourceProvider.getInputStream(path), path,
-					"application/xhtml+xml", report);
+					"application/xhtml+xml", report, version);
 
 			XMLHandler navHandler = new OPSHandler30(path, mimeType,
 					properties, xrefChecker, navParser, report);

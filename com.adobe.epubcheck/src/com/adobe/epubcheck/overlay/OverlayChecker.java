@@ -29,6 +29,7 @@ import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.xml.XMLParser;
@@ -48,6 +49,8 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 
 	private OverlayHandler overlayHandler = null;
 
+	EPUBVersion version;
+
 	static XMLValidator mediaOverlayValidator_30_RNC = new XMLValidator(
 			"schema/30/media-overlay-30.rnc");
 
@@ -55,12 +58,13 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 			"schema/30/media-overlay-30-PREP.sch");
 
 	public OverlayChecker(OCFPackage ocf, Report report, String path,
-			XRefChecker xrefChecker) {
+			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
 		this.resourceProvider = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
+		this.version = version;
 	}
 
 	public OverlayChecker(String path,
@@ -87,7 +91,7 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 		try {
 			XMLParser overlayParser = new XMLParser(
 					resourceProvider.getInputStream(path), path,
-					"application/smil+xml", report);
+					"application/smil+xml", report, version);
 			overlayHandler = new OverlayHandler(path, xrefChecker,
 					overlayParser, report);
 			overlayParser.addValidator(mediaOverlayValidator_30_RNC);
