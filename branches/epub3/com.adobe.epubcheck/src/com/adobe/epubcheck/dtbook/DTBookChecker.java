@@ -28,6 +28,7 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -41,15 +42,18 @@ public class DTBookChecker implements ContentChecker {
 
 	XRefChecker xrefChecker;
 
+	EPUBVersion version;
+
 	static XMLValidator dtbookValidator = new XMLValidator(
 			"schema/20/rng/dtbook-2005-2.rng");
 
 	public DTBookChecker(OCFPackage ocf, Report report, String path,
-			XRefChecker xrefChecker) {
+			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
+		this.version = version;
 	}
 
 	public void runChecks() {
@@ -62,7 +66,7 @@ public class DTBookChecker implements ContentChecker {
 			XMLParser dtbookParser = null;
 			try {
 				dtbookParser = new XMLParser(ocf.getInputStream(path), path,
-						"application/x-dtbook+xml", report);
+						"application/x-dtbook+xml", report, version);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

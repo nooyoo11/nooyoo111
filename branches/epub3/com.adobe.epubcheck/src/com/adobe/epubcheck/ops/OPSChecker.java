@@ -162,7 +162,8 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			XMLValidator schValidator) throws IOException {
 
 		XMLParser opsParser = new XMLParser(
-				resourceProvider.getInputStream(path), path, mimeType, report);
+				resourceProvider.getInputStream(path), path, mimeType, report,
+				version);
 
 		if (version == EPUBVersion.VERSION_2)
 			opsHandler = new OPSHandler(path, xrefChecker, opsParser, report);
