@@ -40,6 +40,8 @@ public class OPFHandler30 extends OPFHandler {
 
 	HashSet<String> prefixSet;
 
+	boolean reportedUnsupportedXMLVersion;
+
 	static String[] predefinedPrefixes = { "dcterms", "marc", "media", "onix",
 			"xsd" };
 
@@ -106,14 +108,15 @@ public class OPFHandler30 extends OPFHandler {
 			XRefChecker xrefChecker, XMLParser parser, EPUBVersion version) {
 		super(ocf, path, report, xrefChecker, parser, version);
 		prefixSet = new HashSet<String>();
-
+		reportedUnsupportedXMLVersion = false;
 		for (int i = 0; i < predefinedPrefixes.length; i++)
 			prefixSet.add(predefinedPrefixes[i]);
 	}
 
 	public void startElement() {
 		super.startElement();
-
+		if (!reportedUnsupportedXMLVersion)
+			reportedUnsupportedXMLVersion = HandlerUtil.checkXMLVersion(parser);
 		XMLElement e = parser.getCurrentElement();
 		String name = e.getName();
 

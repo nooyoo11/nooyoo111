@@ -217,7 +217,7 @@ public class OPFChecker implements DocumentValidator {
 
 		boolean spaces = false;
 		final char[] ascciGraphic = new char[] { '<', '>', '"', '{', '}', '|',
-				'^', '`', '*', ':', '?' /* , '/', '\\' */};
+				'^', '`', '*',  '?' /* , ':','/', '\\' */};
 		String result = "";
 		char[] chars = str.toCharArray();
 		for (int i = 0; i < chars.length; i++) {

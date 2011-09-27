@@ -3,6 +3,7 @@ package com.adobe.epubcheck.util;
 import java.util.HashSet;
 
 import com.adobe.epubcheck.api.Report;
+import com.adobe.epubcheck.xml.XMLParser;
 
 public class HandlerUtil {
 
@@ -48,5 +49,22 @@ public class HandlerUtil {
 			}
 		}
 
+	}
+
+	public static boolean checkXMLVersion(XMLParser parser) {
+		if (parser.getXMLVersion() == null) {
+			parser.getReport().warning(parser.getResourceName(),
+					parser.getLineNumber(), parser.getColumnNumber(),
+					Messages.XML_VERSION_NOT_SUPPORTED);
+			return true;
+		}
+
+		if (!"1.0".equals(parser.getXMLVersion())) {
+			parser.getReport().error(parser.getResourceName(),
+					parser.getLineNumber(), parser.getColumnNumber(),
+					Messages.INVALID_XML_VERSION + parser.getXMLVersion());
+			return true;
+		}
+		return false;
 	}
 }

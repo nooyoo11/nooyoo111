@@ -148,6 +148,12 @@ public class OPSCheckerTest {
 	}
 
 	@Test
+	public void testValidateXHTMLXml11() {
+		testValidateDocument("xhtml/invalid/xml11.xhtml",
+				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
 	public void testValidateXHTMLOPSMATHML002() {
 		testValidateDocument("xhtml/valid/ops-mathml-002.xhtml",
 				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
