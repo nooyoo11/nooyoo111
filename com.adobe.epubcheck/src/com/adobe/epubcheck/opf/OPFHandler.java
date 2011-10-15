@@ -36,7 +36,7 @@ import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
 
-public class OPFHandler implements XMLHandler {
+public class OPFHandler implements OPFData, XMLHandler {
 
 	OCFPackage ocf;
 
@@ -44,7 +44,7 @@ public class OPFHandler implements XMLHandler {
 
 	Hashtable<String, OPFItem> itemMapByPath = new Hashtable<String, OPFItem>();
 
-	Hashtable encryptedItems;
+//	Hashtable encryptedItems;
 
 	XMLParser parser;
 
@@ -109,7 +109,7 @@ public class OPFHandler implements XMLHandler {
 			validRoles.add(list[i]);
 	}
 
-	OPFHandler(OCFPackage ocf, String path, Report report,
+	public OPFHandler(OCFPackage ocf, String path, Report report,
 			XRefChecker xrefChecker, XMLParser parser, EPUBVersion version) {
 		this.ocf = ocf;
 		this.path = path;
@@ -119,6 +119,9 @@ public class OPFHandler implements XMLHandler {
 		this.version = version;
 	}
 
+    public String getUniqueIdentifier() {
+        return uniqueIdent;
+    }
 	public boolean getOpf12PackageFile() {
 		return (opf12PackageFile);
 	}
@@ -175,9 +178,9 @@ public class OPFHandler implements XMLHandler {
 		return uniqueIdentExists;
 	}
 
-	public void setEncryptedItems(Hashtable encryptedItems) {
-		this.encryptedItems = encryptedItems;
-	}
+//	public void setEncryptedItems(Hashtable encryptedItems) {
+//		this.encryptedItems = encryptedItems;
+//	}
 
 	private static boolean isValidRole(String role) {
 		return validRoles.contains(role) || role.startsWith("oth.");
@@ -390,9 +393,9 @@ public class OPFHandler implements XMLHandler {
 				String idAttr = e.getAttribute("id");
 				if (idAttr != null && !idAttr.equals("")
 						&& idAttr.equals(uniqueIdent)) {
-					String idval = (String) e.getPrivateData();
-					if (idval != null && ocf != null)
-						ocf.setUniqueIdentifier(idval);
+//					String idval = (String) e.getPrivateData();
+//					if (idval != null && ocf != null)
+//						ocf.setUniqueIdentifier(idval);
 				}
 			} else if (name.equals("date")) {
 				String dateval = (String) e.getPrivateData();
@@ -443,4 +446,10 @@ public class OPFHandler implements XMLHandler {
 
 	public void processingInstruction(String arg0, String arg1) {
 	}
+
+    @Override
+    public EPUBVersion getVersion()
+    {
+        return version;
+    }
 }
