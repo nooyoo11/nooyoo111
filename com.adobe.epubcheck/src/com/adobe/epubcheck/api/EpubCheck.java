@@ -32,6 +32,7 @@ import java.util.zip.ZipFile;
 
 import com.adobe.epubcheck.ocf.OCFChecker;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.ocf.OCFZipPackage;
 import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.DefaultReportImpl;
@@ -152,7 +153,7 @@ public class EpubCheck implements DocumentValidator {
 
 			ZipFile zip = new ZipFile(epubFile);
 
-			OCFPackage ocf = new OCFPackage(zip);
+			OCFPackage ocf = new OCFZipPackage(zip);
 
 			OCFChecker checker = new OCFChecker(ocf, report);
 
