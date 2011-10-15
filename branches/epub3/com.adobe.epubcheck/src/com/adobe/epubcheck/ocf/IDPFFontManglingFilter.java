@@ -4,14 +4,14 @@ import java.io.InputStream;
 
 public class IDPFFontManglingFilter implements EncryptionFilter {
 
-	OCFPackage ocf;
+	String uniqueIdentifier;
 	
-	public IDPFFontManglingFilter( OCFPackage ocf ) {
-		this.ocf = ocf;
+	public IDPFFontManglingFilter( String Uid) {
+		uniqueIdentifier = Uid;
 	}
 	
 	public boolean canDecrypt() {
-		return ocf.getUniqueIdentifier() != null;
+		return uniqueIdentifier != null;
 	}
 
 	public InputStream decrypt(InputStream in) {

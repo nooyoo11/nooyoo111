@@ -64,7 +64,7 @@ public class EncryptionHandler implements XMLHandler {
 			if (algorithm == null)
 				algorithm = "unknown";
 			if (algorithm.equals("http://www.idpf.org/2008/embedding"))
-				ocf.setEncryption(entryName, new IDPFFontManglingFilter(ocf));
+				ocf.setEncryption(entryName, new IDPFFontManglingFilter(null));
 			else
 				ocf.setEncryption(entryName, new UnsupportedEncryptionFilter());
 		} else if (e.getName().equals("EncryptionMethod")) {
