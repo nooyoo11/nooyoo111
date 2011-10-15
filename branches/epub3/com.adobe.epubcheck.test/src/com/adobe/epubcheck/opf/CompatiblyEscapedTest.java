@@ -36,7 +36,7 @@ public class CompatiblyEscapedTest {
 
 	private OPFChecker opfChecker;
 
-	private boolean verbose;
+	private boolean verbose = false;
 
 	/*
 	 * TEST DEBUG FUNCTION
@@ -55,11 +55,9 @@ public class CompatiblyEscapedTest {
 				Messages.SINGLE_FILE, "opf", version.toString()));
 
 		if (version == EPUBVersion.VERSION_2)
-			opfChecker = new OPFChecker(null, testReport, fileName, null,
-					version);
+			opfChecker = new OPFChecker(null, testReport, fileName, null, EPUBVersion.VERSION_2);
 		else if (version == EPUBVersion.VERSION_3)
-			opfChecker = new OPFChecker30(null, testReport, fileName, null,
-					version);
+			opfChecker = new OPFChecker30(null, testReport, fileName, null,EPUBVersion.VERSION_3);
 
 		String result = opfChecker.checkCompatiblyEscaped(fileName);
 
