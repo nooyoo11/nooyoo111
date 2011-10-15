@@ -28,7 +28,7 @@ import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
 
-public class OCFHandler implements XMLHandler {
+public class OCFHandler implements OCFData, XMLHandler {
 
 	HashSet<String> containerEntries;
 
@@ -41,10 +41,12 @@ public class OCFHandler implements XMLHandler {
 		this.containerEntries = new HashSet<String>();
 	}
 
+	@Override
 	public String getRootPath() {
 		return rootPath;
 	}
 
+	@Override
 	public HashSet<String> getContainerEntries() {
 		return containerEntries;
 	}
