@@ -97,10 +97,10 @@ public class NavCheckerTest {
 		testValidateDocument("invalid/noTocNav.xhtml", 3, 0);
 	}
 
-	@Test
-	public void testValidateDocumentNoTocNavFromURL() {
-		testValidateDocument("http://www.interq.ro/bgd/noTocNav.xhtml", 3, 0);
-	}
+//	@Test
+//	public void testValidateDocumentNoTocNavFromURL() {
+//		testValidateDocument("http://www.interq.ro/bgd/noTocNav.xhtml", 3, 0);
+//	}
 
 	@Test
 	public void testValidateDocumentHText() {
