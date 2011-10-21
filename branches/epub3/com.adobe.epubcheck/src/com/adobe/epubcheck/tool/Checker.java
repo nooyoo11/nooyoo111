@@ -102,7 +102,7 @@ public class Checker {
 		documentValidatorFactoryMap = map;
 	}
 
-	public static void validateFile(GenericResourceProvider resourceProvider,
+	public static int validateFile(GenericResourceProvider resourceProvider,
 			String fileName, String mimeType, EPUBVersion version, Report report) {
 
 		opsType = new OPSType(mode, version);
@@ -126,13 +126,15 @@ public class Checker {
 				resourceProvider, (String) modeMimeTypeMap.get(opsType),
 				version);
 
-		if (check.validate())
+		if (check.validate()) {
 			System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
-		else
-			System.err.println(Messages.THERE_WERE_ERRORS);
+			return 0;
+		}
+		System.err.println(Messages.THERE_WERE_ERRORS);
+		return 1;
 	}
 
-	public static void validateFile(String path, String mimeType,
+	public static int validateFile(String path, String mimeType,
 			EPUBVersion version, Report report) {
 
 		GenericResourceProvider resourceProvider;
@@ -162,38 +164,52 @@ public class Checker {
 				resourceProvider, (String) modeMimeTypeMap.get(opsType),
 				version);
 
-		if (check.validate())
+		if (check.validate()) {
 			System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
-		else
-			System.err.println(Messages.THERE_WERE_ERRORS);
+			return 0; 
+		}	
+		System.err.println(Messages.THERE_WERE_ERRORS);
+		return 1;
 
 	}
 
 	public static void main(String[] args) {
-		Report report;
-		processArguments(args);
-
-		if (expanded) {
-			Archive epub = new Archive(path, keep);
-			report = new DefaultReportImpl(epub.getEpubName());
-			epub.createArchive();
-
-			EpubCheck check = new EpubCheck(epub.getEpubFile(), report);
-			if (check.validate())
-				System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
-			else
+		System.exit(run(args));
+	}
+	
+	public static int run(String[] args) {		
+		Report report;		
+		try {
+			processArguments(args);
+			
+			if (expanded) {
+				Archive epub = new Archive(path, keep);
+				report = new DefaultReportImpl(epub.getEpubName());
+				epub.createArchive();
+	
+				EpubCheck check = new EpubCheck(epub.getEpubFile(), report);
+				if (check.validate()) {
+					System.out.println(Messages.NO_ERRORS__OR_WARNINGS);
+					return 0;
+				}									
 				System.err.println(Messages.THERE_WERE_ERRORS);
-			return;
+				return 1;
+			}
+	
+			if (mode != null) {
+				report = new DefaultReportImpl(path, String.format(
+						Messages.SINGLE_FILE, mode, version.toString()));
+			}else {
+				report = new DefaultReportImpl(path);
+			}
+					
+			return validateFile(path, mode, version, report);
+			
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return 1;
 		}
-
-		if (mode != null)
-			report = new DefaultReportImpl(path, String.format(
-					Messages.SINGLE_FILE, mode, version.toString()));
-		else
-			report = new DefaultReportImpl(path);
-
-		validateFile(path, mode, version, report);
-
+	
 	}
 
 	/**
@@ -241,8 +257,11 @@ public class Checker {
 			else if (args[i].equals("-mode"))
 				if (i + 1 < args.length) {
 					mode = args[++i];
-					if (mode.equals("exp"))
+					if (mode.equals("exp")) {
 						expanded = true;
+					}else {
+						expanded = false;
+					}
 					continue;
 				} else {
 					System.out.println(Messages.DISPLAY_HELP);
@@ -307,8 +326,8 @@ public class Checker {
 		System.out.println("-mode svg -v 2.0");
 		System.out.println("-mode svg -v 3.0");
 		System.out.println("-mode nav -v 3.0");
-		System.out.println("-mode mo  -v 3.0 // For MediaOverlay validation");
-		System.out.println("-mode exp  // For expanded epubs archives");
+		System.out.println("-mode mo  -v 3.0 // For Media Overlays validation");
+		System.out.println("-mode exp  // For expanded EPUB archives");
 
 		System.out.println("This tool also accepts the following flags:");
 		System.out
