@@ -38,7 +38,7 @@ public class NavCheckerFactory implements ContentCheckerFactory,
 	public ContentChecker newInstance(OCFPackage ocf, Report report,
 			String path, String mimeType, String properties,
 			XRefChecker xrefChecker, EPUBVersion version) {
-		return new NavChecker(ocf, report, path, mimeType, properties, version);
+		return new NavChecker(ocf, report, path, mimeType, properties, xrefChecker, version);
 	}
 
 	static private NavCheckerFactory instance = new NavCheckerFactory();

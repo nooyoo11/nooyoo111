@@ -153,4 +153,10 @@ public class Epub30CheckTest {
 		// 1 rng error from xhtml validation
 		testValidateDocument("invalid/lorem-xht-rng-1.epub", 1, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30_navInvalid() {
+		// invalid nav issuse reported by MattG
+		testValidateDocument("invalid/nav-invalid.epub", 1, 0);
+	}
 }
