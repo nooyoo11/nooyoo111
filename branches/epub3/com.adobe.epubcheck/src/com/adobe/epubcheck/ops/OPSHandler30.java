@@ -90,7 +90,7 @@ public class OPSHandler30 extends OPSHandler {
 
 	public void startElement() {
 		super.startElement();
-
+		
 		if (!reportedUnsupportedXMLVersion)
 			reportedUnsupportedXMLVersion = HandlerUtil.checkXMLVersion(parser);
 
@@ -190,7 +190,7 @@ public class OPSHandler30 extends OPSHandler {
 				&& !OPFChecker.isBlessedImageType(posterMimeType))
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(),
-					"Video poster must have core media image type!");
+					"Video poster must have core media image type");
 
 		if (posterSrc != null) {
 			hasValidFallback = true;
@@ -200,16 +200,18 @@ public class OPSHandler30 extends OPSHandler {
 	}
 
 	private void processSrc(String name, String src) {
+		
 		if (src != null) {
 			src.trim();
 			if (src.equals(""))
 				report.error(path, parser.getLineNumber(),
 						parser.getColumnNumber(),
-						"The src attribute must not be epmty!");
+						"The src attribute must not be empty");
 		}
+						
 		if (src == null || xrefChecker == null)
 			return;
-
+		
 		if (src.startsWith("http://"))
 			propertiesSet.add("remote-resources");
 		else
@@ -249,7 +251,7 @@ public class OPSHandler30 extends OPSHandler {
 				&& !type.equals(xrefChecker.getMimeType(data)))
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(),
-					"Object type and the item media-type declared in manifest, do not match!");
+					"Object type and the item media-type declared in manifest, do not match");
 
 		if (type != null) {
 			if (!mimeType.equals("image/svg+xml")
@@ -304,7 +306,7 @@ public class OPSHandler30 extends OPSHandler {
 		else
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(), elementType
-							+ " element doesn't provide fallback!");
+							+ " element doesn't provide fallback");
 	}
 
 	private void checkProperties() {
@@ -323,7 +325,7 @@ public class OPSHandler30 extends OPSHandler {
 		}
 		if (properties != null)
 			properties = properties.trim();
-		if (properties != null && !properties.equals(""))
+		if (properties != null && !properties.equals(""))			
 			report.error(path, 0, 0,
 					"This file should not declare in opf the properties: "
 							+ properties);

@@ -77,12 +77,13 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 	}
 
 	public NavChecker(OCFPackage ocf, Report report, String path,
-			String mimeType, String properties, EPUBVersion version) {
+			String mimeType, String properties, XRefChecker xrefChecker, EPUBVersion version) {
 		if (version == EPUBVersion.VERSION_2)
 			report.error(path, 0, 0, Messages.NAV_NOT_SUPPORTED);
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
+		this.xrefChecker = xrefChecker;
 		this.resourceProvider = ocf;
 		this.properties = properties;
 		this.mimeType = mimeType;

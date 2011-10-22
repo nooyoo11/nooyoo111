@@ -160,4 +160,10 @@ public class Epub30CheckExpandedTest {
 		testValidateDocument("invalid/lorem-foreign", 1, 1);
 	}
 
+	@Test
+	public void testValidateEPUB30_navInvalid() {
+		// invalid nav issuse reported by MattG
+		testValidateDocument("invalid/nav-invalid/", 1, 0);
+	}
+	
 }

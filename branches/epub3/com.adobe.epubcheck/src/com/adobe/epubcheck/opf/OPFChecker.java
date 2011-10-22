@@ -32,6 +32,7 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
 import com.adobe.epubcheck.css.CSSCheckerFactory;
 import com.adobe.epubcheck.dtbook.DTBookCheckerFactory;
+import com.adobe.epubcheck.nav.NavCheckerFactory;
 import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
@@ -400,14 +401,17 @@ public class OPFChecker implements DocumentValidator {
 		String mimeType = item.getMimeType();
 		String path = item.getPath();
 		String properties = item.getProperties();
-
+		
 		if (mimeType != null) {
 			ContentCheckerFactory checkerFactory;
-			if (item.isNcx())
+			if (item.isNcx()) {
 				checkerFactory = NCXCheckerFactory.getInstance();
-			else
-				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap
-						.get(mimeType);
+			} else if (item.isNav()) {
+				checkerFactory = NavCheckerFactory.getInstance();	
+			} else {
+				checkerFactory = (ContentCheckerFactory) contentCheckerFactoryMap.get(mimeType);
+			}
+			
 			if (checkerFactory == null)
 				checkerFactory = GenericContentCheckerFactory.getInstance();
 			if (checkerFactory != null) {
