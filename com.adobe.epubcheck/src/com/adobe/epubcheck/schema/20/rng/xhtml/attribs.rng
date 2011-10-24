@@ -13,7 +13,7 @@
 <define name="class.attrib">
   <optional>
     <attribute name="class">
-      <ref name="NMTOKENS.datatype"/>
+      <ref name="Text.datatype"/>
     </attribute>
   </optional>
 </define>
