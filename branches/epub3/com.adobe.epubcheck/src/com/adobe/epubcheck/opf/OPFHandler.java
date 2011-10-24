@@ -397,7 +397,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 //					if (idval != null && ocf != null)
 //						ocf.setUniqueIdentifier(idval);
 				}
-			} else if (name.equals("date")) {
+			} else if (name.equals("date")) {				
 				String dateval = (String) e.getPrivateData();
 				DateParser dateParser = new DateParser();
 				boolean iso8601 = false;
@@ -411,13 +411,24 @@ public class OPFHandler implements OPFData, XMLHandler {
 				}
 
 				if (!iso8601) {
-					report.error(
-							path,
-							parser.getLineNumber(),
-							parser.getColumnNumber(),
-							"date value '"
-									+ (dateval == null ? "" : dateval)
-									+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
+					if(this.version == EPUBVersion.VERSION_3) {
+						report.warning(
+								path,
+								parser.getLineNumber(),
+								parser.getColumnNumber(),
+								"date value '"
+										+ (dateval == null ? "" : dateval)
+										+ "' does not follow recommended syntax as per http://www.w3.org/TR/NOTE-datetime.");
+					} else {
+						report.error(
+								path,
+								parser.getLineNumber(),
+								parser.getColumnNumber(),
+								"date value '"
+										+ (dateval == null ? "" : dateval)
+										+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
+						
+					}					
 				}
 			}
 		}
