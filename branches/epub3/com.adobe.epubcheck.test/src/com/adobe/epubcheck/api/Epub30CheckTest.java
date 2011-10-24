@@ -76,7 +76,7 @@ public class Epub30CheckTest {
 		else
 			try {
 				epubCheck = new EpubCheck(
-						resourceProvider.getInputStream(null), testReport);
+						resourceProvider.getInputStream(null), testReport, path);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -158,5 +158,10 @@ public class Epub30CheckTest {
 	public void testValidateEPUB30_navInvalid() {
 		// invalid nav issuse reported by MattG
 		testValidateDocument("invalid/nav-invalid.epub", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30ValidExtension1() { 
+		testValidateDocument("valid/extension-1.ePub", 0, 1);
 	}
 }

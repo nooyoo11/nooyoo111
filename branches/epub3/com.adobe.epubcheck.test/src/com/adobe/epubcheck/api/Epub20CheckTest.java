@@ -76,7 +76,7 @@ public class Epub20CheckTest {
 		else
 			try {
 				epubCheck = new EpubCheck(
-						resourceProvider.getInputStream(null), testReport);
+						resourceProvider.getInputStream(null), testReport, path);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -154,7 +154,7 @@ public class Epub20CheckTest {
 
 	@Test
 	public void testValidateEPUBPvalid20() {
-		testValidateDocument("Test20.epub", 0, 0, true);
+		testValidateDocument("Test20.epub", 0, 0);
 	}
 	
 	@Test

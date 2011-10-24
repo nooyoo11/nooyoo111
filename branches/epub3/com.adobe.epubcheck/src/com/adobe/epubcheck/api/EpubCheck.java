@@ -37,6 +37,7 @@ import com.adobe.epubcheck.opf.DocumentValidator;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.Messages;
+import com.adobe.epubcheck.util.ResourceUtil;
 import com.adobe.epubcheck.util.WriterReportImpl;
 
 /**
@@ -48,7 +49,7 @@ public class EpubCheck implements DocumentValidator {
 	 * you'll need to change it in two additional places
 	 */
 	// TODO change it in the other places
-	public static final String VERSION = "3.0b2";
+	public static final String VERSION = "3.0b3";
 
 	File epubFile;
 
@@ -81,10 +82,10 @@ public class EpubCheck implements DocumentValidator {
 		this.report = report;
 	}
 
-	public EpubCheck(InputStream inputStream, Report report) {
+	public EpubCheck(InputStream inputStream, Report report, String uri) {		
 		File epubFile;
 		try {
-			epubFile = File.createTempFile("epub.epub", null);
+			epubFile = File.createTempFile("epub." + ResourceUtil.getExtension(uri), null);
 			epubFile.deleteOnExit();
 			OutputStream out = new FileOutputStream(epubFile);
 
@@ -110,6 +111,20 @@ public class EpubCheck implements DocumentValidator {
 	 */
 	public boolean validate() {
 		try {
+			
+			String extension = ResourceUtil.getExtension(epubFile.getName());
+			if(extension != null) {
+				if(!extension.equals("epub")) {
+					if(extension.matches("[Ee][Pp][Uu][Bb]")){
+						report.warning(epubFile.getName(), -1, -1, 
+							"Use only lowercase characters for the EPUB file extension for maximum compatibility");
+					} else {
+						report.warning(epubFile.getName(), -1, -1, 
+							"Uncommon EPUB file extension'" + extension + "'. For maximum compatibility, use '.epub'");
+					}
+				}
+			}
+			
 			FileInputStream epubIn = new FileInputStream(epubFile);
 
 			byte[] header = new byte[58];

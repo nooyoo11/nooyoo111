@@ -45,7 +45,7 @@ public class EpubCheckFactory implements DocumentValidatorFactory {
 		if (path.startsWith("http://") || path.startsWith("https://"))
 			try {
 				return new EpubCheck(resourceProvider.getInputStream(path),
-						report);
+						report, path);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

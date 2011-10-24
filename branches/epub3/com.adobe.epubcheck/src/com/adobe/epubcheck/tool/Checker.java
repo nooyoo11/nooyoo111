@@ -148,7 +148,7 @@ public class Checker {
 
 		DocumentValidatorFactory factory = (DocumentValidatorFactory) documentValidatorFactoryMap
 				.get(opsType);
-
+		
 		if (factory == null) {
 			System.out.println(Messages.DISPLAY_HELP);
 			report.exception(
@@ -202,7 +202,7 @@ public class Checker {
 			}else {
 				report = new DefaultReportImpl(path);
 			}
-					
+			
 			return validateFile(path, mode, version, report);
 			
 		} catch (Throwable e) {
@@ -291,10 +291,9 @@ public class Checker {
 			System.err.println(Messages.NO_FILE_SPECIFIED);
 			System.err.println(Messages.END_OF_EXECUTION);
 			System.exit(1);
-		} else if (path.endsWith(".epub")) {
+		} else if (path.matches(".+\\.[Ee][Pp][Uu][Bb]")) {
 			if (mode != null || version != EPUBVersion.VERSION_3) {
 				System.err.println(Messages.MODE_VERSION_IGNORED);
-
 				mode = null;
 			}
 		} else if (mode == null)

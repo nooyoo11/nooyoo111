@@ -35,6 +35,13 @@ public class ResourceUtil {
 				classPackage.lastIndexOf("/"));
 		return projectPackage + "/" + localName;
 	}
+	
+	public static String getExtension(String path) {
+		if(path.contains(".")){
+			return path.substring(path.lastIndexOf('.') + 1);
+		}
+		return null;
+	}
 
 	public static InputStream getResourceStream(String resourcePath) {
 		ClassLoader loader = ResourceUtil.class.getClassLoader();
