@@ -50,15 +50,27 @@ public class CLITest {
 		assertEquals(1, run(new String[]{singlePath + "nav/invalid/noTocNav.xhtml", "-mode", "nav"}));		
 	}
 	
-	private int run(String[] args) {
+	
+	@Test
+	public void testValidExtension1() { 
+		assertEquals(1, run(new String[]{epubPath + "valid/extension-1.ePub"}));
+	}
+		
+	private int run(String[] args, boolean verbose) {
 		PrintStream outOrig = System.out;
 		PrintStream errOrig = System.err;
-		System.setOut(new NullPrintStream());
-		System.setErr(new NullPrintStream());
-		int result = Checker.run(args);
+		if(!verbose) {			
+			System.setOut(new NullPrintStream());
+			System.setErr(new NullPrintStream());
+		}
+		int result = Checker.run(args);		
 		System.setOut(outOrig);
-		System.setErr(errOrig);
+		System.setErr(errOrig);		
 		return result;
+	}
+	
+	private int run(String[] args) {
+		return run(args, false);
 	}
 	
 	class NullPrintStream extends PrintStream {
