@@ -22,6 +22,8 @@
 
 package com.adobe.epubcheck.opf;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -398,19 +400,30 @@ public class OPFHandler implements OPFData, XMLHandler {
 //						ocf.setUniqueIdentifier(idval);
 				}
 			} else if (name.equals("date")) {				
-				String dateval = (String) e.getPrivateData();
-				DateParser dateParser = new DateParser();
-				boolean iso8601 = false;
-				if (dateval != null) {
+				String dateval = (String) e.getPrivateData();				
+				boolean valid = true;
+				String detail = null;
+				
+				if(dateval == null || "".equals(dateval)) {
+					valid = false;
+					detail = "zero-length string";
+				} else {
+					DateParser dateParser = new DateParser();
 					try {
-						dateParser.parse(dateval);
-						iso8601 = true;
+						Date date = dateParser.parse(dateval);
+						/*
+						 * mg: DateParser does not enforce four-digit years,
+						 * which http://www.w3.org/TR/NOTE-datetime seems to want
+						 */
+						String year = new SimpleDateFormat("yyyy").format(date);
+						if(year.length() > 4) throw new InvalidDateException(year);
 					} catch (InvalidDateException d) {
-						iso8601 = false;
+						valid = false;
+						detail = d.getMessage();
 					}
 				}
-
-				if (!iso8601) {
+				
+				if(!valid) {
 					if(this.version == EPUBVersion.VERSION_3) {
 						report.warning(
 								path,
@@ -418,7 +431,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 								parser.getColumnNumber(),
 								"date value '"
 										+ (dateval == null ? "" : dateval)
-										+ "' does not follow recommended syntax as per http://www.w3.org/TR/NOTE-datetime.");
+										+ "' does not follow recommended syntax as per http://www.w3.org/TR/NOTE-datetime:" + detail);
 					} else {
 						report.error(
 								path,
@@ -426,10 +439,11 @@ public class OPFHandler implements OPFData, XMLHandler {
 								parser.getColumnNumber(),
 								"date value '"
 										+ (dateval == null ? "" : dateval)
-										+ "' is not valid. The date must be in the form YYYY, YYYY-MM or YYYY-MM-DD (e.g., \"1993\", \"1993-05\", or \"1993-05-01\"). See http://www.w3.org/TR/NOTE-datetime.");
-						
-					}					
+										+ "' is not valid as per http://www.w3.org/TR/NOTE-datetime:" + detail);						
+					}	
 				}
+				
+							
 			}
 		}
 	}
