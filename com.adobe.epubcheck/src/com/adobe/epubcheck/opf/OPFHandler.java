@@ -323,6 +323,14 @@ public class OPFHandler implements OPFData, XMLHandler {
 					if (item != null) {
 						spine.add(item);
 						item.setInSpine(true);
+						
+						String linear = e.getAttribute("linear");
+						if(linear != null && "no".equals(linear.trim())) {
+							item.setSpineLinear(false);
+						} else {
+							item.setSpineLinear(true);
+						}
+						
 					} else {
 						report.error(path, parser.getLineNumber(),
 								parser.getColumnNumber(), "item with id '"

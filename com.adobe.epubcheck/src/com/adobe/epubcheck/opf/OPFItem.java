@@ -49,6 +49,8 @@ public class OPFItem {
 	boolean scripted;
 
 	String properties;
+	
+	boolean linear = true;
 
 	OPFItem(String id, String path, String mimeType, String fallback,
 			String fallbackStyle, String namespace, String properties,
@@ -130,5 +132,22 @@ public class OPFItem {
 
 	public void setInSpine(boolean inSpine) {
 		this.inSpine = inSpine;
+	}
+
+	/**
+	 * Reflects the value of spine/itemref/@linear. Only applies to manifest items
+	 * that appear in the spine. 
+	 */
+	public void setSpineLinear(boolean linear) {
+		this.linear = linear;		
+	}
+	
+	/**
+	 * Reflects the value of spine/itemref/@linear. Only applies to manifest items
+	 * that appear in the spine. 
+	 */
+	public boolean getSpineLinear() {
+		if(!inSpine) throw new IllegalStateException("linear");
+		return linear;		
 	}
 }

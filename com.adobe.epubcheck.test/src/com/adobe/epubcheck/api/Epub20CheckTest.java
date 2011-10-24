@@ -171,5 +171,16 @@ public class Epub20CheckTest {
 	public void testValidateEPUB_mimetypeAndVersion() {
 		testValidateDocument("/invalid/mimetypeAndVersion.epub", 2, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB_noLinearYes() {
+		//+ 3 warnings that dont related to linear
+		testValidateDocument("/invalid/no-linear-yes.epub", 0, 4);
+	}
+	
+//	@Test
+//	public void testValidateEPUB_abnormalSVGDTD() {
+//		testValidateDocument("/invalid/issue67.epub", 2, 0, true);
+//	}
 
 }
