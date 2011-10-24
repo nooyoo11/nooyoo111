@@ -490,6 +490,7 @@ Authors:
     <anyName>
       <except>
         <nsName ns="http://www.idpf.org/2007/opf"/>
+        <nsName ns="http://openebook.org/namespaces/oeb-package/1.0/"/>
         <nsName ns="http://purl.org/dc/elements/1.1/"/>
       </except>
     </anyName>

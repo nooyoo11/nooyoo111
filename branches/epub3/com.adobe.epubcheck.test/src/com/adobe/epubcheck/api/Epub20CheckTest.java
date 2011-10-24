@@ -156,5 +156,15 @@ public class Epub20CheckTest {
 	public void testValidateEPUBPvalid20() {
 		testValidateDocument("Test20.epub", 0, 0, true);
 	}
+	
+	@Test
+	public void testValidateEPUBPNoRootFiles() {
+		testValidateDocument("/invalid/no-rootfile.epub", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUBPBadOpfNamespace() {
+		testValidateDocument("/invalid/bad_opf_namespace.epub", 7, 2);
+	}
 
 }

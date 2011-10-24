@@ -42,9 +42,9 @@ public class OCFChecker {
 
 	Report report;
 
-//	Hashtable encryptedItems;
+	// Hashtable encryptedItems;
 
-//	private EPUBVersion version = EPUBVersion.VERSION_3;
+	// private EPUBVersion version = EPUBVersion.VERSION_3;
 
 	static XMLValidator containerValidator = new XMLValidator(
 			"schema/20/rng/container.rng");
@@ -99,84 +99,92 @@ public class OCFChecker {
 					"Required META-INF/container.xml resource is missing");
 			return;
 		}
-		
+
 		OCFData containerHandler = ocf.getOcfData(report);
-		
+
 		// retrieve rootpath
 		rootPath = containerHandler.getRootPath();
 
-		// george@oxygenxml.com: Check if we have a rootPath, see issue 95.
-		// There is no need to report the missing root-path because that will be
-		// reported by the validation step on META-INF/container.xml.
+		if (rootPath != null) {
+			if (ocf.hasEntry(rootPath)) {
+				try {
 
-		if (rootPath != null)
-		{
-		    if (ocf.hasEntry(rootPath)) try {
-		        OPFData opfHandler = ocf.getOpfData( containerHandler, report );
-		        
-				// checking mimeType file for trailing spaces
-				if (ocf.hasEntry("mimetype")
-						&& !CheckUtil.checkTrailingSpaces(
-								ocf.getInputStream("mimetype"), opfHandler.getVersion()))
-					report.error("mimetype", 0, 0,
-							"Mimetype file should contain only the string \"application/epub+zip\".");
-				
-				// validate important files against the schema definitions
-				validate( opfHandler.getVersion() );
-				
-				// check the root file itself.
-    			OPFChecker opfChecker;
-    
-    			if (opfHandler.getVersion() == EPUBVersion.VERSION_2)
-    				opfChecker = new OPFChecker(ocf, report, rootPath,
-    						containerHandler.getContainerEntries(), opfHandler.getVersion());
-    			else
-    				opfChecker = new OPFChecker30(ocf, report, rootPath,
-    				        containerHandler.getContainerEntries(), opfHandler.getVersion());
-    			opfChecker.runChecks();
-			} catch (InvalidVersionException e) {
-				report.error(rootPath, -1, -1, e.getMessage());
-			} catch (IOException ignore) {
-				// missing file will be reported in OPFChecker
+					OPFData opfHandler = ocf.getOpfData(containerHandler,
+							report);
+
+					// checking mimeType file for trailing spaces
+					if (ocf.hasEntry("mimetype")
+							&& !CheckUtil.checkTrailingSpaces(
+									ocf.getInputStream("mimetype"),
+									opfHandler.getVersion()))
+						report.error("mimetype", 0, 0,
+								"Mimetype file should contain only the string \"application/epub+zip\".");
+
+					// validate ocf files against the schema definitions
+					validate(opfHandler.getVersion());
+
+					// check the root file itself.
+					OPFChecker opfChecker;
+
+					if (opfHandler.getVersion() == EPUBVersion.VERSION_2)
+						opfChecker = new OPFChecker(ocf, report, rootPath,
+								containerHandler.getContainerEntries(),
+								opfHandler.getVersion());
+					else
+						opfChecker = new OPFChecker30(ocf, report, rootPath,
+								containerHandler.getContainerEntries(),
+								opfHandler.getVersion());
+					opfChecker.runChecks();
+				} catch (InvalidVersionException e) {
+					report.error(rootPath, -1, -1, e.getMessage());
+				} catch (IOException ignore) {
+					// missing file will be reported in OPFChecker
+				}
+			} else { //ocf.hasEntry(rootPath)
+				report.error(OCFData.containerEntry, -1, -1,
+						"entry " + rootPath + " not found in zip file");
 			}
-
+		} else {
+			report.error(OCFData.containerEntry, -1, -1,
+					"No rootfiles with media type 'application/oebps-package+xml'");
 		}
 	}
 
-    private XMLParser parser = null;
+	private XMLParser parser = null;
 
 	public void parse(String path, XMLHandler handler, Report report,
 			XMLValidator validator, EPUBVersion version) throws IOException {
 
-		parser = new XMLParser(ocf.getInputStream(path), OCFData.containerEntry, "xml",
-				report, version);
+		parser = new XMLParser(ocf.getInputStream(path),
+				OCFData.containerEntry, "xml", report, version);
 		parser.addXMLHandler(handler);
 		parser.addValidator(validator);
 		parser.process();
 	}
 
-	
-	public boolean validate( EPUBVersion version ) {
+	public boolean validate(EPUBVersion version) {
+
 		try {
 			// validate container
 			XMLHandler handler = new OCFHandler(parser);
 			parse(OCFData.containerEntry, handler, report,
-					xmlValidatorMap.get(new OPSType(OCFData.containerEntry, version)), version);
+					xmlValidatorMap.get(new OPSType(OCFData.containerEntry,
+							version)), version);
 
 			// Validate encryption.xml
 			if (ocf.hasEntry(OCFData.encryptionEntry)) {
 				handler = new EncryptionHandler(ocf, parser);
 				parse(OCFData.encryptionEntry, handler, report,
-						xmlValidatorMap.get(new OPSType(OCFData.encryptionEntry,
-								version)), version);
+						xmlValidatorMap.get(new OPSType(
+								OCFData.encryptionEntry, version)), version);
 			}
 
 			// validate encryption.xml
 			if (ocf.hasEntry(OCFData.signatureEntry)) {
 				handler = new OCFHandler(parser);
 				parse(OCFData.signatureEntry, handler, report,
-						xmlValidatorMap
-								.get(new OPSType(OCFData.signatureEntry, version)), version);
+						xmlValidatorMap.get(new OPSType(OCFData.signatureEntry,
+								version)), version);
 			}
 		} catch (Exception ignore) {
 		}
