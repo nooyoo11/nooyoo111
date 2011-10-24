@@ -410,7 +410,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 				} else {
 					DateParser dateParser = new DateParser();
 					try {
-						Date date = dateParser.parse(dateval);
+						Date date = dateParser.parse(dateval.trim());
 						/*
 						 * mg: DateParser does not enforce four-digit years,
 						 * which http://www.w3.org/TR/NOTE-datetime seems to want
