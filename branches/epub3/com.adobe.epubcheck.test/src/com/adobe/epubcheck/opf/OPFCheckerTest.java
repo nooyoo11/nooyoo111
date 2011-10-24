@@ -146,6 +146,11 @@ public class OPFCheckerTest {
 	}
 	
 	@Test
+	public void testInvalidOPFNullIdentifier() {
+		testValidateDocument("invalid/null-identifier.opf", 1, 0, EPUBVersion.VERSION_2);
+	}
+	
+	@Test
 	public void testValidateDocumentValidOPFSvg() {
 		testValidateDocument("valid/lorem-svg.opf", 0, 0, EPUBVersion.VERSION_3);
 	}

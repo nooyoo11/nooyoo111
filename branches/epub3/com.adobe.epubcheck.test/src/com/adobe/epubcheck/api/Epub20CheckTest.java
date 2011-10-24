@@ -154,7 +154,7 @@ public class Epub20CheckTest {
 
 	@Test
 	public void testValidateEPUBPvalid20() {
-		testValidateDocument("Test20.epub", 0, 0);
+		testValidateDocument("Test20.epub", 0, 0, true);
 	}
 
 }
