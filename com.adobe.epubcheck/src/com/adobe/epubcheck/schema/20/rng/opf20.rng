@@ -170,7 +170,10 @@ Authors:
     </optional>
     <ref name="OPF20.optional-xsi-type"/>
     <ref name="OPF20.optional-scheme-attribute"/>
-    <ref name="DC.metadata-common-content"/>
+    <!-- <ref name="DC.metadata-common-content"/>
+    MG 20111024, see epubcheck Issue 114
+    -->
+    <ref name="DC.metadata-required-content"/>    
   </element>
 </define>
 
@@ -263,6 +266,12 @@ Authors:
 <define name="DC.metadata-common-content">
   <text/>
 </define>
+
+  <define name="DC.metadata-required-content">
+    <data type="token">
+      <param name="minLength">1</param>
+    </data>
+  </define>
 
 <define name="OPF20.x-metadata-element">
   <element name="x-metadata">
