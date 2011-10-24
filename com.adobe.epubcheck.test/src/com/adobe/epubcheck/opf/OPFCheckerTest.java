@@ -131,6 +131,11 @@ public class OPFCheckerTest {
 	}
 	
 	@Test
+	public void testValidOPFDcDate3() {
+		testValidateDocument("valid/date-3.opf", 0, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
 	public void testInvalidOPFDcDate1() {
 		testValidateDocument("invalid/date-1.opf", 0, 1, EPUBVersion.VERSION_3);
 	}
