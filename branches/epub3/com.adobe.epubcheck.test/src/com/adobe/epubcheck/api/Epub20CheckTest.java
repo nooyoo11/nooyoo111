@@ -178,9 +178,11 @@ public class Epub20CheckTest {
 		testValidateDocument("/invalid/no-linear-yes.epub", 0, 4);
 	}
 	
-//	@Test
-//	public void testValidateEPUB_abnormalSVGDTD() {
-//		testValidateDocument("/invalid/issue67.epub", 2, 0, true);
-//	}
+	@Test
+	public void testValidateEPUB_unusedImages() {
+		//4 unused images in subfolder
+		testValidateDocument("/invalid/issue89.epub", 2, 6);
+	}
+			
 
 }
