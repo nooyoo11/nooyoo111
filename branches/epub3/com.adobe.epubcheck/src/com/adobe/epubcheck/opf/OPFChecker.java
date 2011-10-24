@@ -293,9 +293,17 @@ public class OPFChecker implements DocumentValidator {
 		}
 
 		int spineItemCount = opfHandler.getSpineItemCount();
+		int nonLinearCount = 0;
 		for (int i = 0; i < spineItemCount; i++) {
 			OPFItem item = opfHandler.getSpineItem(i);
 			checkSpineItem(item, opfHandler);
+			if (!item.getSpineLinear()) {
+				nonLinearCount++;
+			}
+		}
+		if(nonLinearCount == spineItemCount && spineItemCount > 0) {
+			//test > 0 to not trigger this when opf is malformed etc
+			report.warning(path, -1, -1, "spine contains only non-linear resources");
 		}
 
 		return errorsSoFar == report.getErrorCount()
