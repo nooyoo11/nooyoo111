@@ -166,5 +166,10 @@ public class Epub20CheckTest {
 	public void testValidateEPUBPBadOpfNamespace() {
 		testValidateDocument("/invalid/bad_opf_namespace.epub", 7, 2);
 	}
+	
+	@Test
+	public void testValidateEPUB_mimetypeAndVersion() {
+		testValidateDocument("/invalid/mimetypeAndVersion.epub", 2, 0);
+	}
 
 }

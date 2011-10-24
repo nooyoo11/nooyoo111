@@ -296,5 +296,11 @@ public class OPSCheckerTest {
 		testValidateDocument("xhtml/invalid/trigger.xhtml",
 				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testValidateXHTML_UnresolvedDTD() {
+		testValidateDocument("ops/invalid/unresolved-entity.xhtml",
+				"application/xhtml+xml", 0, 1, EPUBVersion.VERSION_2);
+	}
 
 }

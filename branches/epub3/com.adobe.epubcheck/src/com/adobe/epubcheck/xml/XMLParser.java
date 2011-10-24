@@ -320,6 +320,8 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 					"could not parse " + resource + ": " + e.getMessage());
 		} catch (SAXException e) {
 			report.error(resource, 0, 0, e.getMessage());
+		} catch (NullPointerException e) {
+			//this happens for unresolved entities, reported in entityResolver code.			
 		}
 	}
 
@@ -360,12 +362,16 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		} else {
 			report.warning(resource, 0, 0, "Unresolved external XML entity '"
 					+ systemId + "'");
-			InputStream urlStream = new URL(systemId).openStream();
-			InputSource source = new InputSource(urlStream);
-			source.setPublicId(publicId);
-			source.setSystemId(systemId);
-			return source;
-
+			/*
+			* InputStream urlStream = new URL(systemId).openStream();
+			* InputSource source = new InputSource(urlStream);
+			* source.setPublicId(publicId);
+			* source.setSystemId(systemId);
+			* return source;
+			* 
+			* mg 20111023: use default behavior instead, return null
+			*/
+			return null;
 		}
 	}
 
