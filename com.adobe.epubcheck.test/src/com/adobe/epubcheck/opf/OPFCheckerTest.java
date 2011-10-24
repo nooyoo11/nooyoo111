@@ -380,4 +380,10 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/prefixes-redeclare.opf", 2, 0,
 				EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testBadOPFNamespace20() {		
+		testValidateDocument("invalid/bad-opf-namespace.opf", 6, 0,
+				EPUBVersion.VERSION_2);
+	}
 }
