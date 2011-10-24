@@ -121,6 +121,21 @@ public class OPFCheckerTest {
 	}
 
 	@Test
+	public void testValidOPFDcDate1() {
+		testValidateDocument("valid/date-1.opf", 0, 0, EPUBVersion.VERSION_3, true);
+	}
+	
+	@Test
+	public void testValidOPFDcDate2() {
+		testValidateDocument("valid/date-2.opf", 0, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
+	public void testInvalidOPFDcDate1() {
+		testValidateDocument("invalid/date-1.opf", 0, 1, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
 	public void testValidateDocumentValidOPFSvg() {
 		testValidateDocument("valid/lorem-svg.opf", 0, 0, EPUBVersion.VERSION_3);
 	}
