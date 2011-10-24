@@ -153,6 +153,7 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 		entities.add("lt");
 		entities.add("amp");
 		entities.add("quot");
+		entities.add("apos");
 
 		try {
 			hasXML11 = factory
