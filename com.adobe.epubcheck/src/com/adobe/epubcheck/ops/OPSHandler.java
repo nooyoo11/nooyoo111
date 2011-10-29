@@ -46,6 +46,8 @@ public class OPSHandler implements XMLHandler {
 
 	Report report;
 
+	long openElements;  
+	
 	private static HashSet<String> fillRegURISchemes() {
 		try {
 			HashSet<String> set = new HashSet<String>();
@@ -184,7 +186,7 @@ public class OPSHandler implements XMLHandler {
 	}
 
 	public void startElement() {
-
+		openElements++;
 		XMLElement e = parser.getCurrentElement();
 		String id = e.getAttribute("id");
 		String ns = e.getNamespace();
@@ -227,6 +229,7 @@ public class OPSHandler implements XMLHandler {
 	}
 
 	public void endElement() {
+		openElements--;
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {

@@ -166,4 +166,22 @@ public class Epub30CheckExpandedTest {
 		testValidateDocument("invalid/nav-invalid/", 1, 0);
 	}
 	
+	@Test
+	public void testValidateEPUB30_issue134_1() {
+		// svg in both contentdocs, opf props set right
+		testValidateDocument("valid/lorem-svg-dual/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_issue134_2() {
+		// svg in both contentdocs, no opf props set right
+		testValidateDocument("invalid/lorem-svg-dual/", 2, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_issue134_3() {
+		// svg in both contentdocs, only one opf prop set right
+		testValidateDocument("invalid/lorem-svg-dual-2/", 1, 0);
+	}
+	
 }
