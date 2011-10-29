@@ -270,14 +270,15 @@ public class OPSHandler30 extends OPSHandler {
 			hasValidFallback = true;
 	}
 
+		
 	@Override
 	public void endElement() {
 		super.endElement();
 		XMLElement e = parser.getCurrentElement();
-		String name = e.getName();
-		if (name.equals("html") || name.equals("svg"))
+		String name = e.getName();		
+		if (openElements == 0 && (name.equals("html") || name.equals("svg"))) {					
 			checkProperties();
-		else if (name.equals("object")) {
+		} else if (name.equals("object")) {
 			imbricatedObjects--;
 			if (imbricatedObjects == 0 && imbricatedCanvases == 0)
 				checkFallback("Object");
