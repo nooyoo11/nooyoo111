@@ -193,6 +193,12 @@ public class Checker {
 					return 0;
 				}									
 				System.err.println(Messages.THERE_WERE_ERRORS);
+				if((report.getErrorCount() > 0 || report.getExceptionCount() > 0) && keep) {
+					//keep if valid or only warnings
+					System.err.println(Messages.DELETING_ARCHIVE);
+					epub.deleteEpubFile();	
+				}
+				
 				return 1;
 			}
 	
