@@ -302,5 +302,17 @@ public class OPSCheckerTest {
 		testValidateDocument("ops/invalid/unresolved-entity.xhtml",
 				"application/xhtml+xml", 0, 1, EPUBVersion.VERSION_2);
 	}
+	
+	@Test
+	public void testValidateXHTML_httpequiv1() {
+		testValidateDocument("xhtml/invalid/http-equiv-1.xhtml",
+				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
+	public void testValidateXHTML_httpequiv2() {
+		testValidateDocument("xhtml/valid/http-equiv-1.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
 
 }
