@@ -41,7 +41,9 @@ public class Messages {
 	public static String NO_ERRORS__OR_WARNINGS = "No errors or warnings detected.";
 
 	public static String THERE_WERE_ERRORS = "\nCheck finished with warnings or errors!\n";
-
+	
+	public static String DELETING_ARCHIVE = "\nDeleting requested epub archive as it is not valid.\n";
+	
 	public static String DISPLAY_HELP = "-help displays help";
 
 	public static String ARGUMENT_NEEDED = "At least one argument expected!";
