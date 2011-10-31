@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 
 public class Archive {
 
@@ -39,17 +43,7 @@ public class Archive {
 	}
 
 	public Archive(String base) {
-
-		baseDir = new File(base);
-		if (!baseDir.exists() || !baseDir.isDirectory())
-			throw new RuntimeException(
-					"The path specified for the archive is invalid!");
-		epubName = baseDir.getName() + ".epub";
-		epubFile = new File(epubName);
-		epubFile.deleteOnExit();
-
-		paths = new ArrayList<String>();
-		names = new ArrayList<String>();
+		this(base, false);
 	}
 
 	public String getEpubName() {
@@ -65,63 +59,136 @@ public class Archive {
 	}
 
 	public void createArchive() {
-		collectFiles(baseDir, "");
-		byte[] buf = new byte[1024];
+		// using commons compress to allow setting filename encoding pre java7
 		try {
 
-			ZipOutputStream out = new ZipOutputStream((new FileOutputStream(
-					epubName)));
-
-			int index = names.indexOf("mimetype");
-			if (index >= 0) {
-				FileInputStream in = new FileInputStream(paths.get(index));
-
-				ZipEntry entry = new ZipEntry(names.get(index));
-				entry.setMethod(ZipEntry.STORED);
-				int len, size = 0;
-				while ((len = in.read(buf)) > 0)
-					size += len;
-
-				in = new FileInputStream(paths.get(index));
-
-				entry.setCompressedSize(size);
-				entry.setSize(size);
-
-				CRC32 crc = new CRC32();
-				entry.setCrc(crc.getValue());
-				out.putNextEntry(entry);
-
-				while ((len = in.read(buf)) > 0) {
-					crc.update(buf, 0, len);
-					out.write(buf, 0, len);
-				}
-
-				entry.setCrc(crc.getValue());
-
-				paths.remove(index);
-				names.remove(index);
+			collectFiles(baseDir, "");
+						
+			//make mimetype the first entry
+			int mimetype = names.indexOf("mimetype");
+			if(mimetype > -1 ) {
+				String name = names.remove(mimetype);
+				String path = paths.remove(mimetype);
+				names.add(0, name);
+				paths.add(0, path);				
+			} else {
+				System.err.println("No mimetype file found in expanded publication, output archive will be invalid");
 			}
+			
+						
+			ZipArchiveOutputStream out = new ZipArchiveOutputStream(epubFile);
+			out.setEncoding("UTF-8");
 
 			for (int i = 0; i < paths.size(); i++) {
+				ZipArchiveEntry entry = new ZipArchiveEntry(new File(paths.get(i)), names.get(i));
+				if(i == 0) {
+					entry.setMethod(ZipArchiveEntry.STORED);
+					entry.setSize(getSize(paths.get(i)));
+					entry.setCrc(getCRC(paths.get(i)));
+				} else {
+					entry.setMethod(ZipArchiveEntry.DEFLATED);
+				}
+				out.putArchiveEntry(entry);
 				FileInputStream in = new FileInputStream(paths.get(i));
-
-				out.putNextEntry(new ZipEntry(names.get(i)));
-
-				int len;
+				byte[] buf = new byte[1024];
+				int len = 0;
 				while ((len = in.read(buf)) > 0) {
 					out.write(buf, 0, len);
 				}
-
-				out.closeEntry();
-				in.close();
+				out.closeArchiveEntry();				
 			}
-
+			out.flush();
+			out.finish();
 			out.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
 		}
+
 	}
 
+	private long getSize(String path) throws IOException {
+		FileInputStream in = new FileInputStream(path);
+		byte[] buf = new byte[1024];
+		int len = 0;
+		int size = 0;
+		while ((len = in.read(buf)) > 0) {
+			size += len;
+		}
+		in.close();
+		return size;
+	}
+
+	private long getCRC(String path) throws IOException {
+		CheckedInputStream cis = new CheckedInputStream(new FileInputStream(
+				path), new CRC32());
+		byte[] buf = new byte[128];
+		while (cis.read(buf) >= 0) {
+		}
+		cis.close();
+		return cis.getChecksum().getValue();
+	}
+
+//	public void createArchiveOld() {
+//		collectFiles(baseDir, "");
+//		byte[] buf = new byte[1024];
+//		try {
+//
+//			ZipOutputStream out = new ZipOutputStream((new FileOutputStream(
+//					epubName)));
+//
+//			int index = names.indexOf("mimetype");
+//			if (index >= 0) {
+//				FileInputStream in = new FileInputStream(paths.get(index));
+//
+//				ZipEntry entry = new ZipEntry(names.get(index));
+//				entry.setMethod(ZipEntry.STORED);
+//				int len, size = 0;
+//				while ((len = in.read(buf)) > 0)
+//					size += len;
+//
+//				in = new FileInputStream(paths.get(index));
+//
+//				entry.setCompressedSize(size);
+//				entry.setSize(size);
+//
+//				CRC32 crc = new CRC32();
+//				entry.setCrc(crc.getValue());
+//				out.putNextEntry(entry);
+//
+//				while ((len = in.read(buf)) > 0) {
+//					crc.update(buf, 0, len);
+//					out.write(buf, 0, len);
+//				}
+//
+//				entry.setCrc(crc.getValue());
+//
+//				paths.remove(index);
+//				names.remove(index);
+//			}
+//
+//			for (int i = 0; i < paths.size(); i++) {
+//				FileInputStream in = new FileInputStream(paths.get(i));
+//
+//				out.putNextEntry(new ZipEntry(names.get(i)));
+//
+//				int len;
+//				while ((len = in.read(buf)) > 0) {
+//					out.write(buf, 0, len);
+//				}
+//
+//				out.closeEntry();
+//				in.close();
+//			}
+//
+//			out.close();
+//		} catch (IOException e) {
+//		}
+//	}
+
 	private void collectFiles(File dir, String dirName) {
+		if (!dirName.equals("") && !dirName.endsWith("/")) {
+			dirName = dirName + "/";
+		}
 
 		File files[] = dir.listFiles();
 

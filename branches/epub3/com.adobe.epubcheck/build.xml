@@ -7,7 +7,7 @@
 
         <!-- <property name="version" value="${ISO-TODAY}"/> -->
         <!-- Also change src/com/adobe/epubcheck/api/EpubCheck.java to match this version number -->
-        <property name="version" value="3.0b2"/>
+        <property name="version" value="3.0b3"/>
 
         <!--project directories -->
 
@@ -25,6 +25,7 @@
                 <include name="saxon9he.jar"/>
                 <include name="sac.jar"/>
                 <include name="flute.jar"/>
+        		<include name="commons-compress-1.2.jar"/>
         </fileset>
 
         <path id="classpath">
@@ -90,7 +91,7 @@
                                 <attribute name="Main-Class"
                                         value="com.adobe.epubcheck.tool.Checker"/>
                                 <attribute name="Class-Path"
-                                        value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar"
+                                        value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar lib/commons-compress-1.2.jar"
                                 />
                         </manifest>
                 </jar>

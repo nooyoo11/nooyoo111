@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="tools/JUnit/junit4.jar"/>
 	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/saxon9he.jar"/>
 	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/jing.jar"/>
+	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/commons-compress-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

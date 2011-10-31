@@ -1,7 +1,9 @@
 package com.adobe.epubcheck.cli;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -24,7 +26,15 @@ public class CLITest {
 	public void testValidEPUB() {		
 		assertEquals(0, run(new String[]{epubPath + "valid/lorem.epub"}));		
 	}
-		
+	
+	@Test
+	public void testValidEPUBArchive() {		
+		assertEquals(0, run(new String[]{expPath + "valid/lorem-basic-ncx/", "-mode", "exp", "-save"}));	
+		File out = new File("lorem-basic-ncx.epub");
+		assertTrue(out.exists());
+		if(out.exists()) out.delete();
+	}
+	
 	@Test
 	public void testInvalidEPUB() {		
 		assertEquals(1, run(new String[]{epubPath + "invalid/lorem-xht-sch-1.epub"}));		
