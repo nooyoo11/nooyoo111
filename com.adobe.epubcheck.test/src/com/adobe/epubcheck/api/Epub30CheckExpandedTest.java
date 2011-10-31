@@ -24,6 +24,8 @@ package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
 import com.adobe.epubcheck.opf.DocumentValidator;
@@ -45,7 +47,7 @@ public class Epub30CheckExpandedTest {
 	 */
 
 	public void testValidateDocument(String fileName, int errors, int warnings,
-			boolean verbose) {
+			boolean verbose)  {
 		if (verbose)
 			this.verbose = verbose;
 		testValidateDocument(fileName, errors, warnings);
@@ -72,7 +74,7 @@ public class Epub30CheckExpandedTest {
 
 	@Test
 	public void testValidateEPUBPLoremBasic() {
-		testValidateDocument("valid/lorem-basic", 0, 0);
+		testValidateDocument("valid/lorem-basic", 0, 0, true);
 	}
 
 	@Test

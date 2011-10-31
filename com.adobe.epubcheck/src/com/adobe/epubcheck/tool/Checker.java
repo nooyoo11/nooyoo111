@@ -274,7 +274,7 @@ public class Checker {
 					throw new RuntimeException(String.format(
 							Messages.AFTER_ARGUMENT_EXPECTED, "-mode", "type"));
 				}
-			else if (args[i].equals("-save")) {
+			else if (args[i].equals("-save")) {				
 				keep = true;
 				continue;
 			} else if (args[i].equals("-help") || args[i].equals("-?"))
