@@ -77,6 +77,15 @@ public class OPSHandler30 extends OPSHandler {
 				parser.getColumnNumber(), report, false);
 
 	}
+	
+	private void checkSSMLPh(String ph) {
+		//issue 139; enhancement is to add real syntax check for IPA and x-SAMPA 
+		if(ph == null) 
+			return;
+		if (ph.trim().length() < 1)
+			report.warning(path, parser.getLineNumber(),
+				parser.getColumnNumber(), "Empty or whitespace-only value of attribute ssml:ph");
+	}
 
 	@Override
 	public void characters(char[] chars, int arg1, int arg2) {
@@ -126,7 +135,11 @@ public class OPSHandler30 extends OPSHandler {
 		processSrc(e.getName(), e.getAttribute("src"));
 
 		checkType(e.getAttributeNS("http://www.idpf.org/2007/ops", "type"));
+		
+		checkSSMLPh(e.getAttributeNS("http://www.w3.org/2001/10/synthesis", "ph"));
 	}
+
+	
 
 	private void processLink(XMLElement e) {
 		String classAttribute = e.getAttribute("class");

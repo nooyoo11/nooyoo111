@@ -74,7 +74,7 @@ public class Epub30CheckExpandedTest {
 
 	@Test
 	public void testValidateEPUBPLoremBasic() {
-		testValidateDocument("valid/lorem-basic", 0, 0, true);
+		testValidateDocument("valid/lorem-basic", 0, 0);
 	}
 
 	@Test
