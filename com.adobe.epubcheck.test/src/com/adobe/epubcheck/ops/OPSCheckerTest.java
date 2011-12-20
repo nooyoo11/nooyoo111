@@ -314,5 +314,11 @@ public class OPSCheckerTest {
 		testValidateDocument("xhtml/valid/http-equiv-1.xhtml",
 				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testValidateXHTML_SSMLemptyPh() {
+		testValidateDocument("xhtml/invalid/ssml-empty-ph.xhtml",
+				"application/xhtml+xml", 0, 2, EPUBVersion.VERSION_3);
+	}
 
 }
