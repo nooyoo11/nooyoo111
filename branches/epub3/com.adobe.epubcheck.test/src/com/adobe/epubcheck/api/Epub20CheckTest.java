@@ -194,5 +194,10 @@ public class Epub20CheckTest {
 	public void testValidateEPUB_ncxDupeID() {
 		testValidateDocument("/invalid/ncx-dupe-id.epub", 2, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB_unresolvedInternalLink() {
+		testValidateDocument("/invalid/unresolved-internal-xhtml-link.epub", 1, 0);
+	}
 
 }
