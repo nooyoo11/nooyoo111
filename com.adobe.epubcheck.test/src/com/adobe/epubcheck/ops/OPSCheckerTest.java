@@ -304,6 +304,12 @@ public class OPSCheckerTest {
 	}
 	
 	@Test
+	public void testValidateXHTML_DupeID() {
+		testValidateDocument("ops/invalid/dupe-id.xhtml",
+				"application/xhtml+xml", 2, 0, EPUBVersion.VERSION_2);
+	}
+	
+	@Test
 	public void testValidateXHTML_httpequiv1() {
 		testValidateDocument("xhtml/invalid/http-equiv-1.xhtml",
 				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);

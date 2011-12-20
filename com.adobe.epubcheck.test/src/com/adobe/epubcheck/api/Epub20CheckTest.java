@@ -188,6 +188,11 @@ public class Epub20CheckTest {
 	public void testValidateEPUB_issue138() {
 		//warning for empty dc:title
 		testValidateDocument("/invalid/issue138.epub", 0, 1);
-	}		
+	}
+	
+	@Test
+	public void testValidateEPUB_ncxDupeID() {
+		testValidateDocument("/invalid/ncx-dupe-id.epub", 2, 0);
+	}
 
 }

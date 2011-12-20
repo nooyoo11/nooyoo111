@@ -81,19 +81,22 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 			"schema/30/epub-xhtml-30-PREP.sch");
 	static XMLValidator svgValidator_30_ISOSCH = new XMLValidator(
 			"schema/30/epub-svg-30-PREP.sch");
-
+	static XMLValidator idUniqueValidator_20_ISOSCH = new XMLValidator(
+			"schema/20/sch/id-unique.sch");
+	
+	
 	private HashMap<OPSType, EpubValidator> epubValidatorMap;
 
 	private void initEpubValidatorMap() {
 		HashMap<OPSType, EpubValidator> map = new HashMap<OPSType, EpubValidator>();
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_2),
-				new EpubValidator(xhtmlValidator_20_NVDL, null));
+				new EpubValidator(xhtmlValidator_20_NVDL, idUniqueValidator_20_ISOSCH));
 		map.put(new OPSType("application/xhtml+xml", EPUBVersion.VERSION_3),
 				new EpubValidator(xhtmlValidator_30_RNC,
 						xhtmlValidator_30_ISOSCH));
 
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_2),
-				new EpubValidator(svgValidator_20_RNG, null));
+				new EpubValidator(svgValidator_20_RNG, idUniqueValidator_20_ISOSCH));
 		map.put(new OPSType("image/svg+xml", EPUBVersion.VERSION_3),
 				new EpubValidator(svgValidator_30_RNC, svgValidator_30_ISOSCH));
 

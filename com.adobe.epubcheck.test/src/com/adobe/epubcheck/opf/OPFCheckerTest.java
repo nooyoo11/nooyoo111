@@ -386,4 +386,10 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/bad-opf-namespace.opf", 6, 0,
 				EPUBVersion.VERSION_2);
 	}
+	
+	@Test
+	public void testBadOPFDupeID() {		
+		testValidateDocument("invalid/dupe-id.opf", 2, 0,
+				EPUBVersion.VERSION_2);
+	}
 }
