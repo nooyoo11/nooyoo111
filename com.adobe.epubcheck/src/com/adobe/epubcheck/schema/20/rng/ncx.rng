@@ -25,7 +25,9 @@
 			<element name="docTitle">
 				<optional>
 					<attribute name="id">
-						<text/>
+						<!-- checks lexical constraints only -->
+						<!-- uniqueness check is done in saxhandler, as the NCX schematron impl uses 1.5, which does not have value-of in reports -->
+						<data type="ID"/>
 					</attribute>
 				</optional>
 				<ref name="text"/>

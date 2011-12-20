@@ -6,9 +6,8 @@
   <sch:pattern name="opf_idAttrUnique" id="opf_idAttrUnique">
       <!-- id attribute value must be unique for any id attribute in opf file-->
       <sch:rule context="//*[@id]">
-         <sch:assert test="count(//@id[. = current()/@id]) = 1"> 
-         The "id" attribute does not have a unique value! 
-         </sch:assert> 
+         <sch:assert test="count(//@id[. = current()/@id]) = 1"
+           >The "id" attribute does not have a unique value</sch:assert> 
       </sch:rule>
   </sch:pattern>
     
