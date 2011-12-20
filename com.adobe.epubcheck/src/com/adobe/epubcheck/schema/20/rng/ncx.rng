@@ -146,9 +146,11 @@
 					<text/>
 				</attribute>
 			</optional>
-			<attribute name="playOrder">
-				<text/>
-			</attribute>
+			<optional>
+				<attribute name="playOrder">
+					<text/>
+				</attribute>
+			</optional>	
 			<oneOrMore>
 				<ref name="navLabel"/>
 			</oneOrMore>
@@ -225,9 +227,11 @@
 					<text/>
 				</attribute>
 			</optional>
-			<attribute name="playOrder">
-				<text/>
-			</attribute>
+			<optional>
+				<attribute name="playOrder">
+					<text/>
+				</attribute>
+			</optional>
 			<oneOrMore>
 				<ref name="navLabel"/>
 			</oneOrMore>
@@ -250,9 +254,11 @@
 					<text/>
 				</attribute>
 			</optional>
-			<attribute name="playOrder">
-				<text/>
-			</attribute>
+			<optional>
+				<attribute name="playOrder">
+					<text/>
+				</attribute>
+			</optional>	
 			<oneOrMore>
 				<ref name="navLabel"/>
 			</oneOrMore>
