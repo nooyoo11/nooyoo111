@@ -143,7 +143,11 @@
       <param name="pattern">\s*(none|xMinYMin|xMidYMin|xMaxYMin|xMinYMid|xMidYMid|xMaxYMid|xMinYMax|xMidYMax|xMaxYMax)\s+(meet|slice)?\s*</param>
         patch below as per http://code.google.com/p/epubcheck/issues/detail?id=126
       -->
+      <!--
       <param name="pattern">\s*(none|xMinYMin|xMidYMin|xMaxYMin|xMinYMid|xMidYMid|xMaxYMid|xMinYMax|xMidYMax|xMaxYMax)(\s+(meet|slice))?\s*</param>
+      patch below as per http://code.google.com/p/epubcheck/issues/detail?id=141
+      -->
+      <param name="pattern">\s*(none|xMinYMin|xMidYMin|xMaxYMin|xMinYMid|xMidYMid|xMaxYMid|xMinYMax|xMidYMax|xMaxYMax)(\s+meet|\s+slice)?\s*</param>
     </data>
   </define>
 
