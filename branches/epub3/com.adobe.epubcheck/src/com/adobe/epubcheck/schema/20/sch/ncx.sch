@@ -9,7 +9,7 @@
   	to get line/column locators in reported errors, as implemented
   	by James Clark. It may be upgraded to ISO Schematron in the future.
   	
-	Latest edit: mgylling 20080116
+	Latest edit: mgylling 20111220
 	  
   -->
   
@@ -78,4 +78,11 @@
       </sch:rule>
     </sch:pattern>
     
+    <sch:pattern name="ncx_idAttrUnique" id="ncx_idAttrUnique">      
+      <sch:rule context="//*[@id]">
+         <sch:assert test="count(//@id[. = current()/@id]) = 1"
+           >The "id" attribute does not have a unique value</sch:assert> 
+      </sch:rule>
+  </sch:pattern>
+  
 </sch:schema>
