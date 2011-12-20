@@ -366,6 +366,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 										+ "' is not valid");
 				}
 			}
+						
 		}
 	}
 
@@ -450,8 +451,18 @@ public class OPFHandler implements OPFData, XMLHandler {
 										+ "' is not valid as per http://www.w3.org/TR/NOTE-datetime:" + detail);						
 					}	
 				}
+			}else if (name.equals("title") || name.equals("language")) {				
+				//issue 138: issue a warning if dc:title and dc:language is empty for 2.0 and 2.0.1
+				//note that an empty dc:identifier is checked in opf20.rng and will
+				//therefore be reported as an error, that may or may not be a good idea.
 				
-							
+				if (version == EPUBVersion.VERSION_2) {
+					String value = (String)e.getPrivateData();					
+					if(value == null || value.trim().length() < 1) {
+						report.warning(path, parser.getLineNumber(),
+								parser.getColumnNumber(), name + " element is empty");
+					}
+				}
 			}
 		}
 	}
@@ -465,7 +476,8 @@ public class OPFHandler implements OPFData, XMLHandler {
 
 		if (e.getNamespace().equals("http://purl.org/dc/elements/1.1/")) {
 			String name = e.getName();
-			if (name.equals("identifier") || name.equals("date")) {
+			if (name.equals("identifier") || name.equals("date") 
+					|| name.equals("title") || name.equals("language")) {
 				String val = (String) e.getPrivateData();
 				String text = new String(chars, start, len);
 				if (val == null)
