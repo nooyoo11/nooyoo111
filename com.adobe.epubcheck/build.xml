@@ -23,8 +23,8 @@
         <fileset dir="${lib.dir}" id="libs">
                 <include name="jing.jar"/>
                 <include name="saxon9he.jar"/>
-                <include name="sac.jar"/>
-                <include name="flute.jar"/>
+                <include name="sac-1.3.jar"/>
+                <include name="cssparser-0.9.6.jar"/>
         		<include name="commons-compress-1.2.jar"/>
         </fileset>
 
@@ -91,7 +91,7 @@
                                 <attribute name="Main-Class"
                                         value="com.adobe.epubcheck.tool.Checker"/>
                                 <attribute name="Class-Path"
-                                        value="lib/jing.jar lib/saxon9he.jar lib/sac.jar lib/flute.jar lib/commons-compress-1.2.jar"
+                                        value="lib/jing.jar lib/saxon9he.jar lib/sac-1.3.jar lib/cssparser-0.9.6.jar lib/commons-compress-1.2.jar"
                                 />
                         </manifest>
                 </jar>

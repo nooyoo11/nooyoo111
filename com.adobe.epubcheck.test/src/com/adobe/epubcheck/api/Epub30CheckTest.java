@@ -156,12 +156,18 @@ public class Epub30CheckTest {
 	
 	@Test
 	public void testValidateEPUB30_navInvalid() {
-		// invalid nav issuse reported by MattG
+		// invalid nav issue reported by MattG
 		testValidateDocument("invalid/nav-invalid.epub", 1, 0);
 	}
 	
 	@Test
 	public void testValidateEPUB30ValidExtension1() { 
 		testValidateDocument("valid/extension-1.ePub", 0, 1);
+	}
+	
+	@Test
+	public void testValidateEPUB30CSSProfile() { 
+		//issue145; CSS3 pseudoselectors causing css2 lexers to bail out
+		testValidateDocument("valid/issue145.epub", 0, 0);
 	}
 }

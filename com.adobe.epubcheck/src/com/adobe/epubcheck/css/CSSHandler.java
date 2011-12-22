@@ -48,36 +48,6 @@ class CSSHandler implements DocumentHandler {
 
 	EPUBVersion version;
 
-	public void comment(String text) throws CSSException {
-	}
-
-	public void endDocument(InputSource source) throws CSSException {
-	}
-
-	public void endFontFace() throws CSSException {
-		fontFace = false;
-	}
-
-	public void endMedia(SACMediaList media) throws CSSException {
-	}
-
-	public void endPage(String name, String pseudo_page) throws CSSException {
-	}
-
-	public void endSelector(SelectorList selectors) throws CSSException {
-	}
-
-	public void ignorableAtRule(String atRule) throws CSSException {
-	}
-
-	public void importStyle(String uri, SACMediaList media,
-			String defaultNamespaceURI) throws CSSException {
-	}
-
-	public void namespaceDeclaration(String prefix, String uri)
-			throws CSSException {
-	}
-
 	public CSSHandler(String path, XRefChecker xrefChecker, Report report,
 			EPUBVersion version) {
 		this.path = path;
@@ -85,7 +55,7 @@ class CSSHandler implements DocumentHandler {
 		this.report = report;
 		this.version = version;
 	}
-
+	
 	public void property(String name, LexicalUnit value, boolean arg2)
 			throws CSSException {
 		if (name == null)
@@ -127,6 +97,38 @@ class CSSHandler implements DocumentHandler {
 					-1,
 					"The direction and unicode-bidi properties must not be included in an EPUB Style Sheet.");
 	}
+	
+	public void comment(String text) throws CSSException {
+	}
+
+	public void endDocument(InputSource source) throws CSSException {
+	}
+
+	public void endFontFace() throws CSSException {
+		fontFace = false;
+	}
+
+	public void endMedia(SACMediaList media) throws CSSException {
+	}
+
+	public void endPage(String name, String pseudo_page) throws CSSException {
+	}
+
+	public void endSelector(SelectorList selectors) throws CSSException {
+	}
+
+	public void ignorableAtRule(String atRule) throws CSSException {
+	}
+
+	public void importStyle(String uri, SACMediaList media,
+			String defaultNamespaceURI) throws CSSException {
+	}
+
+	public void namespaceDeclaration(String prefix, String uri)
+			throws CSSException {
+	}
+
+	
 
 	public void startDocument(InputSource source) throws CSSException {
 	}

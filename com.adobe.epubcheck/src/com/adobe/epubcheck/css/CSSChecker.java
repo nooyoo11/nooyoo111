@@ -22,6 +22,10 @@
 
 package com.adobe.epubcheck.css;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
 import org.w3c.css.sac.helpers.ParserFactory;
@@ -51,15 +55,18 @@ public class CSSChecker implements ContentChecker {
 	}
 
 	public void runChecks() {
+		
+		PrintStream stderr = System.err;
 		try {
 			if (!ocf.hasEntry(path)) {
 				report.error(null, 0, 0,
 						String.format(Messages.MISSING_FILE, path));
 				return;
 			}
-
+			
+			// "org.w3c.flute.parser.Parser");
 			System.setProperty("org.w3c.css.sac.parser",
-					"org.w3c.flute.parser.Parser");
+					"com.steadystate.css.parser.SACParserCSS21");
 
 			ParserFactory pf = new ParserFactory();
 			Parser parser = pf.makeParser();
@@ -68,14 +75,28 @@ public class CSSChecker implements ContentChecker {
 					version));
 
 			InputSource input = new InputSource();
-
 			input.setByteStream(ocf.getInputStream(path));
+			input.setURI(path);
+
+			// until we have a CSS3 compliant CSS parser, silence the err stream
+			// while parsing CSS
+			System.setErr(new PrintStream(new NullOutputStream()));
 
 			parser.parseStyleSheet(input);
 
 		} catch (Exception e) {
 			report.error(path, -1, 0, e.getMessage());
+		} finally {
+			System.setErr(stderr);
 		}
 
 	}
+
+	class NullOutputStream extends OutputStream {
+		@Override
+		public void write(int arg0) throws IOException {
+
+		}
+	}
+
 }
