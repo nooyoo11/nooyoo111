@@ -7,7 +7,7 @@
 
         <!-- <property name="version" value="${ISO-TODAY}"/> -->
         <!-- Also change src/com/adobe/epubcheck/api/EpubCheck.java to match this version number -->
-        <property name="version" value="3.0b3"/>
+        <property name="version" value="3.0b4"/>
 
         <!--project directories -->
 
