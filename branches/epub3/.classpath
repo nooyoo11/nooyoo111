@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="com.adobe.epubcheck.test/src"/>
 	<classpathentry kind="src" path="com.adobe.epubcheck/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
-	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/flute.jar"/>
-	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/sac.jar"/>
+	<classpathentry kind="lib" path="/Users/mgylling/Documents/workspace/epubcheck3_branch/com.adobe.epubcheck/lib/cssparser-0.9.6.jar"/>
+	<classpathentry kind="lib" path="/Users/mgylling/Documents/workspace/epubcheck3_branch/com.adobe.epubcheck/lib/sac-1.3.jar"/>
 	<classpathentry kind="lib" path="tools/JUnit/junit4.jar"/>
 	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/saxon9he.jar"/>
 	<classpathentry kind="lib" path="com.adobe.epubcheck/lib/jing.jar"/>

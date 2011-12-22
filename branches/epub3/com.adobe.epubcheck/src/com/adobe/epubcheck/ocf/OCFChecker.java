@@ -112,6 +112,8 @@ public class OCFChecker {
 					OPFData opfHandler = ocf.getOpfData(containerHandler,
 							report);
 
+					System.out.println("Validating against EPUB version " + opfHandler.getVersion());
+					
 					// checking mimeType file for trailing spaces
 					if (ocf.hasEntry("mimetype")
 							&& !CheckUtil.checkTrailingSpaces(
