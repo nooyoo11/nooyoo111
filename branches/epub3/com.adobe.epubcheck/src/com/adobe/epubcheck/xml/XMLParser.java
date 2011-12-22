@@ -25,7 +25,6 @@ package com.adobe.epubcheck.xml;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -55,7 +54,6 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.ResourceUtil;
-import com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException;
 import com.thaiopensource.util.PropertyMapBuilder;
 import com.thaiopensource.validate.ValidateProperty;
 import com.thaiopensource.validate.Validator;
@@ -310,10 +308,10 @@ public class XMLParser extends DefaultHandler implements LexicalHandler,
 			ins.setSystemId(zipRoot + resource);
 			parser.parse(ins, this);
 			in.close();
-		} catch (MalformedByteSequenceException e) {
-			report.error(resource, 0, 0,
-					"Malformed byte sequence: " + e.getMessage()
-							+ " Check encoding");
+//		} catch (MalformedByteSequenceException e) {
+//			report.error(resource, 0, 0,
+//					"Malformed byte sequence: " + e.getMessage()
+//							+ " Check encoding");
 		} catch (IOException e) {
 			report.error(null, 0, 0, "I/O error reading " + resource);
 		} catch (IllegalArgumentException e) {
