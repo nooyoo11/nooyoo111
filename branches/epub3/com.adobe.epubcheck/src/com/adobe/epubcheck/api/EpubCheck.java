@@ -49,7 +49,7 @@ public class EpubCheck implements DocumentValidator {
 	 * you'll need to change it in two additional places
 	 */
 	// TODO change it in the other places
-	public static final String VERSION = "3.0b3";
+	public static final String VERSION = "3.0b4";
 
 	File epubFile;
 
