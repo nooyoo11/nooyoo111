@@ -26,9 +26,9 @@
   
   <sch:pattern name="ncx_playOrderOrigin" id="ncx_playOrderOrigin">
       <!-- The sequence of play orders includes one with the value 1 -->
-      <sch:rule context="ncx:ncx">
+      <sch:rule context="ncx:ncx//*[@playOrder]">
         <sch:assert test="count(//*[@playOrder='1'])>0">
-          first playOrder value is not 1
+          the first playOrder value is not 1
         </sch:assert>
       </sch:rule>
   </sch:pattern>
