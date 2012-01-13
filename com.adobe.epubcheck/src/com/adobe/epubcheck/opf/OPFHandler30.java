@@ -166,7 +166,8 @@ public class OPFHandler30 extends OPFHandler {
 
 	private void processLink(XMLElement e) {
 		processLinkRel(e.getAttribute("rel"));
-
+		// needs refactor: its problematic to register
+		// link resources as items
 		String id = e.getAttribute("id");
 		String href = e.getAttribute("href");
 		if (href != null && !href.startsWith("http://")) {
@@ -186,7 +187,9 @@ public class OPFHandler30 extends OPFHandler {
 		if (id != null)
 			itemMapById.put(id, item);
 
-		if (href != null) {
+		//if (href != null) {
+		//mgy: awaiting proper refactor, only add these if local 
+		if (href != null && !href.startsWith("http://")) {
 			itemMapByPath.put(href, item);
 			items.add(item);
 		}
