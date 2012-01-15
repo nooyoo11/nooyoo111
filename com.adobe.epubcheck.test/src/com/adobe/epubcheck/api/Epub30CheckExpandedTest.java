@@ -184,4 +184,18 @@ public class Epub30CheckExpandedTest {
 		testValidateDocument("invalid/lorem-svg-dual-2/", 1, 0);
 	}
 	
+	@Test
+	public void testValidateEPUB30_CSSImport_valid() {		
+		testValidateDocument("valid/lorem-css-import/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_CSSImport_invalid_1() {		
+		testValidateDocument("invalid/lorem-css-import-1/", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_CSSImport_invalid_2() {		
+		testValidateDocument("invalid/lorem-css-import-2/", 1, 1);
+	}
 }
