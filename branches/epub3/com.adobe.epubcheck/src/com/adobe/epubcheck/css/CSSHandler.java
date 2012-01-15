@@ -122,6 +122,12 @@ class CSSHandler implements DocumentHandler {
 
 	public void importStyle(String uri, SACMediaList media,
 			String defaultNamespaceURI) throws CSSException {
+		
+		String ruri = PathUtil.resolveRelativeReference(path, uri);
+		
+		xrefChecker.registerReference(path, -1, -1, ruri,
+				XRefChecker.RT_GENERIC);
+		
 	}
 
 	public void namespaceDeclaration(String prefix, String uri)
