@@ -106,6 +106,11 @@ public class Epub30CheckExpandedTest {
 	}
 
 	@Test
+	public void testValidateEPUBPLoremMimetype2() {
+		testValidateDocument("invalid/lorem-mimetype-2", 2, 0);
+	}
+	
+	@Test
 	public void testValidateEPUBPLoremBasicSwitch() {
 		testValidateDocument("valid/lorem-basic-switch", 0, 0);
 	}

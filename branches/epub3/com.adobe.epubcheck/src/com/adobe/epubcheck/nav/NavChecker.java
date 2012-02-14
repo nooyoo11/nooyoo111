@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.nav;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
@@ -104,9 +105,10 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 	public boolean validate() {
 		int errors = report.getErrorCount();
 		int warnings = report.getWarningCount();
+		InputStream in = null;
 		try {
-			XMLParser navParser = new XMLParser(
-					resourceProvider.getInputStream(path), path,
+			in = resourceProvider.getInputStream(path);
+			XMLParser navParser = new XMLParser(in, path,
 					"application/xhtml+xml", report, version);
 
 			XMLHandler navHandler = new OPSHandler30(path, mimeType,
@@ -118,6 +120,12 @@ public class NavChecker implements ContentChecker, DocumentValidator {
 			navParser.process();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try{
+				in.close();
+			}catch (Exception e) {
+
+			}
 		}
 
 		return errors == report.getErrorCount()

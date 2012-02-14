@@ -70,8 +70,9 @@ public class BitmapChecker implements ContentChecker {
 			report.error(null, 0, 0, "image file " + path
 					+ " cannot be decrypted");
 		else {
+			InputStream in = null;
 			try {
-				InputStream in = ocf.getInputStream(path);
+				in = ocf.getInputStream(path);
 				byte[] header = new byte[4];
 				if (in.read(header) != header.length) {
 					report.error(null, 0, 0, "image file " + path
@@ -79,9 +80,14 @@ public class BitmapChecker implements ContentChecker {
 				} else {
 					checkHeader(header);
 				}
-				in.close();
 			} catch (IOException e) {
 				report.error(null, 0, 0, "I/O error reading " + path);
+			} finally {
+				try {
+					in.close();
+				} catch (Exception e) {
+
+				}
 			}
 		}
 	}

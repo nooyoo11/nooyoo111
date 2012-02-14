@@ -77,8 +77,10 @@ public abstract class OCFPackage implements GenericResourceProvider {
     public OCFData getOcfData( Report reporter )
     {
         XMLParser containerParser = null;
+        InputStream in = null;
         try {
-            containerParser = new XMLParser(getInputStream(OCFData.containerEntry),
+        	in = getInputStream(OCFData.containerEntry);
+            containerParser = new XMLParser(in,
                     OCFData.containerEntry, "xml", reporter, null);
             OCFHandler containerHandler = new OCFHandler(containerParser);
             containerParser.addXMLHandler(containerHandler);
@@ -86,6 +88,12 @@ public abstract class OCFPackage implements GenericResourceProvider {
             return containerHandler;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }finally{
+        	try {
+				in.close();
+			} catch (Exception e2) {
+				
+			}
         }
     }
 
@@ -101,18 +109,30 @@ public abstract class OCFPackage implements GenericResourceProvider {
      * @throws IOException for any other io error.
      */
     public OPFData getOpfData( OCFData container, Report reporter ) 
-            throws InvalidVersionException, IOException
-    {
-        String path = container.getRootPath();
-        EPUBVersion version = new VersionRetriever(path, reporter)
-                .retrieveOpfVersion( getInputStream( path ));
+            throws InvalidVersionException, IOException {
+    	InputStream inv = null;
+    	InputStream inp = null;
+    	try{    		
+	        String path = container.getRootPath();
+	        inv=getInputStream(path);
+	        EPUBVersion version = new VersionRetriever(path, reporter)
+	                .retrieveOpfVersion(inv);
+	
+	        inp = getInputStream(path);
+	        XMLParser opfParser = new XMLParser(new BufferedInputStream(inp
+	                ), path, "opf",
+	                reporter, version);
+	
+	        return new OPFHandler( this, path, reporter,
+	                new XRefChecker(this, reporter, version), opfParser, version);
+	    }finally{
+	    	try{
+	    		inv.close();
+	    		inp.close();
+	    	}catch (Exception e) {
 
-        XMLParser opfParser = new XMLParser(new BufferedInputStream(
-                getInputStream( path )), path, "opf",
-                reporter, version);
-
-        return new OPFHandler( this, path, reporter,
-                new XRefChecker(this, reporter, version), opfParser, version);
+			}
+	    }
     }
     
 }

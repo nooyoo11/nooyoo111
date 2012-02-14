@@ -49,7 +49,7 @@ public class EpubCheck implements DocumentValidator {
 	 * you'll need to change it in two additional places
 	 */
 	// TODO change it in the other places
-	public static final String VERSION = "3.0b4";
+	public static final String VERSION = "3.0b5-pre";
 
 	File epubFile;
 
@@ -84,25 +84,31 @@ public class EpubCheck implements DocumentValidator {
 
 	public EpubCheck(InputStream inputStream, Report report, String uri) {		
 		File epubFile;
+		OutputStream out = null;
 		try {
 			epubFile = File.createTempFile("epub." + ResourceUtil.getExtension(uri), null);
 			epubFile.deleteOnExit();
-			OutputStream out = new FileOutputStream(epubFile);
+			out = new FileOutputStream(epubFile);
 
 			byte[] bytes = new byte[1024];
 			int read;
 			while ((read = inputStream.read(bytes)) != -1) {
 				out.write(bytes, 0, read);
 			}
-			inputStream.close();
-			out.flush();
-			out.close();
-
+			
 			this.epubFile = epubFile;
 			this.report = report;
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} finally {
+			try{
+				inputStream.close();
+				out.flush();
+				out.close();
+			}catch (Exception e) {
+				
+			}
 		}
 	}
 
@@ -110,8 +116,9 @@ public class EpubCheck implements DocumentValidator {
 	 * Validate the file. Return true if no errors or warnings found.
 	 */
 	public boolean validate() {
-		try {
-			
+		ZipFile zip = null;
+		FileInputStream epubIn = null;
+		try {		
 			String extension = ResourceUtil.getExtension(epubFile.getName());
 			if(extension != null) {
 				if(!extension.equals("epub")) {
@@ -125,7 +132,7 @@ public class EpubCheck implements DocumentValidator {
 				}
 			}
 			
-			FileInputStream epubIn = new FileInputStream(epubFile);
+			epubIn = new FileInputStream(epubFile);
 
 			byte[] header = new byte[58];
 
@@ -163,22 +170,25 @@ public class EpubCheck implements DocumentValidator {
 							"application/epub+zip"));
 				}
 			}
-
-			epubIn.close();
-
-			ZipFile zip = new ZipFile(epubFile);
+		
+			zip = new ZipFile(epubFile);
 
 			OCFPackage ocf = new OCFZipPackage(zip);
 
 			OCFChecker checker = new OCFChecker(ocf, report);
 
 			checker.runChecks();
-
-			zip.close();
-
+			
 		} catch (IOException e) {
 			report.error(null, 0, 0,
 					String.format(Messages.IO_ERROR, e.getMessage()));
+		} finally {
+			try{
+				epubIn.close();
+				zip.close();
+			}catch (Exception e) {
+				
+			}
 		}
 		return report.getWarningCount() == 0 && report.getErrorCount() == 0;
 	}

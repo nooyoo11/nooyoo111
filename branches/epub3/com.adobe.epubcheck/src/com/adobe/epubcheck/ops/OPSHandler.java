@@ -49,22 +49,29 @@ public class OPSHandler implements XMLHandler {
 	long openElements;  
 	
 	private static HashSet<String> fillRegURISchemes() {
+		InputStream schemaStream = null;
+		BufferedReader schemaReader = null;
 		try {
 			HashSet<String> set = new HashSet<String>();
-			InputStream schemaStream = OPSHandler.class
+			schemaStream = OPSHandler.class
 					.getResourceAsStream("registeredSchemas.txt");
-			BufferedReader schemaReader = new BufferedReader(
+			schemaReader = new BufferedReader(
 					new InputStreamReader(schemaStream));
 			String schema = schemaReader.readLine();
 			while (schema != null) {
 				set.add(schema);
 				schema = schemaReader.readLine();
-			}
-			schemaReader.close();
-			schemaStream.close();
+			}			
 			return set;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try{
+				schemaReader.close();
+				schemaStream.close();
+			}catch (Exception e) {
+				
+			}
 		}
 		return null;
 	}

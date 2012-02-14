@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.ncx;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
@@ -67,21 +68,31 @@ public class NCXChecker implements ContentChecker {
 		else {
 			// relaxng
 			XMLParser ncxParser = null;
+			InputStream in = null;
+			NCXHandler ncxHandler = null;
 			try {
-				ncxParser = new XMLParser(ocf.getInputStream(path), path, "",
-						report, version);
+				in = ocf.getInputStream(path);
+				ncxParser = new XMLParser(in, path, "",
+						report, version);			
+				ncxParser.addValidator(ncxValidator);
+				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
+				ncxParser.addXMLHandler(ncxHandler);
+				ncxParser.process();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
+			}finally{
+				try{
+					in.close();
+				}catch (Exception e) {
+					
+				}
 			}
-			ncxParser.addValidator(ncxValidator);
-			NCXHandler ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
-			ncxParser.addXMLHandler(ncxHandler);
-			ncxParser.process();
-
+			
 			// schematron needs to go in a separate step, because of the catch
 			// below
 			// TODO: do it in a single step
 			try {
+				in = ocf.getInputStream(path);
 				ncxParser = new XMLParser(ocf.getInputStream(path), path,
 						"application/x-dtbncx+xml", report, version);
 				ncxParser.addValidator(ncxSchematronValidator);
@@ -94,6 +105,12 @@ public class NCXChecker implements ContentChecker {
 						0,
 						"Failed performing NCX Schematron tests: "
 								+ t.getMessage());
+			}finally{
+				try{
+					in.close();
+				}catch (Exception e) {
+					
+				}
 			}
 		}
 	}

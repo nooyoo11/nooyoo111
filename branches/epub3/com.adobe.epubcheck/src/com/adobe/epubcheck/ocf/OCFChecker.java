@@ -23,7 +23,9 @@
 package com.adobe.epubcheck.ocf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
 import com.adobe.epubcheck.opf.OPFChecker30;
@@ -107,17 +109,19 @@ public class OCFChecker {
 
 		if (rootPath != null) {
 			if (ocf.hasEntry(rootPath)) {
+				InputStream mimetype = null;
 				try {
-
+					
 					OPFData opfHandler = ocf.getOpfData(containerHandler,
 							report);
 
 					System.out.println("Validating against EPUB version " + opfHandler.getVersion());
 					
 					// checking mimeType file for trailing spaces
+					mimetype = ocf.getInputStream("mimetype");
 					if (ocf.hasEntry("mimetype")
 							&& !CheckUtil.checkTrailingSpaces(
-									ocf.getInputStream("mimetype"),
+									mimetype,
 									opfHandler.getVersion()))
 						report.error("mimetype", 0, 0,
 								"Mimetype file should contain only the string \"application/epub+zip\".");
@@ -141,6 +145,12 @@ public class OCFChecker {
 					report.error(rootPath, -1, -1, e.getMessage());
 				} catch (IOException ignore) {
 					// missing file will be reported in OPFChecker
+				}finally{
+					try {
+						mimetype.close();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
 				}
 			} else { //ocf.hasEntry(rootPath)
 				report.error(OCFData.containerEntry, -1, -1,
@@ -156,12 +166,21 @@ public class OCFChecker {
 
 	public void parse(String path, XMLHandler handler, Report report,
 			XMLValidator validator, EPUBVersion version) throws IOException {
-
-		parser = new XMLParser(ocf.getInputStream(path),
-				OCFData.containerEntry, "xml", report, version);
-		parser.addXMLHandler(handler);
-		parser.addValidator(validator);
-		parser.process();
+		InputStream in = null;
+		try{
+			in = ocf.getInputStream(path);
+			parser = new XMLParser(in,
+					OCFData.containerEntry, "xml", report, version);
+			parser.addXMLHandler(handler);
+			parser.addValidator(validator);
+			parser.process();
+		}finally{
+			try{
+				in.close();
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
 	}
 
 	public boolean validate(EPUBVersion version) {

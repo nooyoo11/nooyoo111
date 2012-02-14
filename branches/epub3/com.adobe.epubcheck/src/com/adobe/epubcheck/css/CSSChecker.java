@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.css;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
@@ -57,6 +58,7 @@ public class CSSChecker implements ContentChecker {
 	public void runChecks() {
 		
 		PrintStream stderr = System.err;
+		InputStream is = null;
 		try {
 			if (!ocf.hasEntry(path)) {
 				report.error(null, 0, 0,
@@ -75,7 +77,8 @@ public class CSSChecker implements ContentChecker {
 					version));
 
 			InputSource input = new InputSource();
-			input.setByteStream(ocf.getInputStream(path));
+			is = ocf.getInputStream(path);
+			input.setByteStream(is);
 			input.setURI(path);
 
 			// until we have a CSS3 compliant CSS parser, silence the err stream
@@ -83,11 +86,16 @@ public class CSSChecker implements ContentChecker {
 			System.setErr(new PrintStream(new NullOutputStream()));
 
 			parser.parseStyleSheet(input);
-
+			
 		} catch (Exception e) {
 			report.error(path, -1, 0, e.getMessage());
 		} finally {
 			System.setErr(stderr);
+			try{
+				is.close();
+			}catch (Exception e) {
+				
+			}
 		}
 
 	}
