@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.overlay;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
@@ -87,10 +88,11 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 	public boolean validate() {
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
-
+		InputStream in = null;
 		try {
+			in = resourceProvider.getInputStream(path);
 			XMLParser overlayParser = new XMLParser(
-					resourceProvider.getInputStream(path), path,
+					in, path,
 					"application/smil+xml", report, version);
 			overlayHandler = new OverlayHandler(path, xrefChecker,
 					overlayParser, report);
@@ -101,6 +103,12 @@ public class OverlayChecker implements ContentChecker, DocumentValidator {
 		} catch (IOException e) {
 			report.error(path, -1, -1,
 					String.format(Messages.MISSING_FILE, path));
+		}finally {
+			try {
+				in.close();
+			} catch (Exception e2) {
+				
+			}
 		}
 
 		return errorsSoFar == report.getErrorCount()

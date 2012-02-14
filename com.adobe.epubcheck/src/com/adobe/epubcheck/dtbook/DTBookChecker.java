@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.dtbook;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
@@ -64,11 +65,19 @@ public class DTBookChecker implements ContentChecker {
 					+ " cannot be decrypted");
 		else {
 			XMLParser dtbookParser = null;
+			InputStream in = null;
 			try {
-				dtbookParser = new XMLParser(ocf.getInputStream(path), path,
+				in = ocf.getInputStream(path);
+				dtbookParser = new XMLParser(in, path,
 						"application/x-dtbook+xml", report, version);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
+			}finally {
+				try{
+					in.close();
+				}catch (Exception e) {
+
+				}
 			}
 			dtbookParser.addValidator(dtbookValidator);
 			DTBookHandler dtbookHandler = new DTBookHandler(dtbookParser, path,

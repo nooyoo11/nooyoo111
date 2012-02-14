@@ -57,6 +57,7 @@ public class Archive {
 
 	public void createArchive() {
 		// using commons compress to allow setting filename encoding pre java7
+		ZipArchiveOutputStream out = null;
 		try {
 
 			collectFiles(baseDir, "");
@@ -73,7 +74,7 @@ public class Archive {
 			}
 			
 						
-			ZipArchiveOutputStream out = new ZipArchiveOutputStream(epubFile);
+			out = new ZipArchiveOutputStream(epubFile);
 			out.setEncoding("UTF-8");
 
 			for (int i = 0; i < paths.size(); i++) {
@@ -93,35 +94,49 @@ public class Archive {
 					out.write(buf, 0, len);
 				}
 				out.closeArchiveEntry();				
-			}
-			out.flush();
-			out.finish();
-			out.close();
+			}			
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
+		}finally{
+			try {
+				out.flush();
+				out.finish();
+				out.close();
+			} catch (IOException e) {
+			}
+			
 		}
 
 	}
 
 	private long getSize(String path) throws IOException {
-		FileInputStream in = new FileInputStream(path);
-		byte[] buf = new byte[1024];
-		int len = 0;
-		int size = 0;
-		while ((len = in.read(buf)) > 0) {
-			size += len;
+		FileInputStream in = null;
+		try{
+			in = new FileInputStream(path);
+			byte[] buf = new byte[1024];
+			int len = 0;
+			int size = 0;
+			while ((len = in.read(buf)) > 0) {
+				size += len;
+			}		
+			return size;
+		}finally{
+			in.close();
 		}
-		in.close();
-		return size;
 	}
 
 	private long getCRC(String path) throws IOException {
-		CheckedInputStream cis = new CheckedInputStream(new FileInputStream(
-				path), new CRC32());
-		byte[] buf = new byte[128];
-		while (cis.read(buf) >= 0) {
+		CheckedInputStream cis = null;
+		FileInputStream fis = null;
+		try{
+			fis = new FileInputStream(path);
+			cis = new CheckedInputStream(fis, new CRC32());
+			byte[] buf = new byte[128];
+			while (cis.read(buf) >= 0) {}	
+		} finally {
+			fis.close();
+			cis.close();
 		}
-		cis.close();
 		return cis.getChecksum().getValue();
 	}
 

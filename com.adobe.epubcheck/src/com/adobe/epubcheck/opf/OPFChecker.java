@@ -24,6 +24,7 @@ package com.adobe.epubcheck.opf;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -257,11 +258,12 @@ public class OPFChecker implements DocumentValidator {
 	public boolean validate() {
 		int errorsSoFar = report.getErrorCount();
 		int warningsSoFar = report.getWarningCount();
-
+		
+		InputStream in = null;
 		try {
-
+			in = resourceProvider.getInputStream(path);
 			opfParser = new XMLParser(new BufferedInputStream(
-					resourceProvider.getInputStream(path)), path, "opf",
+					in), path, "opf",
 					report, version);
 			initHandler();
 			opfParser.addXMLHandler(opfHandler);
@@ -272,6 +274,12 @@ public class OPFChecker implements DocumentValidator {
 			opfParser.process();
 		} catch (IOException e) {
 			report.error(path, 0, 0, e.getMessage());
+		}finally{
+			try{
+				in.close();
+			}catch (Exception e) {
+
+			}
 		}
 
 		int refCount = opfHandler.getReferenceCount();

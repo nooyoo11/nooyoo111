@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.ops;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 import com.adobe.epubcheck.api.Report;
@@ -163,26 +164,35 @@ public class OPSChecker implements ContentChecker, DocumentValidator {
 
 	public void validateAgainstSchemas(XMLValidator rngValidator,
 			XMLValidator schValidator) throws IOException {
-
-		XMLParser opsParser = new XMLParser(
-				resourceProvider.getInputStream(path), path, mimeType, report,
-				version);
-
-		if (version == EPUBVersion.VERSION_2)
-			opsHandler = new OPSHandler(path, xrefChecker, opsParser, report);
-		else
-			opsHandler = new OPSHandler30(path, mimeType, properties,
-					xrefChecker, opsParser, report);
-
-		opsParser.addXMLHandler(opsHandler);
-
-		if (rngValidator != null)
-			opsParser.addValidator(rngValidator);
-
-		if (schValidator != null)
-			opsParser.addValidator(schValidator);
-
-		opsParser.process();
+		InputStream in = null;
+		try{
+			in = resourceProvider.getInputStream(path);
+			XMLParser opsParser = new XMLParser(
+					in, path, mimeType, report,
+					version);
+	
+			if (version == EPUBVersion.VERSION_2)
+				opsHandler = new OPSHandler(path, xrefChecker, opsParser, report);
+			else
+				opsHandler = new OPSHandler30(path, mimeType, properties,
+						xrefChecker, opsParser, report);
+	
+			opsParser.addXMLHandler(opsHandler);
+	
+			if (rngValidator != null)
+				opsParser.addValidator(rngValidator);
+	
+			if (schValidator != null)
+				opsParser.addValidator(schValidator);
+	
+			opsParser.process();
+		}finally{
+			try{
+				in.close();
+			}catch (Exception e) {
+				
+			}
+		}
 
 	}
 }
