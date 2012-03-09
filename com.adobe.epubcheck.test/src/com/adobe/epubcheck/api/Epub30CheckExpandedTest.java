@@ -203,4 +203,15 @@ public class Epub30CheckExpandedTest {
 	public void testValidateEPUB30_CSSImport_invalid_2() {		
 		testValidateDocument("invalid/lorem-css-import-2/", 1, 1);
 	}
+	
+	@Test
+	public void testValidateEPUB30_CSSFontFace_valid() {		
+		testValidateDocument("valid/wasteland-otf/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_CSSFontFace_invalid() {
+		//referenced fonts missing
+		testValidateDocument("invalid/wasteland-otf/", 3, 0);
+	}
 }

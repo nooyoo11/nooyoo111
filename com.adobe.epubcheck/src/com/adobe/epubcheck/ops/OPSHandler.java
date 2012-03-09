@@ -201,7 +201,7 @@ public class OPSHandler implements XMLHandler {
 		int resourceType = XRefChecker.RT_GENERIC;
 		if (ns != null) {
 			if (ns.equals("http://www.w3.org/2000/svg")) {
-				if (name.equals("parser.getLineNumber()arGradient")
+				if (name.equals("linearGradient")
 						|| name.equals("radialGradient")
 						|| name.equals("pattern"))
 					resourceType = XRefChecker.RT_SVG_PAINT;

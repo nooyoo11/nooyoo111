@@ -23,7 +23,9 @@
 package com.adobe.epubcheck.css;
 
 import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.CSSParseException;
 import org.w3c.css.sac.DocumentHandler;
+import org.w3c.css.sac.ErrorHandler;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.css.sac.SACMediaList;
@@ -36,7 +38,7 @@ import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 
-class CSSHandler implements DocumentHandler {
+class CSSHandler implements DocumentHandler, ErrorHandler {
 
 	String path;
 
@@ -58,21 +60,22 @@ class CSSHandler implements DocumentHandler {
 	
 	public void property(String name, LexicalUnit value, boolean arg2)
 			throws CSSException {
+		//System.err.println("property: " + name /* + " " + value.getStringValue()*/ );
 		if (name == null)
 			return;
 		if (name.equals("src")) {
 			if (value != null
 					&& value.getLexicalUnitType() == LexicalUnit.SAC_URI)
 				if (value.getStringValue() != null) {
-
+					
 					String uri = value.getStringValue();
-
+					//System.err.println(uri);
 					uri = PathUtil.resolveRelativeReference(path, uri);
 
 					xrefChecker.registerReference(path, -1, -1, uri,
 							XRefChecker.RT_GENERIC);
 
-					if (fontFace && version == EPUBVersion.VERSION_3) {
+					if (fontFace && version == EPUBVersion.VERSION_3) {						
 						String fontMimeType = xrefChecker.getMimeType(uri);
 						if (!OPFChecker30.isBlessedFontType(fontMimeType))
 							report.error(path, -1, -1, "Font-face reference "
@@ -122,7 +125,7 @@ class CSSHandler implements DocumentHandler {
 
 	public void importStyle(String uri, SACMediaList media,
 			String defaultNamespaceURI) throws CSSException {
-		
+		//System.err.println("importStyle()");
 		String ruri = PathUtil.resolveRelativeReference(path, uri);
 		
 		xrefChecker.registerReference(path, -1, -1, ruri,
@@ -140,6 +143,7 @@ class CSSHandler implements DocumentHandler {
 	}
 
 	public void startFontFace() throws CSSException {
+		//System.err.println("startFontFace()");
 		fontFace = true;
 	}
 
@@ -150,6 +154,28 @@ class CSSHandler implements DocumentHandler {
 	}
 
 	public void startSelector(SelectorList selectors) throws CSSException {
+	}
+
+	/*
+	 * Until we have a CSS3 compliant parser, things get wild in the
+	 * errorhandler department. Just keep silent.
+	 */
+	@Override
+	public void error(CSSParseException e) throws CSSException {		
+		// System.err.println("CSSHandler#error: " + e.getMessage());
+		
+	}
+
+	@Override
+	public void fatalError(CSSParseException e) throws CSSException {
+		// System.err.println("CSSHandler#fatalError: " + e.getMessage());
+		
+	}
+
+	@Override
+	public void warning(CSSParseException e) throws CSSException {
+		// System.err.println("CSSHandler#warning: " + e.getMessage());
+		
 	}
 
 }
