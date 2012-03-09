@@ -21,11 +21,12 @@
 
 
         <fileset dir="${lib.dir}" id="libs">
-                <include name="jing.jar"/>
-                <include name="saxon9he.jar"/>
-                <include name="sac-1.3.jar"/>
-                <include name="cssparser-0.9.6.jar"/>
-        		<include name="commons-compress-1.2.jar"/>
+    		<include name="batik-css-1.7.jar"/>
+    		<include name="batik-util-1.7.jar"/>
+    		<include name="commons-compress-1.2.jar"/>	
+    		<include name="jing-20120227.jar"/>
+            <include name="saxon-9.1.0.8.jar"/>
+            <include name="sac-1.3.jar"/>
         </fileset>
 
         <path id="classpath">
@@ -91,7 +92,7 @@
                                 <attribute name="Main-Class"
                                         value="com.adobe.epubcheck.tool.Checker"/>
                                 <attribute name="Class-Path"
-                                        value="lib/jing.jar lib/saxon9he.jar lib/sac-1.3.jar lib/cssparser-0.9.6.jar lib/commons-compress-1.2.jar"
+                                        value="lib/batik-css-1.7.jar lib/batik-util-1.7.jar lib/commons-compress-1.2.jar lib/jing-20120227.jar lib/saxon-9.1.0.8.jar lib/sac-1.3.jar"
                                 />
                         </manifest>
                 </jar>
@@ -112,6 +113,7 @@
                         </fileset>
                         <fileset dir="${epubcheck.base.dir}">
                                 <include name="lib/*.jar"/>
+                        		<include name="lib/*.text"/>
                                 <include name="*.txt"/>
                         </fileset>
                 </zip>

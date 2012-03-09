@@ -28,15 +28,15 @@ public class Messages {
 
 	public static String SINGLE_FILE = "File is validated as a single file of type %1$s and version %2$s ! Only a subset of the available tests is run!";
 
-	public static String MISSING_FILE = "File %1$s is missing in the package!";
+	public static String MISSING_FILE = "File %1$s is missing in the package.";
 
 	public static String INVALID_OPF_Version = "Failed obtaining OPF version: %1$s .";
 
-	public static String NAV_NOT_SUPPORTED = "The nav file is not supported for epub versions other than 3.0!";
+	public static String NAV_NOT_SUPPORTED = "The nav file is not supported for epub versions other than 3.0.";
 
-	public static String OPV_VERSION_TEST = "Tests are done only for the OPF version!";
+	public static String OPV_VERSION_TEST = "Tests are done only for the OPF version.";
 
-	public static String MODE_VERSION_NOT_SUPPORTED = "The checker doesn't validate type %1$s and version %2$s!";
+	public static String MODE_VERSION_NOT_SUPPORTED = "The checker doesn't validate type %1$s and version %2$s.";
 
 	public static String NO_ERRORS__OR_WARNINGS = "No errors or warnings detected.";
 
@@ -46,56 +46,58 @@ public class Messages {
 	
 	public static String DISPLAY_HELP = "-help displays help";
 
-	public static String ARGUMENT_NEEDED = "At least one argument expected!";
+	public static String ARGUMENT_NEEDED = "At least one argument expected";
 
 	public static String AFTER_ARGUMENT_EXPECTED = "After the argument %1$s , the %2$s of the file to be checked is expected";
 
-	public static String NO_FILE_SPECIFIED = "No file to check was specified in arguments!";
+	public static String NO_FILE_SPECIFIED = "No file to check was specified in arguments";
 
-	public static String END_OF_EXECUTION = "The tool will EXIT!";
+	public static String END_OF_EXECUTION = "The tool will EXIT";
 
-	public static String MODE_VERSION_IGNORED = "The mode and version arguments are ignored for epubs!"
+	public static String MODE_VERSION_IGNORED = "The mode and version arguments are ignored for epubs"
 			+ "(They are retrieved from the files.)";
 
 	public static String MODE_REQUIRED = "For files other than epubs, mode must be specified! Default version is 3.0.";
 
-	public static String CANNOT_READ_HEADER = "Cannot read header!";
+	public static String CANNOT_READ_HEADER = "Cannot read header";
 
-	public static String CORRUPTED_ZIP_HEADER = "Corrupted ZIP header!";
+	public static String CORRUPTED_ZIP_HEADER = "Corrupted ZIP header";
 
-	public static String LENGTH_FIRST_FILENAME = "Length of the first filename in archive must be 8, but was %1$s !";
+	public static String LENGTH_FIRST_FILENAME = "Length of the first filename in archive must be 8, but was %1$s";
 
-	public static String EXTRA_FIELD_LENGTH = "Extra field length for first filename must be 0, but was %1$s !";
+	public static String EXTRA_FIELD_LENGTH = "Extra field length for first filename must be 0, but was %1$s";
 
-	public static String MIMETYPE_ENTRY_MISSING = "Mimetype entry missing or not the first in archive!";
+	public static String MIMETYPE_ENTRY_MISSING = "Mimetype entry missing or not the first in archive";
 
 	public static String MIMETYPE_WRONG_TYPE = "Mimetype contains wrong type (%1$s expected).";
 
 	public static String IO_ERROR = "I/O error: %1$s ";
 
-	public static String NULL_REF = "NULL value reference!";
+	public static String NULL_REF = "NULL value reference";
+	
+	public static String RESOURCE_NOT_AVAILABLE = "Could not find resource %1$s";
 
-	public static String RESOURCE_NOT_AVAILABLE = "Could not find resource %1$s !";
+	public static String UTF_NOT_SUPPORTED = "Only UTF-8 and UTF-16 encodings are allowed for XML, detected %1$s";
 
-	public static String UTF_NOT_SUPPORTED = "Only UTF-8 and UTF-16 encodings are allowed for XML, detected %1$s !";
+	public static String MALFORMED_BYTE_SEQUENCE = "Malformed byte sequence: %1$s .  Check encoding";
 
-	public static String MALFORMED_BYTE_SEQUENCE = "Malformed byte sequence: %1$s .  Check encoding!";
-
-	public static String FAILED_PERFORMING_SCHEMATRON_TESTS = "Failed performing OPF Schematron tests: %1$s !";
+	public static String FAILED_PERFORMING_SCHEMATRON_TESTS = "Failed performing OPF Schematron tests: %1$s";
 
 	public static String FILENAME_DISALLOWED_CHARACTERS = "File name contains characters disallowed in OCF file names: ";
 
-	public static String SPACES_IN_FILENAME = "Filename contains spaces. Consider changing filename such that URI escaping is not necessary!";
+	public static String SPACES_IN_FILENAME = "Filename contains spaces. Consider changing filename such that URI escaping is not necessary";
 
 	public static String FILENAME_ENDS_IN_DOT = "Filename is not allowed to end in \'.\'.";
 
-	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filenames!";
+	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filenames";
 
 	public static String CONFLICTING_ATTRIBUTES = "Conflicting attributes found: ";
 
 	public static String INVALID_XML_VERSION = "Any Publication Resource that is an XML-Based Media Type must be a conformant XML 1.0 Document. XML Version retrieved: ";
 
-	public static String XML_VERSION_NOT_SUPPORTED = "Your system doesn't support xml version verification. Make sure your xml files are conformant to xml 1.0!";
+	public static String XML_VERSION_NOT_SUPPORTED = "Your system doesn't support xml version verification. Make sure your xml files are conformant to xml 1.0";
 
 	public static String EXTERNAL_ENTITIES_NOT_ALLOWED = "External entities are not allowed in XML. External entity declaration found: ";
+	
+	public static String CSS_STRING_PARSE_ERROR = "An error occurred while parsing CSS for %1$s.";
 }

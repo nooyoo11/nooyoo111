@@ -45,7 +45,8 @@ public class CSSChecker implements ContentChecker {
 	private String path;
 	private XRefChecker xrefChecker;
 	private EPUBVersion version;
-
+	private static final String SAC_PROPERTY = "org.w3c.css.sac.parser";
+	
 	public CSSChecker(OCFPackage ocf, Report report, String path,
 			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
@@ -57,7 +58,6 @@ public class CSSChecker implements ContentChecker {
 
 	public void runChecks() {
 		
-		PrintStream stderr = System.err;
 		InputStream is = null;
 		try {
 			if (!ocf.hasEntry(path)) {
@@ -66,31 +66,32 @@ public class CSSChecker implements ContentChecker {
 				return;
 			}
 			
-			// "org.w3c.flute.parser.Parser");
-			System.setProperty("org.w3c.css.sac.parser",
-					"com.steadystate.css.parser.SACParserCSS21");
-
+			String systemProp = System.getProperty(SAC_PROPERTY);
+			if(systemProp == null || systemProp.length() < 1) {
+				System.setProperty("org.w3c.css.sac.parser",
+						"org.apache.batik.css.parser.Parser");
+			}
+			
 			ParserFactory pf = new ParserFactory();
+			
 			Parser parser = pf.makeParser();
 
-			parser.setDocumentHandler(new CSSHandler(path, xrefChecker, report,
-					version));
+			// System.out.println("SACParser : " + parser.getClass().getName());
+			
+			CSSHandler ch = new CSSHandler(path, xrefChecker, report, version);
+			parser.setDocumentHandler(ch);
+			parser.setErrorHandler(ch);
 
 			InputSource input = new InputSource();
 			is = ocf.getInputStream(path);
 			input.setByteStream(is);
 			input.setURI(path);
-
-			// until we have a CSS3 compliant CSS parser, silence the err stream
-			// while parsing CSS
-			System.setErr(new PrintStream(new NullOutputStream()));
-
+						
 			parser.parseStyleSheet(input);
 			
 		} catch (Exception e) {
 			report.error(path, -1, 0, e.getMessage());
-		} finally {
-			System.setErr(stderr);
+		} finally {			
 			try{
 				is.close();
 			}catch (Exception e) {
