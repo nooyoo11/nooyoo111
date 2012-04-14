@@ -308,7 +308,6 @@ public class OPSHandler30 extends OPSHandler {
 				checkFallback("Audio");
 			audio = false;
 		}
-
 	}
 
 	/*

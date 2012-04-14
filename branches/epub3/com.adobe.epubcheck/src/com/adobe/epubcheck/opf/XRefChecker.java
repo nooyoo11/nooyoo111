@@ -185,7 +185,7 @@ public class XRefChecker {
 			int srcColumnNumber, String refResource, String refFragment,
 			int type) {
 		if (refResource.startsWith("data:"))
-			return;
+			return;		
 		references.add(new Reference(srcResource, srcLineNumber,
 				srcColumnNumber, refResource, refFragment, type));
 	}
@@ -220,7 +220,15 @@ public class XRefChecker {
 	private void checkReference(Reference ref) {
 		Resource res = (Resource) resources.get(ref.refResource);
 		if (res == null) {
-			if (!ocf.hasEntry(ref.refResource))
+			if(ref.refResource.startsWith("http://")) {
+				report.error(
+						ref.resource,
+						ref.lineNumber,
+						ref.columnNumber,
+						"'"
+								+ ref.refResource
+								+ "': remote resource reference not allowed; resource must be placed in the OCF");
+			} else if (!ocf.hasEntry(ref.refResource)) {				
 				report.error(
 						ref.resource,
 						ref.lineNumber,
@@ -228,7 +236,8 @@ public class XRefChecker {
 						"'"
 								+ ref.refResource
 								+ "': referenced resource missing in the package");
-			else if (!undeclared.contains(ref.refResource)) {
+				
+			} else if (!undeclared.contains(ref.refResource)) {
 				undeclared.add(ref.refResource);
 				report.error(
 						ref.resource,
