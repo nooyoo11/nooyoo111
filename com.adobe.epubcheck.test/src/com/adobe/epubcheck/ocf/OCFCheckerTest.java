@@ -140,13 +140,11 @@ public class OCFCheckerTest
                                             EPUBVersion.VERSION_3 );
         if (   0 != testReport.getErrorCount() 
             || 0 != testReport.getExceptionCount() 
-            || 1 != testReport.getWarningCount()
+            || 0 != testReport.getWarningCount()
             )
             System.out.println( testReport );
-        assertTrue( testReport.warningList.get( 0 ).message.contains( 
-            "Only audio and video foreign resources are permitted" ));
         assertEquals(0, testReport.getErrorCount());
-        assertEquals(1, testReport.getWarningCount());
+        assertEquals(0, testReport.getWarningCount());
         assertEquals(0, testReport.getExceptionCount());
     }        
 
@@ -187,13 +185,11 @@ public class OCFCheckerTest
                                             EPUBVersion.VERSION_3 );
         if (   0 != testReport.getErrorCount() 
             || 0 != testReport.getExceptionCount() 
-            || 1 != testReport.getWarningCount()
+            || 0 != testReport.getWarningCount()
             )
             System.out.println( testReport );
-        assertTrue( testReport.warningList.get( 0 ).message.contains( 
-                "Only audio and video foreign resources are permitted" ) );
         assertEquals(0, testReport.getErrorCount());
-        assertEquals(1, testReport.getWarningCount());
+        assertEquals(0, testReport.getWarningCount());
         assertEquals(0, testReport.getExceptionCount());
     }        
 
@@ -284,15 +280,13 @@ public class OCFCheckerTest
                                             EPUBVersion.VERSION_3 );
         if (   1 != testReport.getErrorCount() 
             || 0 != testReport.getExceptionCount() 
-            || 1 != testReport.getWarningCount()
+            || 0 != testReport.getWarningCount()
             )
             System.out.println( testReport );
         assertTrue( testReport.errorList.get( 0 ).message.contains( 
                 "This file should declare in opf the property: remote-resources" ));
-        assertTrue( testReport.warningList.get( 0 ).message.contains( 
-                "Only audio and video foreign resources are permitted" ));
         assertEquals(1, testReport.getErrorCount());
-        assertEquals(1, testReport.getWarningCount());
+        assertEquals(0, testReport.getWarningCount());
         assertEquals(0, testReport.getExceptionCount());
     }
 
@@ -320,16 +314,14 @@ public class OCFCheckerTest
                                             EPUBVersion.VERSION_3 );
         if (   1 != testReport.getErrorCount() 
             || 0 != testReport.getExceptionCount() 
-            || 1 != testReport.getWarningCount()
+            || 0 != testReport.getWarningCount()
             )
             System.out.println( testReport );
 
         assertTrue( testReport.errorList.get( 0 ).message.contains( 
                 "Video poster must have core media image type" ) );
-        assertTrue( testReport.warningList.get( 0 ).message.contains( 
-                "Only audio and video foreign resources are permitted" ) );
         assertEquals(1, testReport.getErrorCount());
-        assertEquals(1, testReport.getWarningCount());
+        assertEquals(0, testReport.getWarningCount());
         assertEquals(0, testReport.getExceptionCount());
     }
 

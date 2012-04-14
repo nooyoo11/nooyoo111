@@ -102,7 +102,7 @@ public class Epub30CheckExpandedTest {
 
 	@Test
 	public void testValidateEPUBPLoremMimetype() {
-		testValidateDocument("invalid/lorem-mimetype", 1, 0);
+		testValidateDocument("invalid/lorem-mimetype", 2, 0);
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class Epub30CheckExpandedTest {
 
 	@Test
 	public void testValidateEPUBPLoremForeign() {
-		testValidateDocument("valid/lorem-foreign", 0, 1);
+		testValidateDocument("valid/lorem-foreign", 0, 0);
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUBPLoremPoster() {
-		testValidateDocument("valid/lorem-poster", 0, 1);
+		testValidateDocument("valid/lorem-poster", 0, 0);
 	}
 
 	@Test
@@ -157,12 +157,12 @@ public class Epub30CheckExpandedTest {
 
 	@Test
 	public void testValidateEPUBPInvalidLoremPoster() {
-		testValidateDocument("invalid/lorem-poster", 1, 1);
+		testValidateDocument("invalid/lorem-poster", 1, 0);
 	}
 
 	@Test
 	public void testValidateEPUBPInvalidLoremForeign() {
-		testValidateDocument("invalid/lorem-foreign", 1, 1);
+		testValidateDocument("invalid/lorem-foreign", 1, 0);
 	}
 
 	@Test
@@ -188,7 +188,7 @@ public class Epub30CheckExpandedTest {
 		// svg in both contentdocs, only one opf prop set right
 		testValidateDocument("invalid/lorem-svg-dual-2/", 1, 0);
 	}
-	
+			
 	@Test
 	public void testValidateEPUB30_CSSImport_valid() {		
 		testValidateDocument("valid/lorem-css-import/", 0, 0);
@@ -214,4 +214,29 @@ public class Epub30CheckExpandedTest {
 		//referenced fonts missing
 		testValidateDocument("invalid/wasteland-otf/", 3, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30_remoteAudio_valid() {		
+		testValidateDocument("valid/lorem-remote/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_remoteImg_invalid() {
+		//remote img, properly declared in opf
+		testValidateDocument("invalid/lorem-remote/", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_remoteImg_invalid2() {
+		//remote img, not declared in opf
+		//we should only get one error here... fixing that
+		//in upcoming major refactoring
+		testValidateDocument("invalid/lorem-remote-2/", 3, 0);
+	}
+	
+//	@Test
+//	public void testValidateEPUB30_svgCoverImage() {
+//		//svg in spine, svg cover image
+//		testValidateDocument("valid/svg-in-spine/", 0, 0, true);
+//	}
 }

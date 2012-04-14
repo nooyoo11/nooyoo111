@@ -170,4 +170,20 @@ public class Epub30CheckTest {
 		//issue145; CSS3 pseudoselectors causing css2 lexers to bail out
 		testValidateDocument("valid/issue145.epub", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30Issue158() { 
+		//bad warning message, this should pass without warnings
+		testValidateDocument("valid/issue158.epub", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30Issue137a() { 
+		testValidateDocument("invalid/issue137a.epub", 2, 1);
+	}
+	
+	@Test
+	public void testValidateEPUB30Issue137b() { 
+		testValidateDocument("invalid/issue137b.epub", 2, 1);
+	}
 }
