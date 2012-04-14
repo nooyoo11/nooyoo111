@@ -326,5 +326,17 @@ public class OPSCheckerTest {
 		testValidateDocument("xhtml/invalid/ssml-empty-ph.xhtml",
 				"application/xhtml+xml", 0, 2, EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testValidateXHTML_issue153_valid() {
+		testValidateDocument("xhtml/valid/issue153.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_3);
+	}
+	
+	@Test
+	public void testValidateXHTML_issue153_invalid() {
+		testValidateDocument("xhtml/invalid/issue153.xhtml",
+				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
+	}
 
 }
