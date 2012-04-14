@@ -140,14 +140,18 @@
         -->
         <target name="buildEpubChecker" description="Creates binary jar zip and source zip"
                 depends="clean,iso-sch-prep,buildSrcZip,
-                                         buildBinZip
-                                        "/>
+                        buildBinZip, cleanTemp"/>
         
         <target name="clean">
-                <delete dir="${build.dir}"/>
-                <delete dir="${temp.dir}"/>
+            <delete dir="${build.dir}"/>
+            <delete dir="${temp.dir}"/>
+    		<mkdir dir="${temp.dir}"/>
         </target>
 
+		<target name="cleanTemp">	                
+	         <delete dir="${temp.dir}"/>
+	    </target>
+	
         <target name="iso-sch-prep"
                 description="temporary solution for iso sch validation; resolve includes and abstract patterns
 			and store alongside the originals in the schema dir">
@@ -169,12 +173,12 @@
                 <attribute name="in"/>
                 <attribute name="out"/>
                 <sequential>
-                        <java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+                        <java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon-9.1.0.8.jar">
                                 <arg value="-s:@{in}"/>
                                 <arg value="-xsl:${util.dir}/sch/iso-sch-include.xsl"/>
                                 <arg value="-o:${temp.dir}/isosch-1.sch"/>
                         </java>
-                        <java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon9he.jar">
+                        <java classname="net.sf.saxon.Transform" classpath="${lib.dir}/saxon-9.1.0.8.jar">
                                 <arg value="-s:${temp.dir}/isosch-1.sch"/>
                                 <arg value="-xsl:${util.dir}/sch/iso-sch-abstract.xsl"/>
                                 <arg value="-o:@{out}"/>
