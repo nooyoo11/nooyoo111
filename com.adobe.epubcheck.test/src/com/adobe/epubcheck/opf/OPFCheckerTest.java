@@ -392,4 +392,5 @@ public class OPFCheckerTest {
 		testValidateDocument("invalid/dupe-id.opf", 2, 0,
 				EPUBVersion.VERSION_2);
 	}
+	
 }
