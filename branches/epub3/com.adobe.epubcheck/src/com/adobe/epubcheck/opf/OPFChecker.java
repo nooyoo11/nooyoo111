@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
@@ -130,8 +131,8 @@ public class OPFChecker implements DocumentValidator {
 			try {
 				xrefChecker.registerResource(item.getPath(),
 						item.getMimeType(), item.isInSpine(),
-						checkItemFallbacks(item, opfHandler),
-						checkImageFallbacks(item, opfHandler));
+						new FallbackChecker().checkItemFallbacks(item, opfHandler, true),
+						new FallbackChecker().checkImageFallbacks(item, opfHandler));
 			} catch (IllegalArgumentException e) {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), e.getMessage());
@@ -463,7 +464,7 @@ public class OPFChecker implements DocumentValidator {
 								+ mimeType + "' with no fallback");
 			else if (!isBlessedItemType(mimeType, version)
 					&& !isDeprecatedBlessedItemType(mimeType)
-					&& !checkItemFallbacks(item, opfHandler))
+					&& !new FallbackChecker().checkItemFallbacks(item, opfHandler, true))
 				report.error(
 						path,
 						item.getLineNumber(),
@@ -473,52 +474,87 @@ public class OPFChecker implements DocumentValidator {
 								+ "' with fallback to non-spine-allowed media-type");
 		}
 	}
-
-	protected boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
-		String fallback = item.getFallback();
-		if (fallback != null) {
-			OPFItem fallbackItem = opfHandler.getItemById(fallback);
-			if (fallbackItem != null) {
-				String mimeType = fallbackItem.getMimeType();
-				if (mimeType != null) {
-					if (isBlessedItemType(mimeType, version)
-							|| isDeprecatedBlessedItemType(mimeType))
-						return true;
-					if (checkItemFallbacks(fallbackItem, opfHandler))
-						return true;
+	
+	class FallbackChecker {
+		private Set<String> checked;
+		
+		public FallbackChecker() {
+			checked = new HashSet<String>();
+		}
+		
+		protected boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler, boolean checkFallbackStyle) {
+			String fallback = item.getFallback();			
+			if (fallback != null) {
+				fallback = fallback.trim();
+				if(checked.contains(fallback)) {
+					report.error(
+							path,
+							item.getLineNumber(),
+							item.getColumnNumber(), "circular reference in fallback chain");
+					return false;
+				} else {
+					checked.add(fallback);
+				}
+				
+				OPFItem fallbackItem = opfHandler.getItemById(fallback);
+				if (fallbackItem != null) {
+					String mimeType = fallbackItem.getMimeType();
+					if (mimeType != null) {
+						if (isBlessedItemType(mimeType, version)
+								|| isDeprecatedBlessedItemType(mimeType)) {						
+							return true;
+						}	
+						if (checkItemFallbacks(fallbackItem, opfHandler, checkFallbackStyle)) {
+							return true;						
+						}
+							
+					}
+				}								
+			}
+			if(!checkFallbackStyle) {
+				return false;
+			}
+			
+			String fallbackStyle = item.getFallbackStyle();
+			if (fallbackStyle != null) {
+				OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
+				if (fallbackStyleItem != null) {
+					String mimeType = fallbackStyleItem.getMimeType();
+					if (mimeType != null) {
+						if (isBlessedStyleType(mimeType)
+								|| isDeprecatedBlessedStyleType(mimeType))
+							return true;
+					}
 				}
 			}
+			return false;
 		}
-		String fallbackStyle = item.getFallbackStyle();
-		if (fallbackStyle != null) {
-			OPFItem fallbackStyleItem = opfHandler.getItemById(fallbackStyle);
-			if (fallbackStyleItem != null) {
-				String mimeType = fallbackStyleItem.getMimeType();
-				if (mimeType != null) {
-					if (isBlessedStyleType(mimeType)
-							|| isDeprecatedBlessedStyleType(mimeType))
-						return true;
+	
+		protected boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
+			String fallback = item.getFallback();
+			if (fallback != null) {
+				fallback = fallback.trim();
+				if(checked.contains(fallback)) {
+					report.error(
+							path,
+							item.getLineNumber(),
+							item.getColumnNumber(), "circular reference in fallback chain");
+					return false;
+				} else {
+					checked.add(fallback);
+				}
+				OPFItem fallbackItem = opfHandler.getItemById(fallback);
+				if (fallbackItem != null) {
+					String mimeType = fallbackItem.getMimeType();
+					if (mimeType != null) {
+						if (isBlessedImageType(mimeType))
+							return true;
+						if (checkImageFallbacks(fallbackItem, opfHandler))
+							return true;
+					}
 				}
 			}
+			return false;
 		}
-		return false;
 	}
-
-	protected boolean checkImageFallbacks(OPFItem item, OPFHandler opfHandler) {
-		String fallback = item.getFallback();
-		if (fallback != null) {
-			OPFItem fallbackItem = opfHandler.getItemById(fallback);
-			if (fallbackItem != null) {
-				String mimeType = fallbackItem.getMimeType();
-				if (mimeType != null) {
-					if (isBlessedImageType(mimeType))
-						return true;
-					if (checkImageFallbacks(fallbackItem, opfHandler))
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-
 }
