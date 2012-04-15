@@ -32,6 +32,7 @@ import com.adobe.epubcheck.bitmap.BitmapCheckerFactory;
 import com.adobe.epubcheck.css.CSSCheckerFactory;
 import com.adobe.epubcheck.dtbook.DTBookCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.opf.OPFChecker.FallbackChecker;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
 import com.adobe.epubcheck.util.EPUBVersion;
@@ -147,7 +148,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 					"Spine item with non-standard media-type '" + mimeType
 							+ "' with no fallback");
 
-		else if (!checkItemFallbacks(item, opfHandler))
+		else if (!new FallbackChecker().checkItemFallbacks(item, opfHandler, false))
 			report.error(path, item.getLineNumber(), item.getColumnNumber(),
 					"Spine item with non-standard media-type '" + mimeType
 							+ "' with fallback to non-spine-allowed media-type");
@@ -172,23 +173,23 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator {
 
 	}
 
-	@Override
-	protected boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
-		String fallback = item.getFallback();
-		if (fallback != null) {
-			OPFItem fallbackItem = opfHandler.getItemById(fallback);
-			if (fallbackItem != null) {
-				String mimeType = fallbackItem.getMimeType();
-				if (mimeType != null) {
-					if (OPFChecker.isBlessedItemType(mimeType, version))
-						return true;
-					if (checkItemFallbacks(fallbackItem, opfHandler))
-						return true;
-				}
-			}
-		}
-		return false;
-	}
+	
+//	protected boolean checkItemFallbacks(OPFItem item, OPFHandler opfHandler) {
+//		String fallback = item.getFallback();
+//		if (fallback != null) {
+//			OPFItem fallbackItem = opfHandler.getItemById(fallback);
+//			if (fallbackItem != null) {
+//				String mimeType = fallbackItem.getMimeType();
+//				if (mimeType != null) {
+//					if (OPFChecker.isBlessedItemType(mimeType, version))
+//						return true;
+//					if (checkItemFallbacks(fallbackItem, opfHandler))
+//						return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 	public static boolean isBlessedAudioType(String type) {
 		return type.equals("audio/mpeg") || type.equals("audio/mp4");

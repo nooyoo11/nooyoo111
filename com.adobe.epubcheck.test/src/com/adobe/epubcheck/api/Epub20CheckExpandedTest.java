@@ -84,7 +84,17 @@ public class Epub20CheckExpandedTest {
 	public void testValidateEPUBUidSpaces() {
 		//ascertain that leading/trailing space in 2.0 id values is accepted
 		//issue 163
-		testValidateDocument("invalid/lorem-uidspaces", 0, 0);
+		testValidateDocument("valid/lorem-uidspaces", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB20_circularFallback() {
+		testValidateDocument("invalid/fallbacks-circular/", 5, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB20_okFallback() {
+		testValidateDocument("valid/fallbacks/", 0, 0);
 	}
 
 }

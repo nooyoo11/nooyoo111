@@ -229,9 +229,24 @@ public class Epub30CheckExpandedTest {
 	@Test
 	public void testValidateEPUB30_remoteImg_invalid2() {
 		//remote img, not declared in opf
-		//we should only get one error here... fixing that
-		//in upcoming major refactoring
+		//we should only get one error here... tbf
 		testValidateDocument("invalid/lorem-remote-2/", 3, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_circularFallback() {
+		testValidateDocument("invalid/fallbacks-circular/", 5, 0, true);
+	}
+	
+	@Test
+	public void testValidateEPUB30_nonresolvingFallback() {
+		//dupe messages, tbf
+		testValidateDocument("invalid/fallbacks-nonresolving/", 4, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_okFallback() {
+		testValidateDocument("valid/fallbacks/", 0, 0);
 	}
 	
 //	@Test
