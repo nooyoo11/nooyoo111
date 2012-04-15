@@ -80,5 +80,11 @@ public class Epub20CheckExpandedTest {
 		testValidateDocument("invalid/lorem-mimetype", 2, 0);
 	}
 
+	@Test
+	public void testValidateEPUBUidSpaces() {
+		//ascertain that leading/trailing space in 2.0 id values is accepted
+		//issue 163
+		testValidateDocument("invalid/lorem-uidspaces", 0, 0);
+	}
 
 }
