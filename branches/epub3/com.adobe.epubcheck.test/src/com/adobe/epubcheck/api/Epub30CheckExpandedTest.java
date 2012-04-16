@@ -235,7 +235,7 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUB30_circularFallback() {
-		testValidateDocument("invalid/fallbacks-circular/", 5, 0, true);
+		testValidateDocument("invalid/fallbacks-circular/", 5, 0);
 	}
 	
 	@Test

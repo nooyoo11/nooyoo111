@@ -25,6 +25,7 @@ package com.adobe.epubcheck.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidParameterException;
 
 public class CheckUtil {
 
@@ -74,5 +75,18 @@ public class CheckUtil {
 		}
 
 		return true;
+	}
+	
+	public static int readBytes(InputStream in, byte[] b, int off, int len) throws IOException {		
+		if(len < 1 ) throw new InvalidParameterException(Integer.toString(len));
+		int total = 0;
+		while (total < len) {
+			int result = in.read(b, off + total, len - total);
+			if (result == -1) {
+				break;
+			}
+			total += result;
+		}
+		return total;
 	}
 }

@@ -87,15 +87,15 @@ public class Messages {
 
 	public static String SPACES_IN_FILENAME = "Filename contains spaces. Consider changing filename such that URI escaping is not necessary";
 
-	public static String FILENAME_ENDS_IN_DOT = "Filename is not allowed to end in \'.\'.";
+	public static String FILENAME_ENDS_IN_DOT = "Filename is not allowed to end with \'.\'.";
 
-	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filenames";
+	public static String FILENAME_NON_ASCII = "File name contains non-ascii characters: %1$s. Consider changing filename";
 
 	public static String CONFLICTING_ATTRIBUTES = "Conflicting attributes found: ";
 
 	public static String INVALID_XML_VERSION = "Any Publication Resource that is an XML-Based Media Type must be a conformant XML 1.0 Document. XML Version retrieved: ";
 
-	public static String XML_VERSION_NOT_SUPPORTED = "Your system doesn't support xml version verification. Make sure your xml files are conformant to xml 1.0";
+	public static String XML_VERSION_NOT_SUPPORTED = "Your system doesn't support xml version verification. Make sure your xml files are conformant to XML 1.0";
 
 	public static String EXTERNAL_ENTITIES_NOT_ALLOWED = "External entities are not allowed in XML. External entity declaration found: ";
 	
