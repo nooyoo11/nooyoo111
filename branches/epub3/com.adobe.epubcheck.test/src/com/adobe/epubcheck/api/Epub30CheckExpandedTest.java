@@ -259,4 +259,9 @@ public class Epub30CheckExpandedTest {
 		//svg in spine, svg cover image
 		testValidateDocument("valid/svg-in-spine/", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30_videoAudioTrigger() {
+		testValidateDocument("valid/cc-shared-culture/", 0, 0);
+	}
 }
