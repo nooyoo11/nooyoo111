@@ -338,5 +338,11 @@ public class OPSCheckerTest {
 		testValidateDocument("xhtml/invalid/issue153.xhtml",
 				"application/xhtml+xml", 1, 0, EPUBVersion.VERSION_3);
 	}
+	
+	@Test
+	public void testValidateXHTML_issue166_valid() {
+		testValidateDocument("ops/valid/svg-foreignObject.xhtml",
+				"application/xhtml+xml", 0, 0, EPUBVersion.VERSION_2);
+	}
 
 }
