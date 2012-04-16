@@ -29,7 +29,7 @@ public class Archive {
 		baseDir = new File(base);
 		if (!baseDir.exists() || !baseDir.isDirectory())
 			throw new RuntimeException(
-					"The path specified for the archive is invalid!");
+					"The path specified for the archive is invalid");
 		epubName = baseDir.getName() + ".epub";
 		epubFile = new File(epubName);
 		if (deleteOnExit)

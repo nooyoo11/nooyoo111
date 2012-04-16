@@ -35,7 +35,7 @@ public class FileResourceProvider implements GenericResourceProvider {
 		this.fileName = fileName;
 		File file = new File(fileName);
 		if(!file.exists())
-			throw new RuntimeException("File " + fileName + " does not exist!");
+			throw new RuntimeException("File " + fileName + " does not exist");
 	}
 
 	public InputStream getInputStream(String ignore) throws FileNotFoundException {

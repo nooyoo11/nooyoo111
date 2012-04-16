@@ -325,8 +325,11 @@ public class OPSHandler30 extends OPSHandler {
 	private void checkProperties() {
 		if (properties != null && properties.equals("singleFileValidation"))
 			return;
-		if (properties != null)
+		if (properties != null) {
 			properties = properties.replaceAll("nav", "");
+			properties = properties.replaceAll("cover-image", "");
+		}
+			 
 		Iterator<String> propertyIterator = propertiesSet.iterator();
 		while (propertyIterator.hasNext()) {
 			String prop = propertyIterator.next();

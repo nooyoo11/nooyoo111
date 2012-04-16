@@ -46,77 +46,77 @@ public class DateParserTest {
 
 		try {	
 			p.parse(	""							);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-"						);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-"					);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	"2011-02-01T"				);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:"			);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:"			);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:00T"		);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:00+01"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:00+01:"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:00-03"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-01T13:00:00-03:"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	"2011-02-01T13:00:00-03:AA"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	"20a1"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	" 2"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		try {	
 			p.parse(	"2011-02-29"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	"2011-02-01T13:00:00.123aqb"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		try {	
 			p.parse(	"1994-11-05T13:15:30Zab"	);
-			throw new Exception("Invaid date passed!");
+			throw new Exception("Invalid date passed!");
 		} catch (InvalidDateException e) {}
 		
 		
