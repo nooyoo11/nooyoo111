@@ -31,7 +31,7 @@ public class MetaUtils {
 						line,
 						column,
 						propertyArray[i]
-								+ " value is not allowed to be composed only by a prefix!");
+								+ " value is not allowed to be composed only by a prefix");
 			else if (propertyArray[i].contains(":"))
 				checkPrefix(
 						recognizedPrefixes,

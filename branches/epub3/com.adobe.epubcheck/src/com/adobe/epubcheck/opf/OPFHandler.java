@@ -248,7 +248,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 					if (OPFChecker30.isCoreMediaType(mimeType)) {
 						report.error(path, parser.getLineNumber(),
 								parser.getColumnNumber(),
-								"Only audio and video remote resources are permitted!");
+								"Only audio and video remote resources are permitted");
 					} else {
 						//mgy 20120414: this shouldn't even be a warning
 //						report.warning(

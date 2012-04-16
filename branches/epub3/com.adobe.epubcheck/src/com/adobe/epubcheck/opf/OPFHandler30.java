@@ -147,7 +147,7 @@ public class OPFHandler30 extends OPFHandler {
 		if (OPFChecker30.isCoreMediaType(mimeType)) {
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(), "The media-type " + mimeType
-							+ " is a core media type!");
+							+ " is a core media type");
 			return;
 		}
 
@@ -155,7 +155,7 @@ public class OPFHandler30 extends OPFHandler {
 				&& xrefChecker.getBindingHandlerSrc(mimeType) != null) {
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(), "The media-type " + mimeType
-							+ " has already been assigned a handler!");
+							+ " has already been assigned a handler");
 			return;
 		}
 
@@ -204,7 +204,7 @@ public class OPFHandler30 extends OPFHandler {
 		if (propertiesNumber == 2)
 			report.error(path, parser.getLineNumber(),
 					parser.getColumnNumber(),
-					"itemref can't have both page-spread-right and page-spread-left properties!");
+					"itemref can't have both page-spread-right and page-spread-left properties");
 
 	}
 

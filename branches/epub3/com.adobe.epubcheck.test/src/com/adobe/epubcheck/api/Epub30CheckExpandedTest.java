@@ -249,9 +249,14 @@ public class Epub30CheckExpandedTest {
 		testValidateDocument("valid/fallbacks/", 0, 0);
 	}
 	
-//	@Test
-//	public void testValidateEPUB30_svgCoverImage() {
-//		//svg in spine, svg cover image
-//		testValidateDocument("valid/svg-in-spine/", 0, 0, true);
-//	}
+	@Test
+	public void testValidateEPUB30_svgCoverImage() {
+		testValidateDocument("valid/svg-cover/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_svgInSpine() {
+		//svg in spine, svg cover image
+		testValidateDocument("valid/svg-in-spine/", 0, 0);
+	}
 }
