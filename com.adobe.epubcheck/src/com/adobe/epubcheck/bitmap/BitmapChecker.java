@@ -28,6 +28,7 @@ import java.io.InputStream;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
+import com.adobe.epubcheck.util.CheckUtil;
 
 public class BitmapChecker implements ContentChecker {
 
@@ -74,7 +75,8 @@ public class BitmapChecker implements ContentChecker {
 			try {
 				in = ocf.getInputStream(path);
 				byte[] header = new byte[4];
-				if (in.read(header) != header.length) {
+				int rd = CheckUtil.readBytes(in, header, 0, 4);
+				if (rd < 4) {
 					report.error(null, 0, 0, "image file " + path
 							+ " is too short");
 				} else {
@@ -91,5 +93,7 @@ public class BitmapChecker implements ContentChecker {
 			}
 		}
 	}
+
+	
 
 }
