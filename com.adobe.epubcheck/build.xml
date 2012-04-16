@@ -106,17 +106,28 @@
         -->
         <target name="buildBinZip" depends="buildJar"
                 description="Build a zip including epubcheck.jar and 3d party dependencies in ./lib/*.jar">
-                <delete file="${distribution.dir}/epubcheck-${version}.zip"/>
-                <zip zipfile="${distribution.dir}/epubcheck-${version}.zip">
-                        <fileset dir="${distribution.dir}">
-                                <include name="epubcheck-${version}.jar"/>
-                        </fileset>
-                        <fileset dir="${epubcheck.base.dir}">
-                                <include name="lib/*.jar"/>
-                        		<include name="lib/*.text"/>
-                                <include name="*.txt"/>
-                        </fileset>
-                </zip>
+            
+        		<delete file="${distribution.dir}/epubcheck-${version}.zip"/>
+        	
+        		<!-- Issue 152:	Package ZIP distributions inside uniquely named directory -->
+        	
+        		<property name ="tmpbinjardir" value="${temp.dir}/binjar/epubcheck-${version}"/>        	
+        		<mkdir dir="${tmpbinjardir}"/>
+        	
+        		<copy toDir="${tmpbinjardir}" failonerror="true">
+        			<fileset dir="${distribution.dir}">
+                            <include name="epubcheck-${version}.jar"/>
+                    </fileset>
+                    <fileset dir="${epubcheck.base.dir}">
+                            <include name="lib/*.jar"/>
+                    		<include name="lib/*.txt"/>
+                            <include name="*.txt"/>
+                    </fileset>
+        		</copy>
+        	
+                <zip zipfile="${distribution.dir}/epubcheck-${version}.zip" 
+                	basedir="${temp.dir}/binjar" />
+        	
         </target>
 
         <!-- 
@@ -125,7 +136,7 @@
         *******************************
         -->
         <target name="buildSrcZip" depends="createDistributionDir, iso-sch-prep"
-                description="Creates a epubcheck_src_${version}.zip with *.java files in the distribution folder">
+                description="Creates a epubcheck-src-${version}.zip with *.java files in the distribution folder">
 
                 <zip zipfile="${distribution.dir}/epubcheck-src-${version}.zip">
                         <fileset dir="${epubcheck.base.dir}" includes="**/*.*"

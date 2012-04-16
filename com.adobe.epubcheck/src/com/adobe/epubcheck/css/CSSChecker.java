@@ -25,7 +25,6 @@ package com.adobe.epubcheck.css;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
