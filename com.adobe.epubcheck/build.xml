@@ -56,7 +56,7 @@
         <target name="compile" description="Compiles all src classes" depends="removeClasses">
 
                 <javac srcdir="${epubcheck.base.dir}" destdir="${build.dir}" source="1.5"
-                        classpathref="classpath" includes="**/*.*" debug="true">
+                        classpathref="classpath" includes="**/*.*" debug="true" includeantruntime="false">
                         <compilerarg value="-Xlint:unchecked"/>
                 </javac>
 
