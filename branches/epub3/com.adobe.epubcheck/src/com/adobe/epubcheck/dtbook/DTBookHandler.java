@@ -67,7 +67,7 @@ public class DTBookHandler implements XMLHandler {
 				uri = e.getAttribute("href");
 				String external = e.getAttribute("external");
 				if (uri != null && external.equals("true")) {
-					if (OPSHandler.isRegisteredSchemaType(uri))
+					if (OPSHandler.isRegisteredSchemeType(uri))
 						uri = null;
 					else if (uri.indexOf(':') > 0) {
 						parser.getReport().warning(
@@ -85,7 +85,8 @@ public class DTBookHandler implements XMLHandler {
 				uri = e.getAttribute("src");
 			}
 			if (uri != null) {
-				uri = PathUtil.resolveRelativeReference(path, uri);
+				//TODO check if dtbook uses xml:base of so set third param
+				uri = PathUtil.resolveRelativeReference(path, uri, null);
 				xrefChecker.registerReference(path, parser.getLineNumber(),
 						parser.getColumnNumber(), uri,
 						name.equals("img") ? XRefChecker.RT_IMAGE

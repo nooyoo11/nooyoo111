@@ -172,7 +172,7 @@ public class OPFHandler30 extends OPFHandler {
 		String href = e.getAttribute("href");
 		if (href != null && !href.startsWith("http://")) {
 			try {
-				href = PathUtil.resolveRelativeReference(path, href);
+				href = PathUtil.resolveRelativeReference(path, href, null);
 			} catch (IllegalArgumentException ex) {
 				report.error(path, parser.getLineNumber(),
 						parser.getColumnNumber(), ex.getMessage());
