@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
 
+import javax.xml.XMLConstants;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.PathUtil;
@@ -37,6 +39,9 @@ import com.adobe.epubcheck.xml.XMLParser;
 public class OPSHandler implements XMLHandler {
 
 	String path;
+	
+	/** null unless head/base or xml:base is given */
+	protected String base; 
 
 	XRefChecker xrefChecker;
 
@@ -89,7 +94,7 @@ public class OPSHandler implements XMLHandler {
 		if (xrefChecker != null && paint != null && paint.startsWith("url(")
 				&& paint.endsWith(")")) {
 			String href = paint.substring(4, paint.length() - 1);
-			href = PathUtil.resolveRelativeReference(path, href);
+			href = PathUtil.resolveRelativeReference(path, href, base);
 			xrefChecker.registerReference(path, parser.getLineNumber(),
 					parser.getColumnNumber(), href, XRefChecker.RT_SVG_PAINT);
 		}
@@ -102,7 +107,7 @@ public class OPSHandler implements XMLHandler {
 	private void checkImage(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
-			href = PathUtil.resolveRelativeReference(path, href);
+			href = PathUtil.resolveRelativeReference(path, href, base);
 			xrefChecker.registerReference(path, parser.getLineNumber(),
 					parser.getColumnNumber(), href, XRefChecker.RT_IMAGE);
 		}
@@ -111,7 +116,7 @@ public class OPSHandler implements XMLHandler {
 	private void checkObject(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
-			href = PathUtil.resolveRelativeReference(path, href);
+			href = PathUtil.resolveRelativeReference(path, href, base);
 			xrefChecker.registerReference(path, parser.getLineNumber(),
 					parser.getColumnNumber(), href, XRefChecker.RT_OBJECT);
 		}
@@ -122,7 +127,7 @@ public class OPSHandler implements XMLHandler {
 		String rel = e.getAttributeNS(attrNS, "rel");
 		if (xrefChecker != null && href != null && rel != null
 				&& rel.indexOf("stylesheet") >= 0) {
-			href = PathUtil.resolveRelativeReference(path, href);
+			href = PathUtil.resolveRelativeReference(path, href, base);
 			xrefChecker.registerReference(path, parser.getLineNumber(),
 					parser.getColumnNumber(), href, XRefChecker.RT_STYLESHEET);
 		}
@@ -131,7 +136,7 @@ public class OPSHandler implements XMLHandler {
 	private void checkSymbol(XMLElement e, String attrNS, String attr) {
 		String href = e.getAttributeNS(attrNS, attr);
 		if (xrefChecker != null && href != null) {
-			href = PathUtil.resolveRelativeReference(path, href);
+			href = PathUtil.resolveRelativeReference(path, href, base);
 			xrefChecker.registerReference(path, parser.getLineNumber(),
 					parser.getColumnNumber(), href, XRefChecker.RT_SVG_SYMBOL);
 		}
@@ -149,20 +154,23 @@ public class OPSHandler implements XMLHandler {
 			 * if (href.startsWith("http://") || href.startsWith("https://") ||
 			 * href.startsWith("ftp://") || href.startsWith("mailto:") ||
 			 * href.startsWith("data:")) return;
-			 */
-			if (isRegisteredSchemaType(href))
+			 * 
+			 * mgy 20120417 adding check for base to initial if clause as part
+			 * of solution to issue 155
+			 */			
+			if (isRegisteredSchemeType(href) || (null != base && isRegisteredSchemeType(base)))
 				return;
 			// This if statement is needed to make sure XML Fragment identifiers
-			// are not reported as non-registered URI schema types
+			// are not reported as non-registered URI scheme types
 			else if (href.indexOf(':') > 0) {
 				report.warning(path, parser.getLineNumber(),
 						parser.getColumnNumber(),
-						"use of non-registered URI schema type in href: "
+						"use of non-registered URI scheme type in href: "
 								+ href);
 				return;
 			}
 			try {
-				href = PathUtil.resolveRelativeReference(path, href);
+				href = PathUtil.resolveRelativeReference(path, href, base);
 			} catch (IllegalArgumentException err) {
 				report.error(path, parser.getLineNumber(),
 						parser.getColumnNumber(), err.getMessage());
@@ -175,7 +183,7 @@ public class OPSHandler implements XMLHandler {
 		}
 	}
 
-	public static boolean isRegisteredSchemaType(String href) {
+	public static boolean isRegisteredSchemeType(String href) {
 		int colonIndex = href.indexOf(':');
 		if (colonIndex < 0)
 			return false;
@@ -196,6 +204,12 @@ public class OPSHandler implements XMLHandler {
 		openElements++;
 		XMLElement e = parser.getCurrentElement();
 		String id = e.getAttribute("id");
+		
+		String baseTest = e.getAttributeNS(XMLConstants.XML_NS_URI, "base"); 
+		if(baseTest != null) {
+			base = baseTest;
+		}
+		
 		String ns = e.getNamespace();
 		String name = e.getName();
 		int resourceType = XRefChecker.RT_GENERIC;
@@ -227,6 +241,8 @@ public class OPSHandler implements XMLHandler {
 					checkObject(e, null, "data");
 				else if (name.equals("link"))
 					checkLink(e, null, "href");
+				else if (name.equals("base"))
+					base = e.getAttribute("href");
 				resourceType = XRefChecker.RT_HYPERLINK;
 			}
 		}

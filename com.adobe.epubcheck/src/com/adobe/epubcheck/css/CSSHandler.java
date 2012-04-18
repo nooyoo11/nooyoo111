@@ -70,7 +70,7 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 					
 					String uri = value.getStringValue();
 					//System.err.println(uri);
-					uri = PathUtil.resolveRelativeReference(path, uri);
+					uri = PathUtil.resolveRelativeReference(path, uri, null);
 
 					xrefChecker.registerReference(path, -1, -1, uri,
 							XRefChecker.RT_GENERIC);
@@ -126,7 +126,7 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 	public void importStyle(String uri, SACMediaList media,
 			String defaultNamespaceURI) throws CSSException {
 		//System.err.println("importStyle()");
-		String ruri = PathUtil.resolveRelativeReference(path, uri);
+		String ruri = PathUtil.resolveRelativeReference(path, uri, null);
 		
 		xrefChecker.registerReference(path, -1, -1, ruri,
 				XRefChecker.RT_GENERIC);

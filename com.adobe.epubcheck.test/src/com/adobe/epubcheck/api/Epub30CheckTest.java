@@ -186,4 +186,9 @@ public class Epub30CheckTest {
 	public void testValidateEPUB30Issue137b() { 
 		testValidateDocument("invalid/issue137b.epub", 2, 1);
 	}
+	
+	@Test
+	public void testValidateEPUB30specValid() { 
+		testValidateDocument("valid/epub30-spec.epub", 0, 0);
+	}
 }

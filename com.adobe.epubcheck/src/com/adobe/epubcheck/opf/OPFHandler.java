@@ -227,7 +227,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 						&& !(version == EPUBVersion.VERSION_3 && href
 								.startsWith("http://"))) {
 					try {
-						href = PathUtil.resolveRelativeReference(path, href);
+						href = PathUtil.resolveRelativeReference(path, href, null);
 					} catch (IllegalArgumentException ex) {
 						report.error(path, parser.getLineNumber(),
 								parser.getColumnNumber(), ex.getMessage());
@@ -284,7 +284,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 				String href = e.getAttribute("href");
 				if (href != null && xrefChecker != null) {
 					try {
-						href = PathUtil.resolveRelativeReference(path, href);
+						href = PathUtil.resolveRelativeReference(path, href, null);
 						xrefChecker.registerReference(path,
 								parser.getLineNumber(),
 								parser.getColumnNumber(), href,

@@ -197,7 +197,7 @@ public class OPSHandler30 extends OPSHandler {
 		String posterMimeType = null;
 		if (xrefChecker != null && posterSrc != null)
 			posterMimeType = xrefChecker.getMimeType(PathUtil
-					.resolveRelativeReference(path, posterSrc));
+					.resolveRelativeReference(path, posterSrc, base));
 
 		if (posterMimeType != null
 				&& !OPFChecker.isBlessedImageType(posterMimeType))
@@ -228,7 +228,7 @@ public class OPSHandler30 extends OPSHandler {
 		if (src.startsWith("http://"))
 			propertiesSet.add("remote-resources");
 		else
-			src = PathUtil.resolveRelativeReference(path, src);
+			src = PathUtil.resolveRelativeReference(path, src, base);
 
 		xrefChecker.registerReference(path, parser.getLineNumber(),
 				parser.getColumnNumber(), src, XRefChecker.RT_GENERIC);
@@ -257,7 +257,7 @@ public class OPSHandler30 extends OPSHandler {
 
 		if (data != null) {
 			processSrc(e.getName(), data);
-			data = PathUtil.resolveRelativeReference(path, data);
+			data = PathUtil.resolveRelativeReference(path, data, base);
 		}
 
 		if (type != null && data != null && xrefChecker != null

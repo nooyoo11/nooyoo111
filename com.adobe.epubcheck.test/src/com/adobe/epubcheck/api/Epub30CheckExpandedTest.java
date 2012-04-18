@@ -264,4 +264,29 @@ public class Epub30CheckExpandedTest {
 	public void testValidateEPUB30_videoAudioTrigger() {
 		testValidateDocument("valid/cc-shared-culture/", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30_InvalidLinks() {
+		/*
+		 * the valid counterpart is in the zipped section
+		 * 
+		 * - one broken file ref in navdoc
+		 * - one broken frag ref in navdoc
+		 * - one broken internal frag ref in overview
+		 * - one broken crossdoc frag ref in overview
+		 */
+		
+		testValidateDocument("invalid/epub30-spec/", 4, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_basicDual() {
+		testValidateDocument("valid/lorem-basic-dual/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_Base() {
+		//<base href set, see issue 155 
+		testValidateDocument("invalid/lorem-basic-dual-base/", 2, 0);
+	}
 }

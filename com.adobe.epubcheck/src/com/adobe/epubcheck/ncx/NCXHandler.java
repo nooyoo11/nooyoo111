@@ -56,7 +56,7 @@ public class NCXHandler implements XMLHandler {
 			if (name.equals("content")) {
 				String href = e.getAttribute("src");
 				if (href != null) {
-					href = PathUtil.resolveRelativeReference(path, href);
+					href = PathUtil.resolveRelativeReference(path, href, null);
 					xrefChecker.registerReference(path, parser.getLineNumber(),
 							parser.getColumnNumber(), href,
 							XRefChecker.RT_HYPERLINK);
