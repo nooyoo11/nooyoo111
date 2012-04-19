@@ -96,5 +96,20 @@ public class Epub20CheckExpandedTest {
 	public void testValidateEPUB20_okFallback() {
 		testValidateDocument("valid/fallbacks/", 0, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB20_loremBasicDual() {
+		testValidateDocument("valid/lorem-basic-dual/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB20_guideWithNcx() {
+		testValidateDocument("valid/lorem-dual-guide/", 0, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB20_guideBrokenLink() {
+		testValidateDocument("invalid/lorem-dual-guide/", 2, 0);
+	}
 
 }
