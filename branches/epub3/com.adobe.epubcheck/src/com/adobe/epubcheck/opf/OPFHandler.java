@@ -288,7 +288,7 @@ public class OPFHandler implements OPFData, XMLHandler {
 						xrefChecker.registerReference(path,
 								parser.getLineNumber(),
 								parser.getColumnNumber(), href,
-								XRefChecker.RT_HYPERLINK);
+								XRefChecker.RT_GENERIC);
 					} catch (IllegalArgumentException ex) {
 						report.error(path, parser.getLineNumber(),
 								parser.getColumnNumber(), ex.getMessage());
