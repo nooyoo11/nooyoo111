@@ -200,4 +200,8 @@ public class Epub20CheckTest {
 		testValidateDocument("/invalid/unresolved-internal-xhtml-link.epub", 1, 0);
 	}
 
+	@Test
+	public void testValidateEPUBvalidIssue169() {
+		testValidateDocument("valid/issue169.epub", 0, 0);
+	}
 }

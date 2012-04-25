@@ -162,53 +162,51 @@ public class OCFChecker {
 		}
 	}
 
-	private XMLParser parser = null;
-
-	public void parse(String path, XMLHandler handler, Report report,
-			XMLValidator validator, EPUBVersion version) throws IOException {
-		InputStream in = null;
-		try{
-			in = ocf.getInputStream(path);
-			parser = new XMLParser(in,
-					OCFData.containerEntry, "xml", report, version);
-			parser.addXMLHandler(handler);
-			parser.addValidator(validator);
-			parser.process();
-		}finally{
-			try{
-				in.close();
-			}catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-	}
-
 	public boolean validate(EPUBVersion version) {
-
+		XMLParser parser = null;
+		InputStream in = null;
 		try {
+			
 			// validate container
+			in = ocf.getInputStream(OCFData.containerEntry);
+			parser = new XMLParser(in, OCFData.containerEntry, "xml", report, version);
 			XMLHandler handler = new OCFHandler(parser);
-			parse(OCFData.containerEntry, handler, report,
-					xmlValidatorMap.get(new OPSType(OCFData.containerEntry,
-							version)), version);
+			parser.addXMLHandler(handler);
+			parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.containerEntry, version)));
+			parser.process();
+			try{ in.close(); } catch (Exception e) {}
 
 			// Validate encryption.xml
 			if (ocf.hasEntry(OCFData.encryptionEntry)) {
+				in = ocf.getInputStream(OCFData.encryptionEntry);
+				parser = new XMLParser(in, OCFData.encryptionEntry, "xml", report, version);
 				handler = new EncryptionHandler(ocf, parser);
-				parse(OCFData.encryptionEntry, handler, report,
-						xmlValidatorMap.get(new OPSType(
-								OCFData.encryptionEntry, version)), version);
+				parser.addXMLHandler(handler);
+				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.encryptionEntry, version)));
+				parser.process();
+				try{ in.close(); } catch (Exception e) {}				
 			}
 
-			// validate encryption.xml
+			// validate signatures.xml
 			if (ocf.hasEntry(OCFData.signatureEntry)) {
+				in = ocf.getInputStream(OCFData.signatureEntry);
+				parser = new XMLParser(in, OCFData.signatureEntry, "xml", report, version);
 				handler = new OCFHandler(parser);
-				parse(OCFData.signatureEntry, handler, report,
-						xmlValidatorMap.get(new OPSType(OCFData.signatureEntry,
-								version)), version);
+				parser.addXMLHandler(handler);
+				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.signatureEntry, version)));
+				parser.process();
+				try{ in.close(); } catch (Exception e) {}
 			}
+			
 		} catch (Exception ignore) {
-		}
+			
+		} finally {
+			try{
+				in.close();
+			}catch (Exception e) {
+				
+			}
+	}
 
 		return false;
 	}

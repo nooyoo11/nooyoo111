@@ -314,7 +314,13 @@ public class XRefChecker {
 				// + res.mimeType + "'");
 				break;
 			}
-		} else {
+		} else { //if (ref.fragment == null) {
+			
+			if(ref.fragment.startsWith("epubcfi(")) {
+				//Issue 150
+				return;
+			}
+			
 			switch (ref.type) {
 			case RT_HYPERLINK:
 				// if mimeType is null, we should have reported an error already

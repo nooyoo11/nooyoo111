@@ -75,12 +75,16 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 					xrefChecker.registerReference(path, -1, -1, uri,
 							XRefChecker.RT_GENERIC);
 
-					if (fontFace && version == EPUBVersion.VERSION_3) {						
+					if (fontFace && version == EPUBVersion.VERSION_3) {								
 						String fontMimeType = xrefChecker.getMimeType(uri);
-						if (!OPFChecker30.isBlessedFontType(fontMimeType))
-							report.error(path, -1, -1, "Font-face reference "
-									+ uri + "to non-standard font type "
-									+ fontMimeType);
+						if(fontMimeType != null) {
+							if (!OPFChecker30.isBlessedFontType(fontMimeType))
+								report.error(path, -1, -1, "Font-face reference "
+										+ uri + "to non-standard font type "
+										+ fontMimeType);
+						} else {
+							//we should get error report elsewhere
+						}
 					}
 
 				} else
