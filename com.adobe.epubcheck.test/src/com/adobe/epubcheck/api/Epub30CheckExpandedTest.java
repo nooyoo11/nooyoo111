@@ -289,4 +289,19 @@ public class Epub30CheckExpandedTest {
 		//<base href set, see issue 155 
 		testValidateDocument("invalid/lorem-basic-dual-base/", 2, 0);
 	}
+	
+	@Test
+	public void testValidateEPUB30_InvalidContainer() {
+		testValidateDocument("invalid/lorem-container/", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_InvalidSignatures() {
+		testValidateDocument("invalid/lorem-signatures/", 1, 0);
+	}
+	
+	@Test
+	public void testValidateEPUB30_InvalidEncryption() {
+		testValidateDocument("invalid/lorem-encryption/", 1, 0);
+	}
 }
