@@ -203,7 +203,7 @@ public class OCFChecker {
 		} finally {
 			try{
 				in.close();
-			}catch (Exception e) {
+			} catch (Exception e) {
 				
 			}
 	}
