@@ -35,6 +35,7 @@ import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
 
@@ -47,7 +48,11 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 	Report report;
 
 	boolean fontFace = false;
-
+	String fontFamily;
+	String fontStyle;
+	String fontWeight;
+	String fontUri;
+	
 	EPUBVersion version;
 
 	public CSSHandler(String path, XRefChecker xrefChecker, Report report,
@@ -71,16 +76,25 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 					String uri = value.getStringValue();
 					//System.err.println(uri);
 					uri = PathUtil.resolveRelativeReference(path, uri, null);
-
+					fontUri = uri;
 					xrefChecker.registerReference(path, -1, -1, uri,
 							XRefChecker.RT_GENERIC);
 
+					// OPS 2.0.1 Section 3.4 
+					if (fontFace && version == EPUBVersion.VERSION_2) {
+	                       String fontMimeType = xrefChecker.getMimeType(uri);
+	                       if (fontMimeType != null && !isFontMimetype(fontMimeType)){
+                               report.warning(path, -1, -1, "Font-face reference "
+                                       + uri + " to non-standard font type "
+                                       + fontMimeType);
+	                       }
+					}
 					if (fontFace && version == EPUBVersion.VERSION_3) {								
 						String fontMimeType = xrefChecker.getMimeType(uri);
 						if(fontMimeType != null) {
 							if (!OPFChecker30.isBlessedFontType(fontMimeType))
 								report.error(path, -1, -1, "Font-face reference "
-										+ uri + "to non-standard font type "
+										+ uri + " to non-standard font type "
 										+ fontMimeType);
 						} else {
 							//we should get error report elsewhere
@@ -97,12 +111,19 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 					-1,
 					-1,
 					"The fixed value of the position property is not part of the EPUB 3 CSS Profile.");
-		else if (name.equals("direction") || name.equals("unicode-bidi"))
+		else if (name.equals("direction") || name.equals("unicode-bidi")) {
 			report.error(
 					path,
 					-1,
 					-1,
 					"The direction and unicode-bidi properties must not be included in an EPUB Style Sheet.");
+		} else if (fontFace && name.equals("font-family") && value != null && value.getStringValue() != null) {
+		    fontFamily = value.getStringValue();;
+        } else if (fontFace && name.equals("font-style") && value != null && value.getStringValue() != null) {
+            fontStyle = value.getStringValue();;
+        } else if (fontFace && name.equals("font-weight") && value != null && value.getStringValue() != null) {
+            fontWeight = value.getStringValue();;
+		}
 	}
 	
 	public void comment(String text) throws CSSException {
@@ -112,6 +133,20 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 	}
 
 	public void endFontFace() throws CSSException {
+	    if (fontFamily != null) {
+	        if (fontUri != null  && !fontUri.startsWith("http")) {
+	            report.info(path, FeatureEnum.FONT_EMBEDED, fontFamily + 
+	                (((fontStyle!=null) && !"normal".equalsIgnoreCase(fontStyle))?","+fontStyle:"") +
+                    (((fontWeight!=null) && !"normal".equalsIgnoreCase(fontWeight))?","+fontWeight:"")
+	             );
+	        } else {
+                report.info(path, FeatureEnum.FONT_REFERENCE, fontFamily + 
+                        (((fontStyle!=null) && !"normal".equalsIgnoreCase(fontStyle))?","+fontStyle:"") +
+                        (((fontWeight!=null) && !"normal".equalsIgnoreCase(fontWeight))?","+fontWeight:"")
+                     );
+                report.info(path, FeatureEnum.REFERENCE, fontUri);
+	        }
+	    }
 		fontFace = false;
 	}
 
@@ -149,6 +184,10 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 	public void startFontFace() throws CSSException {
 		//System.err.println("startFontFace()");
 		fontFace = true;
+		fontFamily = null;
+		fontStyle = null;
+		fontWeight = null;
+		fontUri = null;
 	}
 
 	public void startMedia(SACMediaList media) throws CSSException {
@@ -181,5 +220,12 @@ class CSSHandler implements DocumentHandler, ErrorHandler {
 		// System.err.println("CSSHandler#warning: " + e.getMessage());
 		
 	}
+
+	public static boolean isFontMimetype(String mime) {
+        if (mime == null) return false;
+        return (mime.startsWith("font/") || mime.startsWith("application/font") 
+                || mime.startsWith("application/x-font") 
+                || "application/vnd.ms-opentype".equals(mime));
+    }
 
 }

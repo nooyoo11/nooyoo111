@@ -24,6 +24,7 @@ package com.adobe.epubcheck.dtbook;
 
 import com.adobe.epubcheck.opf.XRefChecker;
 import com.adobe.epubcheck.ops.OPSHandler;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
@@ -91,6 +92,9 @@ public class DTBookHandler implements XMLHandler {
 						parser.getColumnNumber(), uri,
 						name.equals("img") ? XRefChecker.RT_IMAGE
 								: XRefChecker.RT_HYPERLINK);
+				if (uri.startsWith("http")) {
+				    parser.getReport().info(path, FeatureEnum.REFERENCE, uri);
+				}
 			}
 			if (id != null)
 				xrefChecker.registerAnchor(path, parser.getLineNumber(),

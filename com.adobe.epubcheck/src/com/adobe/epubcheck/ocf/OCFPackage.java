@@ -33,6 +33,7 @@ public abstract class OCFPackage implements GenericResourceProvider {
      * @return true if the file is in the container, false otherwise
      */
     public abstract boolean hasEntry(String name);
+    public abstract long getTimeEntry(String name);
 
     /**
      * @param name the name of a relative file to fetch from the container.

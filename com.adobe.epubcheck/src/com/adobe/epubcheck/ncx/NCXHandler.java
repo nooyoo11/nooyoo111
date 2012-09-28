@@ -23,6 +23,7 @@
 package com.adobe.epubcheck.ncx;
 
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
@@ -57,6 +58,9 @@ public class NCXHandler implements XMLHandler {
 				String href = e.getAttribute("src");
 				if (href != null) {
 					href = PathUtil.resolveRelativeReference(path, href, null);
+					if (href.startsWith("http")) {
+	                    parser.getReport().info(path, FeatureEnum.REFERENCE, href);
+					}
 					xrefChecker.registerReference(path, parser.getLineNumber(),
 							parser.getColumnNumber(), href,
 							XRefChecker.RT_HYPERLINK);

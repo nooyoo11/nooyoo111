@@ -45,6 +45,11 @@ public class OCFMockPackage extends OCFPackage
     }
 
     @Override
+    public long getTimeEntry(String name) {
+        return 1348240407L;
+    }
+    
+    @Override
     public InputStream getInputStream( String name ) throws IOException
     {
         if (hasEntry( name ))
@@ -69,4 +74,5 @@ public class OCFMockPackage extends OCFPackage
     {
         return dirEntries;
     }
+
 }

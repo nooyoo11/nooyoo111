@@ -23,6 +23,7 @@
 
 package com.adobe.epubcheck.tool;
 
+import java.io.File;
 import java.util.HashMap;
 
 import com.adobe.epubcheck.api.EpubCheck;
@@ -37,12 +38,14 @@ import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
 import com.adobe.epubcheck.util.Archive;
 import com.adobe.epubcheck.util.DefaultReportImpl;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.FileResourceProvider;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.util.URLResourceProvider;
+import com.adobe.epubcheck.util.XmlReportImpl;
 
 public class Checker {
 
@@ -53,7 +56,8 @@ public class Checker {
 	private static boolean keep = false;
 
 	private static HashMap<OPSType, String> modeMimeTypeMap;
-
+	private static File fileOut;
+	
 	static {
 		HashMap<OPSType, String> map = new HashMap<OPSType, String>();
 
@@ -185,6 +189,8 @@ public class Checker {
 			if (expanded) {
 				Archive epub = new Archive(path, keep);
 				report = new DefaultReportImpl(epub.getEpubName());
+                report.info(null, FeatureEnum.TOOL_NAME, "epubcheck");
+				report.info(null, FeatureEnum.TOOL_VERSION, EpubCheck.VERSION);
 				epub.createArchive();
 	
 				EpubCheck check = new EpubCheck(epub.getEpubFile(), report);
@@ -193,6 +199,7 @@ public class Checker {
 					return 0;
 				}									
 				System.err.println(Messages.THERE_WERE_ERRORS);
+
 				if((report.getErrorCount() > 0 || report.getExceptionCount() > 0) && keep) {
 					//keep if valid or only warnings
 					System.err.println(Messages.DELETING_ARCHIVE);
@@ -202,14 +209,26 @@ public class Checker {
 				return 1;
 			}
 	
-			if (mode != null) {
-				report = new DefaultReportImpl(path, String.format(
-						Messages.SINGLE_FILE, mode, version.toString()));
-			}else {
-				report = new DefaultReportImpl(path);
-			}
+            if (fileOut == null) {
+    			if (mode != null) {
+    				report = new DefaultReportImpl(path, String.format(
+    						Messages.SINGLE_FILE, mode, version.toString()));
+    			}else {
+    				report = new DefaultReportImpl(path);
+    			}
+            } else {
+                report = new XmlReportImpl(fileOut, path, EpubCheck.VERSION);
+                if (mode != null) {
+                    report.info(null, FeatureEnum.EXEC_MODE, String.format(
+                            Messages.SINGLE_FILE, mode, version.toString()));
+                }
+            }
 			
-			return validateFile(path, mode, version, report);
+			int returnValue = validateFile(path, mode, version, report);
+			if (report instanceof XmlReportImpl) {
+			    ((XmlReportImpl) report).generate();
+			}
+			return returnValue;
 			
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -235,7 +254,6 @@ public class Checker {
 		// Exit if there are no arguments passed to main
 		displayVersion();
 		if (args.length < 1) {
-
 			System.err.println(Messages.ARGUMENT_NEEDED);
 			System.exit(1);
 		}
@@ -260,12 +278,12 @@ public class Checker {
 							Messages.AFTER_ARGUMENT_EXPECTED, "-v or -version",
 							"version"));
 				}
-			else if (args[i].equals("-mode"))
+			else if (args[i].equals("-mode")) {
 				if (i + 1 < args.length) {
 					mode = args[++i];
 					if (mode.equals("exp")) {
 						expanded = true;
-					}else {
+					} else {
 						expanded = false;
 					}
 					continue;
@@ -274,9 +292,14 @@ public class Checker {
 					throw new RuntimeException(String.format(
 							Messages.AFTER_ARGUMENT_EXPECTED, "-mode", "type"));
 				}
-			else if (args[i].equals("-save")) {				
+			} else if (args[i].equals("-save")) {				
 				keep = true;
 				continue;
+			} else if ("-out".equals(args[i])) {   
+	             if (i + 1 < args.length) {
+	                fileOut = new File(args[++i]);
+	             }
+	             continue;
 			} else if (args[i].equals("-help") || args[i].equals("-?"))
 				displayHelp(); // display help message
 			else
@@ -337,6 +360,7 @@ public class Checker {
 		System.out.println("This tool also accepts the following flags:");
 		System.out
 				.println("-save 	= saves the epub created from the expended epub");
+        System.out.println("-out <file>     = ouput an assessment XML document in file (experimental)");
 		System.out.println("-? or -help 	= displays this help message");
 	}
 

@@ -44,8 +44,9 @@ public class ValidationReport implements Report {
 	}
 
 	private int errorCount, warningCount, exceptionCount;
-	public ArrayList<ItemReport> errorList, warningList, exceptionList;
-	public String fileName;
+	public ArrayList<ItemReport> errorList, warningList, exceptionList, infoList;
+
+    public String fileName;
 	String info = "";
 
 	public ValidationReport(String file) {
@@ -54,6 +55,7 @@ public class ValidationReport implements Report {
 		errorList = new ArrayList<ItemReport>();
 		warningList = new ArrayList<ItemReport>();
 		exceptionList = new ArrayList<ItemReport>();
+		infoList = new ArrayList<ItemReport>();
 	}
 
 	public ValidationReport(String file, String info) {
@@ -65,6 +67,7 @@ public class ValidationReport implements Report {
 		errorList = new ArrayList<ItemReport>();
 		warningList = new ArrayList<ItemReport>();
 		exceptionList = new ArrayList<ItemReport>();
+        infoList = new ArrayList<ItemReport>();
 	}
 
 	public void error(String resource, int line, int column, String message) {
@@ -120,6 +123,12 @@ public class ValidationReport implements Report {
 					+ (item.resource != null ? ":" + item.resource : "")
 					+ item.message + "\n");
 		}
+        for (int i = 0; i < infoList.size(); i++) {
+            ItemReport item = (ItemReport) infoList.get(i);
+            buffer.append("INFO: " + fileName
+                    + (item.resource != null ? ":" + item.resource : "")
+                    + item.message + "\n");
+        }
 		return buffer.toString();
 	}
 
@@ -139,4 +148,26 @@ public class ValidationReport implements Report {
 		return exceptionCount;
 	}
 
+    @Override
+    public void info(String resource, FeatureEnum feature, String value) {
+        ItemReport item = new ItemReport(resource, 0, 0,
+                fixMessage("[" + feature + "] " + value));
+        infoList.add(item);
+    }
+
+    /**
+     * @return the infoList
+     */
+    public ArrayList<ItemReport> getInfoList() {
+        return infoList;
+    }
+
+    public boolean hasInfoMessage(String msg) {
+        for (ItemReport it : infoList) {
+            if (it.message.equals(msg)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -88,4 +88,11 @@ public class WriterReportImpl implements Report {
 		return exceptionCount;
 	}
 
+	@Override
+    public void info(String resource, FeatureEnum feature, String value) {
+	    if (feature == FeatureEnum.FORMAT_VERSION) {
+            out.println("INFO: " + String.format(Messages.VALIDATING_VERSION_MESSAGE, value));
+        }
+    }
+
 }

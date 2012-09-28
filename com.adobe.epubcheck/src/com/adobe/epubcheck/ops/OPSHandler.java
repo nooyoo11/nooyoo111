@@ -31,6 +31,7 @@ import javax.xml.XMLConstants;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.PathUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
@@ -52,6 +53,7 @@ public class OPSHandler implements XMLHandler {
 	Report report;
 
 	long openElements;  
+	long charsCount;
 	
 	private static HashSet<String> fillRegURISchemes() {
 		InputStream schemaStream = null;
@@ -157,7 +159,10 @@ public class OPSHandler implements XMLHandler {
 			 * 
 			 * mgy 20120417 adding check for base to initial if clause as part
 			 * of solution to issue 155
-			 */			
+			 */
+            if (href.startsWith("http")) {
+                report.info(path, FeatureEnum.REFERENCE, href);
+            }
 			if (isRegisteredSchemeType(href) || (null != base && isRegisteredSchemeType(base)))
 				return;
 			// This if statement is needed to make sure XML Fragment identifiers
@@ -253,12 +258,25 @@ public class OPSHandler implements XMLHandler {
 
 	public void endElement() {
 		openElements--;
+		XMLElement e = parser.getCurrentElement();
+        String ns = e.getNamespace();
+        String name = e.getName();
+
+		if (openElements == 0) {
+		    report.info(path, FeatureEnum.CHARS_COUNT, Long.toString(charsCount));
+		}
+		
+		if ("http://www.w3.org/1999/xhtml".equals(ns) && "script".equals(name)) {
+		    String attr = e.getAttribute("type");
+		    report.info(path, FeatureEnum.HAS_SCRIPT, (attr==null)?"":attr);
+		}
 	}
 
 	public void ignorableWhitespace(char[] chars, int arg1, int arg2) {
 	}
 
-	public void characters(char[] chars, int arg1, int arg2) {
+	public void characters(char[] chars, int start, int length) {
+	    charsCount += length;
 	}
 
 	public void processingInstruction(String arg0, String arg1) {

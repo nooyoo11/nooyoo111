@@ -39,6 +39,7 @@ import com.adobe.epubcheck.ncx.NCXCheckerFactory;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.GenericResourceProvider;
 import com.adobe.epubcheck.util.Messages;
 import com.adobe.epubcheck.util.PathUtil;
@@ -126,6 +127,7 @@ public class OPFChecker implements DocumentValidator {
 		}
 
 		int itemCount = opfHandler.getItemCount();
+		report.info(null, FeatureEnum.ITEMS_COUNT, Integer.toString(itemCount));
 		for (int i = 0; i < itemCount; i++) {
 			OPFItem item = opfHandler.getItem(i);
 			try {
@@ -137,6 +139,8 @@ public class OPFChecker implements DocumentValidator {
 				report.error(path, item.getLineNumber(),
 						item.getColumnNumber(), e.getMessage());
 			}
+			
+			report.info(item.getPath(), FeatureEnum.DECLARED_MIMETYPE, item.getMimeType());
 			checkItem(item, opfHandler);
 		}
 
@@ -210,7 +214,7 @@ public class OPFChecker implements DocumentValidator {
 		if (str.startsWith("http://"))
 			return "";
 
-		// the test strig will be used to compare test result
+		// the test string will be used to compare test result
 		String test = checkNonAsciiFilename(str);
 
 		if (str.endsWith(".")) {
