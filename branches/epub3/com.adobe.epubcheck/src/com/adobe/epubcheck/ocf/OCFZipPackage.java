@@ -23,6 +23,16 @@ public class OCFZipPackage extends OCFPackage {
 		return zip.getEntry(name) != null;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.adobe.epubcheck.ocf.OCFPackage#getTimeEntry(java.lang.String)
+	 */
+	public long getTimeEntry(String name) {
+	    ZipEntry entry = zip.getEntry(name);
+        if (entry == null)
+            return 0L;
+        return entry.getTime();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see com.adobe.epubcheck.ocf.OCFPackage#getInputStream(java.lang.String)

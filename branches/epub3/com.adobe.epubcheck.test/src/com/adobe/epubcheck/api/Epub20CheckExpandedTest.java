@@ -23,6 +23,13 @@
 package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.junit.Test;
 
@@ -52,64 +59,93 @@ public class Epub20CheckExpandedTest {
 	}
 
 	public void testValidateDocument(String fileName, int errors, int warnings) {
-
-		Archive epub = new Archive(path + fileName);
-		testReport = new ValidationReport(epub.getEpubName());
-		epub.createArchive();
-
-		epubCheck = new EpubCheck(epub.getEpubFile(), testReport);
-
-		epubCheck.validate();
-
-		if (verbose) {
-			verbose = false;
-			System.out.println(testReport);
-		}
-
-		assertEquals(errors, testReport.getErrorCount());
-		assertEquals(warnings, testReport.getWarningCount());
+	    testValidateDocument(fileName, errors, warnings, null);
 	}
+	
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile, boolean verbose) {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings, resultFile);
+    
+    }
 
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile) {
+
+        Archive epub = new Archive(path + fileName);
+        testReport = new ValidationReport(epub.getEpubName());
+        epub.createArchive();
+
+        epubCheck = new EpubCheck(epub.getEpubFile(), testReport);
+
+        epubCheck.validate();
+
+        if (this.verbose) {
+            this.verbose = false;
+            System.out.println(testReport);
+        }
+
+        assertEquals(errors, testReport.getErrorCount());
+        assertEquals(warnings, testReport.getWarningCount());
+        if (resultFile != null) {
+            File f = new File(path + resultFile);
+            assertTrue(f.getAbsolutePath() + " doesn't exist", f.exists());
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(f)));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if (line.trim().length() != 0 && !line.startsWith("#")) { // allow comments
+                        assertTrue(line + " not found", testReport.hasInfoMessage(line));
+                    }
+                }
+            } catch (IOException e) { /* IGNORE */
+            } finally {
+                if (in != null) { try { in.close(); } catch (IOException e) { /* IGNORE */ } } 
+            }
+        }
+    }
+	
 	@Test
 	public void testValidateEPUBPLoremBasic() {
-		testValidateDocument("valid/lorem/lorem-basic", 0, 0);
+		testValidateDocument("valid/lorem/lorem-basic", 0, 0, "valid/lorem/lorem-basic.txt");
 	}
 
 	@Test
 	public void testValidateEPUBMimetype() {
-		testValidateDocument("invalid/lorem-mimetype", 2, 0);
+		testValidateDocument("invalid/lorem-mimetype", 2, 0, "invalid/lorem-mimetype.txt");
 	}
 
 	@Test
 	public void testValidateEPUBUidSpaces() {
 		//ascertain that leading/trailing space in 2.0 id values is accepted
 		//issue 163
-		testValidateDocument("valid/lorem-uidspaces", 0, 0);
+		testValidateDocument("valid/lorem-uidspaces", 0, 0, "valid/lorem-uidspaces.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB20_circularFallback() {
-		testValidateDocument("invalid/fallbacks-circular/", 5, 0);
+		testValidateDocument("invalid/fallbacks-circular/", 5, 0, "invalid/fallbacks-circular.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB20_okFallback() {
-		testValidateDocument("valid/fallbacks/", 0, 0);
+		testValidateDocument("valid/fallbacks/", 0, 0, "valid/fallbacks.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB20_loremBasicDual() {
-		testValidateDocument("valid/lorem-basic-dual/", 0, 0);
+		testValidateDocument("valid/lorem-basic-dual/", 0, 0, "valid/lorem-basic-dual.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB20_guideWithNcx() {
-		testValidateDocument("valid/lorem-dual-guide/", 0, 0);
+		testValidateDocument("valid/lorem-dual-guide/", 0, 0, "valid/lorem-dual-guide.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB20_guideBrokenLink() {
-		testValidateDocument("invalid/lorem-dual-guide/", 2, 0);
+		testValidateDocument("invalid/lorem-dual-guide/", 2, 0, "invalid/lorem-dual-guide.txt");
 	}
 
 }

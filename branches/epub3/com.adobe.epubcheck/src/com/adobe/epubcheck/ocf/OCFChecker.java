@@ -32,6 +32,7 @@ import com.adobe.epubcheck.opf.OPFChecker30;
 import com.adobe.epubcheck.opf.OPFData;
 import com.adobe.epubcheck.util.CheckUtil;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.InvalidVersionException;
 import com.adobe.epubcheck.util.OPSType;
 import com.adobe.epubcheck.xml.XMLHandler;
@@ -101,7 +102,8 @@ public class OCFChecker {
 					"Required META-INF/container.xml resource is missing");
 			return;
 		}
-
+		report.info(OCFData.containerEntry, FeatureEnum.CREATION_DATE, 
+		        Long.toString(ocf.getTimeEntry(OCFData.containerEntry)));
 		OCFData containerHandler = ocf.getOcfData(report);
 
 		// retrieve rootpath
@@ -115,17 +117,20 @@ public class OCFChecker {
 					OPFData opfHandler = ocf.getOpfData(containerHandler,
 							report);
 
-					System.out.println("Validating against EPUB version " + opfHandler.getVersion());
-					
+					//System.out.println("Validating against EPUB version " + opfHandler.getVersion());
+
 					// checking mimeType file for trailing spaces
 					mimetype = ocf.getInputStream("mimetype");
+					StringBuilder sb = new StringBuilder(2048);
 					if (ocf.hasEntry("mimetype")
 							&& !CheckUtil.checkTrailingSpaces(
 									mimetype,
-									opfHandler.getVersion()))
+									opfHandler.getVersion(), sb))
 						report.error("mimetype", 0, 0,
 								"Mimetype file should contain only the string \"application/epub+zip\".");
-
+					if (sb.length() != 0) {
+	                    report.info(null,  FeatureEnum.FORMAT_NAME, sb.toString().trim());
+					}
 					// validate ocf files against the schema definitions
 					validate(opfHandler.getVersion());
 
@@ -185,6 +190,7 @@ public class OCFChecker {
 				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.encryptionEntry, version)));
 				parser.process();
 				try{ in.close(); } catch (Exception e) {}				
+                report.info(null, FeatureEnum.HAS_ENCRYPTION, OCFData.encryptionEntry);
 			}
 
 			// validate signatures.xml
@@ -196,6 +202,7 @@ public class OCFChecker {
 				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.signatureEntry, version)));
 				parser.process();
 				try{ in.close(); } catch (Exception e) {}
+                report.info(null, FeatureEnum.HAS_SIGNATURE, OCFData.signatureEntry);
 			}
 			
 		} catch (Exception ignore) {
@@ -231,7 +238,8 @@ public class OCFChecker {
 				rootBase = rootPath;
 			return rootBase;
 		} else {
-			System.out.println("RootPath is not an OPF file");
+		    report.error(null,  0, 0, "RootPath is not an OPF file");
+			//System.out.println("RootPath is not an OPF file");
 			return null;
 		}
 	}

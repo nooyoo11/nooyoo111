@@ -22,6 +22,7 @@
 
 package com.adobe.epubcheck.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -52,11 +53,18 @@ public class CheckUtil {
 	 * version, verifying trailing spaces.
 	 */
 	public static boolean checkTrailingSpaces(InputStream input,
-			EPUBVersion version) throws IOException {
-
-		for (int i = 0; i < 20; i++)
-			if (input.read() == -1)
+			EPUBVersion version, StringBuilder sb) throws IOException {
+	    
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream(2048);
+	    
+	    int c;
+		for (int i = 0; i < 20; i++) {
+			if ((c = input.read()) == -1) {
 				return false;
+			} else {
+			    baos.write(c);
+			}
+		}
 
 		int ch = input.read();
 		if (version == EPUBVersion.VERSION_2 && ch != -1)
@@ -64,16 +72,20 @@ public class CheckUtil {
 
 		if (version == EPUBVersion.VERSION_3 && ch != ' ' && ch != -1)
 			return false;
-
+		
 		int len;
 		byte[] buf = new byte[1024];
 
 		while ((len = input.read(buf)) > 0) {
 			for (int i = 0; i < len; i++)
-				if (buf[i] != ' ')
+				if (buf[i] != ' ') 
 					return false;
+				else 
+				    baos.write(buf[i]);
 		}
-
+		sb.append(baos.toString());
+		baos.close();
+		
 		return true;
 	}
 	

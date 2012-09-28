@@ -35,6 +35,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.InvalidVersionException;
 
 public class VersionRetriever {
@@ -88,11 +89,13 @@ public class VersionRetriever {
 		} catch (ParserConfigurationException e) {
 			report.exception(path, e);
 		} catch (SAXException e) {
-			if (VERSION_3.equals(e.getMessage()))
+			if (VERSION_3.equals(e.getMessage())) {
+			    report.info(null, FeatureEnum.FORMAT_VERSION, EPUBVersion.VERSION_3.toString());
 				return EPUBVersion.VERSION_3;
-			else if (VERSION_2.equals(e.getMessage()))
+			} else if (VERSION_2.equals(e.getMessage())) {
+                report.info(null, FeatureEnum.FORMAT_VERSION, EPUBVersion.VERSION_2.toString());
 				return EPUBVersion.VERSION_2;
-			else if (InvalidVersionException.UNSUPPORTED_VERSION.equals(e
+			} else if (InvalidVersionException.UNSUPPORTED_VERSION.equals(e
 					.getMessage()))
 				throw new InvalidVersionException(
 						InvalidVersionException.UNSUPPORTED_VERSION);

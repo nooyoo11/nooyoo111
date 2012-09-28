@@ -23,9 +23,13 @@
 package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.junit.Test;
 
@@ -50,16 +54,25 @@ public class Epub20CheckTest {
 	/*
 	 * TEST DEBUG FUNCTION
 	 */
+    public void testValidateDocument(String fileName, int errors, int warnings,
+            boolean verbose)  {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings);
+    }
 
-	public void testValidateDocument(String fileName, int errors, int warnings,
-			boolean verbose) {
-		if (verbose)
-			this.verbose = verbose;
-		testValidateDocument(fileName, errors, warnings);
-	}
+    public void testValidateDocument(String fileName, int errors, int warnings) {
+        testValidateDocument(fileName, errors, warnings, null);
+    }
+    
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile, boolean verbose) {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings, resultFile);
+    
+    }
 
-	public void testValidateDocument(String fileName, int errors, int warnings) {
-
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile) {
 		boolean fromFile = false;
 
 		testReport = new ValidationReport(fileName);
@@ -90,11 +103,30 @@ public class Epub20CheckTest {
 
 		assertEquals(errors, testReport.getErrorCount());
 		assertEquals(warnings, testReport.getWarningCount());
+		
+        if (resultFile != null) {
+            File f = new File(path + resultFile);
+            assertTrue(f.getAbsolutePath() + " doesn't exist", f.exists());
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(f)));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if (line.trim().length() != 0 && !line.startsWith("#")) { // allow comments
+                        assertTrue(line + " not found", testReport.hasInfoMessage(line));
+                    }
+                }
+            } catch (IOException e) { /* IGNORE */
+            } finally {
+                if (in != null) { try { in.close(); } catch (IOException e) { /* IGNORE */ } } 
+            }
+        }
 	}
 
 	@Test
 	public void testValidateEPUBvalid20() {
-		testValidateDocument("valid/lorem.epub", 0, 0);
+		testValidateDocument("valid/lorem.epub", 0, 0, "valid/lorem.txt");
 	}
 
 	@Test
@@ -202,6 +234,6 @@ public class Epub20CheckTest {
 
 	@Test
 	public void testValidateEPUBvalidIssue169() {
-		testValidateDocument("valid/issue169.epub", 0, 0);
+		testValidateDocument("valid/issue169.epub", 0, 0, "valid/issue169.txt");
 	}
 }

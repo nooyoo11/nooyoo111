@@ -23,9 +23,13 @@
 package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.junit.Test;
 
@@ -50,61 +54,89 @@ public class Epub30CheckTest {
 	/*
 	 * TEST DEBUG FUNCTION
 	 */
+    public void testValidateDocument(String fileName, int errors, int warnings,
+            boolean verbose)  {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings);
+    }
 
-	public void testValidateDocument(String fileName, int errors, int warnings,
-			boolean verbose) {
-		if (verbose)
-			this.verbose = verbose;
-		testValidateDocument(fileName, errors, warnings);
-	}
+    public void testValidateDocument(String fileName, int errors, int warnings) {
+        testValidateDocument(fileName, errors, warnings, null);
+    }
+    
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile, boolean verbose) {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings, resultFile);
+    
+    }
 
-	public void testValidateDocument(String fileName, int errors, int warnings) {
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile) {
+        boolean fromFile = false;
 
-		boolean fromFile = false;
+        testReport = new ValidationReport(fileName);
 
-		testReport = new ValidationReport(fileName);
+        if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
+            resourceProvider = new URLResourceProvider(fileName);
+        } else {
+            resourceProvider = new FileResourceProvider(path + fileName);
+            fromFile = true;
+        }
 
-		if (fileName.startsWith("http://") || fileName.startsWith("https://")) {
-			resourceProvider = new URLResourceProvider(fileName);
-		} else {
-			resourceProvider = new FileResourceProvider(path + fileName);
-			fromFile = true;
-		}
+        if (fromFile)
+            epubCheck = new EpubCheck(new File(path + fileName), testReport);
+        else
+            try {
+                epubCheck = new EpubCheck(
+                        resourceProvider.getInputStream(null), testReport, path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-		if (fromFile)
-			epubCheck = new EpubCheck(new File(path + fileName), testReport);
-		else
-			try {
-				epubCheck = new EpubCheck(
-						resourceProvider.getInputStream(null), testReport, path);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+        epubCheck.validate();
 
-		epubCheck.validate();
+        if (verbose) {
+            verbose = false;
+            System.out.println(testReport);
+        }
 
-		if (verbose) {
-			verbose = false;
-			System.out.println(testReport);
-		}
+        assertEquals(errors, testReport.getErrorCount());
+        assertEquals(warnings, testReport.getWarningCount());
+        
+        if (resultFile != null) {
+            File f = new File(path + resultFile);
+            assertTrue(f.getAbsolutePath() + " doesn't exist", f.exists());
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(f)));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if (line.trim().length() != 0 && !line.startsWith("#")) { // allow comments
+                        assertTrue(line + " not found", testReport.hasInfoMessage(line));
+                    }
+                }
+            } catch (IOException e) { /* IGNORE */
+            } finally {
+                if (in != null) { try { in.close(); } catch (IOException e) { /* IGNORE */ } } 
+            }
+        }
+    }
 
-		assertEquals(errors, testReport.getErrorCount());
-		assertEquals(warnings, testReport.getWarningCount());
-	}
-
-	// TODO -- check for fallback cycles
+    // TODO -- check for fallback cycles
 	/*
 	 * @Test public void testValidateEPUBPFallbackCycle() {
 	 * testValidateDocument("invalid/fallback-cycle.epub", 0, 0, true); }
 	 */
 	@Test
 	public void testValidateEPUBPvalid30() {
-		testValidateDocument("valid/lorem.epub", 0, 0);
+		testValidateDocument("valid/lorem.epub", 0, 0, "valid/lorem.txt");
 	}
 
 	@Test
 	public void testValidateEPUBTestSvg() {
-		testValidateDocument("valid/test_svg.epub", 0, 0);
+		testValidateDocument("valid/test_svg.epub", 0, 0, "valid/test_svg.txt");
 	}
 
 	@Test
@@ -114,7 +146,7 @@ public class Epub30CheckTest {
 
 	@Test
 	public void testValidateEPUBMp3() {
-		testValidateDocument("valid/mp3-in-manifest.epub", 0, 0);
+		testValidateDocument("valid/mp3-in-manifest.epub", 0, 0, "valid/mp3-in-manifest.txt");
 	}
 
 	@Test
@@ -124,7 +156,7 @@ public class Epub30CheckTest {
 
 	@Test
 	public void testValidateEPUBMp3WithFallback() {
-		testValidateDocument("valid/mp3-with-fallback.epub", 0, 0);
+		testValidateDocument("valid/mp3-with-fallback.epub", 0, 0, "valid/mp3-with-fallback.txt");
 	}
 
 	@Test
@@ -134,12 +166,12 @@ public class Epub30CheckTest {
 
 	@Test
 	public void testValidateEPUBFontFallbackChain() {
-		testValidateDocument("valid/font_fallback_chain.epub", 0, 0);
+		testValidateDocument("valid/font_fallback_chain.epub", 0, 0, "valid/font_fallback_chain.txt");
 	}
 
 	@Test
 	public void testValidateEPUBvalid30() {
-		testValidateDocument("valid/lorem.epub", 0, 0);
+		testValidateDocument("valid/lorem.epub", 0, 0, "valid/lorem.txt");
 	}
 
 	@Test
@@ -162,19 +194,19 @@ public class Epub30CheckTest {
 	
 	@Test
 	public void testValidateEPUB30ValidExtension1() { 
-		testValidateDocument("valid/extension-1.ePub", 0, 1);
+		testValidateDocument("valid/extension-1.ePub", 0, 1, "valid/extension-1.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB30CSSProfile() { 
 		//issue145; CSS3 pseudoselectors causing css2 lexers to bail out
-		testValidateDocument("valid/issue145.epub", 0, 0);
+		testValidateDocument("valid/issue145.epub", 0, 0, "valid/issue145.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB30Issue158() { 
 		//bad warning message, this should pass without warnings
-		testValidateDocument("valid/issue158.epub", 0, 0);
+		testValidateDocument("valid/issue158.epub", 0, 0, "valid/issue158.txt");
 	}
 	
 	@Test
@@ -189,6 +221,6 @@ public class Epub30CheckTest {
 	
 	@Test
 	public void testValidateEPUB30specValid() { 
-		testValidateDocument("valid/epub30-spec.epub", 0, 0);
+		testValidateDocument("valid/epub30-spec.epub", 0, 0, "valid/epub30-spec.txt");
 	}
 }

@@ -25,6 +25,7 @@ import com.adobe.epubcheck.api.Report;
 
 public class DefaultReportImpl implements Report {
 
+    private static boolean DEBUG = false;
 	private String ePubName;
 	private int errorCount, warningCount, exceptionCount;
 
@@ -88,5 +89,24 @@ public class DefaultReportImpl implements Report {
 	public int getExceptionCount() {
 		return exceptionCount;
 	}
+
+    @Override
+    public void info(String resource, FeatureEnum feature, String value) {
+        switch (feature) {
+            case FORMAT_VERSION:
+                System.out.println(String.format(Messages.VALIDATING_VERSION_MESSAGE, value));
+                break;
+            default:
+                if (DEBUG) {
+                    if (resource == null) {
+                        System.out.println("INFO: [" + feature + "]=" + value);
+                    } else {
+                        System.out.println("INFO: [" + feature + " (" + 
+                                resource + ")]=" + value);
+                    }
+                }
+                break;      
+        }
+    }
 
 }

@@ -30,6 +30,7 @@ import java.util.Set;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.HandlerUtil;
 import com.adobe.epubcheck.util.MetaUtils;
 import com.adobe.epubcheck.util.PathUtil;
@@ -179,6 +180,9 @@ public class OPFHandler30 extends OPFHandler {
 				href = null;
 			}
 		}
+        if (href != null && href.startsWith("http")) {
+            report.info(path, FeatureEnum.REFERENCE, href);
+        }
 		String mimeType = e.getAttribute("media-type");
 
 		OPFItem item = new OPFItem(id, href, mimeType, "", "", "", null,

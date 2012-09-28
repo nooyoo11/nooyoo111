@@ -23,6 +23,13 @@
 package com.adobe.epubcheck.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import org.junit.Test;
 
@@ -51,7 +58,18 @@ public class Epub30CheckExpandedTest {
 		testValidateDocument(fileName, errors, warnings);
 	}
 
-	public void testValidateDocument(String fileName, int errors, int warnings) {
+    public void testValidateDocument(String fileName, int errors, int warnings) {
+        testValidateDocument(fileName, errors, warnings, null);
+    }
+    
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile, boolean verbose) {
+        if (verbose)
+            this.verbose = verbose;
+        testValidateDocument(fileName, errors, warnings, resultFile);
+    
+    }
+
+    public void testValidateDocument(String fileName, int errors, int warnings, String resultFile) {
 
 		Archive epub = new Archive(path + fileName);
 		testReport = new ValidationReport(epub.getEpubName());
@@ -68,21 +86,40 @@ public class Epub30CheckExpandedTest {
 
 		assertEquals(errors, testReport.getErrorCount());
 		assertEquals(warnings, testReport.getWarningCount());
+
+		if (resultFile != null) {
+            File f = new File(path + resultFile);
+            assertTrue(f.getAbsolutePath() + " doesn't exist", f.exists());
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(
+                        new InputStreamReader(new FileInputStream(f)));
+                String line;
+                while ((line = in.readLine()) != null) {
+                    if (line.trim().length() != 0 && !line.startsWith("#")) { // allow comments
+                        assertTrue(line + " not found", testReport.hasInfoMessage(line));
+                    }
+                }
+            } catch (IOException e) { /* IGNORE */
+            } finally {
+                if (in != null) { try { in.close(); } catch (IOException e) { /* IGNORE */ } } 
+            }
+        }
 	}
 
 	@Test
 	public void testValidateEPUBPLoremBasic() {
-		testValidateDocument("valid/lorem-basic", 0, 0);
+		testValidateDocument("valid/lorem-basic", 0, 0, "valid/lorem-basic.txt");
 	}
 
 	@Test
 	public void testValidateEPUBWastelandBasic() {
-		testValidateDocument("valid/wasteland-basic", 0, 0);
+		testValidateDocument("valid/wasteland-basic", 0, 0, "valid/wasteland-basic.txt");
 	}
 
 	@Test
 	public void testValidateEPUBLoremAudio() {
-		testValidateDocument("valid/lorem-audio", 0, 0);
+		testValidateDocument("valid/lorem-audio", 0, 0, "valid/lorem-audio.txt");
 	}
 
 	@Test
@@ -112,27 +149,27 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUBPLoremBasicSwitch() {
-		testValidateDocument("valid/lorem-basic-switch", 0, 0);
+		testValidateDocument("valid/lorem-basic-switch", 0, 0, "valid/lorem-basic-switch.txt");
 	}
 
 	@Test
 	public void testValidateEPUBPLoremLink() {
-		testValidateDocument("valid/lorem-link", 0, 0);
+		testValidateDocument("valid/lorem-link", 0, 0, "valid/lorem-link.txt");
 	}
 
 	@Test
 	public void testValidateEPUBPLoremForeign() {
-		testValidateDocument("valid/lorem-foreign", 0, 0);
+		testValidateDocument("valid/lorem-foreign", 0, 0, "valid/lorem-foreign.txt");
 	}
 
 	@Test
 	public void testValidateEPUBPLoremObjectFallbacks() {
-		testValidateDocument("valid/lorem-object-fallbacks", 0, 0);
+		testValidateDocument("valid/lorem-object-fallbacks", 0, 0, "valid/lorem-object-fallbacks.txt");
 	}
 	
 	@Test
 	public void testValidateEPUBPLoremBindings() {
-		testValidateDocument("valid/lorem-bindings", 0, 0);
+		testValidateDocument("valid/lorem-bindings", 0, 0, "valid/lorem-bindings.txt");
 	}
 
 	@Test
@@ -142,17 +179,17 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUBPLoremPoster() {
-		testValidateDocument("valid/lorem-poster", 0, 0);
+		testValidateDocument("valid/lorem-poster", 0, 0, "valid/lorem-poster.txt");
 	}
 
 	@Test
 	public void testValidateEPUBPLoremSvg() {
-		testValidateDocument("valid/lorem-svg", 0, 0);
+		testValidateDocument("valid/lorem-svg", 0, 0, "valid/lorem-svg.txt");
 	}
 
 	@Test
 	public void testValidateEPUBPLoremSvgHyperlink() {
-		testValidateDocument("valid/lorem-svg-hyperlink", 0, 0);
+		testValidateDocument("valid/lorem-svg-hyperlink", 0, 0, "valid/lorem-svg-hyperlink.txt");
 	}
 
 	@Test
@@ -174,7 +211,7 @@ public class Epub30CheckExpandedTest {
 	@Test
 	public void testValidateEPUB30_issue134_1() {
 		// svg in both contentdocs, opf props set right
-		testValidateDocument("valid/lorem-svg-dual/", 0, 0);
+		testValidateDocument("valid/lorem-svg-dual/", 0, 0, "valid/lorem-svg-dual.txt");
 	}
 	
 	@Test
@@ -191,7 +228,7 @@ public class Epub30CheckExpandedTest {
 			
 	@Test
 	public void testValidateEPUB30_CSSImport_valid() {		
-		testValidateDocument("valid/lorem-css-import/", 0, 0);
+		testValidateDocument("valid/lorem-css-import/", 0, 0, "valid/lorem-css-import.txt");
 	}
 	
 	@Test
@@ -206,7 +243,7 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUB30_CSSFontFace_valid() {		
-		testValidateDocument("valid/wasteland-otf/", 0, 0);
+		testValidateDocument("valid/wasteland-otf/", 0, 0, "valid/wasteland-otf.txt");
 	}
 	
 	@Test
@@ -217,7 +254,7 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUB30_remoteAudio_valid() {		
-		testValidateDocument("valid/lorem-remote/", 0, 0);
+		testValidateDocument("valid/lorem-remote/", 0, 0, "valid/lorem-remote.txt");
 	}
 	
 	@Test
@@ -246,23 +283,23 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUB30_okFallback() {
-		testValidateDocument("valid/fallbacks/", 0, 0);
+		testValidateDocument("valid/fallbacks/", 0, 0, "valid/fallbacks.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB30_svgCoverImage() {
-		testValidateDocument("valid/svg-cover/", 0, 0);
+		testValidateDocument("valid/svg-cover/", 0, 0, "valid/svg-cover.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB30_svgInSpine() {
 		//svg in spine, svg cover image
-		testValidateDocument("valid/svg-in-spine/", 0, 0);
+		testValidateDocument("valid/svg-in-spine/", 0, 0, "valid/svg-in-spine.txt");
 	}
 	
 	@Test
 	public void testValidateEPUB30_videoAudioTrigger() {
-		testValidateDocument("valid/cc-shared-culture/", 0, 0);
+		testValidateDocument("valid/cc-shared-culture/", 0, 0, "valid/cc-shared-culture.txt");
 	}
 	
 	@Test
@@ -281,7 +318,7 @@ public class Epub30CheckExpandedTest {
 	
 	@Test
 	public void testValidateEPUB30_basicDual() {
-		testValidateDocument("valid/lorem-basic-dual/", 0, 0);
+		testValidateDocument("valid/lorem-basic-dual/", 0, 0, "valid/lorem-basic-dual.txt");
 	}
 	
 	@Test
