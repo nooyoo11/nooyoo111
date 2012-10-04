@@ -22,107 +22,226 @@
 
 package com.adobe.epubcheck.ocf;
 
-import java.util.Hashtable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.opf.OPFChecker;
+import com.adobe.epubcheck.opf.OPFChecker30;
+import com.adobe.epubcheck.opf.OPFData;
+import com.adobe.epubcheck.util.CheckUtil;
+import com.adobe.epubcheck.util.EPUBVersion;
+import com.adobe.epubcheck.util.FeatureEnum;
+import com.adobe.epubcheck.util.InvalidVersionException;
+import com.adobe.epubcheck.util.OPSType;
+import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
 public class OCFChecker {
 
-        OCFPackage ocf;
+	OCFPackage ocf;
 
-        Report report;
+	Report report;
 
-        Hashtable encryptedItems;
+	// Hashtable encryptedItems;
 
-        static XMLValidator containerValidator = new XMLValidator(
-                        "rng/container.rng");
+	// private EPUBVersion version = EPUBVersion.VERSION_3;
 
-        static XMLValidator encryptionValidator = new XMLValidator(
-                        "rng/encryption.rng");
+	static XMLValidator containerValidator = new XMLValidator(
+			"schema/20/rng/container.rng");
 
-        static XMLValidator signatureValidator = new XMLValidator(
-                        "rng/signatures.rng");
+	static XMLValidator encryptionValidator = new XMLValidator(
+			"schema/20/rng/encryption.rng");
 
-        public OCFChecker(OCFPackage ocf, Report report) {
-                this.ocf = ocf;
-                this.report = report;
-        }
+	static XMLValidator signatureValidator = new XMLValidator(
+			"schema/20/rng/signatures.rng");
 
-        public void runChecks() {
+	static XMLValidator containerValidator30 = new XMLValidator(
+			"schema/30/ocf-container-30.rnc");
 
-                String rootPath;
+	static XMLValidator encryptionValidator30 = new XMLValidator(
+			"schema/30/ocf-encryption-30.rnc");
 
-                // Validate container.xml
-                String containerEntry = "META-INF/container.xml";
-                if (!ocf.hasEntry(containerEntry)) {
-                        report.error(null, 0,
-                                        "Required META-INF/container.xml resource is missing");
-                        return;
-                }
-                XMLParser containerParser = new XMLParser(ocf, containerEntry, report);
-                OCFHandler containerHandler = new OCFHandler(containerParser);
-                containerParser.addXMLHandler(containerHandler);
-                containerParser.addValidator(containerValidator);
-                containerParser.process();
-                rootPath = containerHandler.getRootPath();
+	static XMLValidator signatureValidator30 = new XMLValidator(
+			"schema/30/ocf-signatures-30.rnc");
 
-                // Validate encryption.xml
-                String encryptionEntry = "META-INF/encryption.xml";
-                if (ocf.hasEntry(encryptionEntry)) {
-                        XMLParser encryptionParser = new XMLParser(ocf, encryptionEntry,
-                                        report);
-                        EncryptionHandler encryptionHandler = new EncryptionHandler(
-                                        encryptionParser, ocf);
+	private static HashMap<OPSType, XMLValidator> xmlValidatorMap;
+	static {
+		HashMap<OPSType, XMLValidator> map = new HashMap<OPSType, XMLValidator>();
+		map.put(new OPSType(OCFData.containerEntry, EPUBVersion.VERSION_2),
+				containerValidator);
+		map.put(new OPSType(OCFData.containerEntry, EPUBVersion.VERSION_3),
+				containerValidator30);
 
-                        encryptionParser.addXMLHandler(encryptionHandler);
-                        encryptionParser.addValidator(encryptionValidator);
-                        encryptionParser.process();
-                }
+		map.put(new OPSType(OCFData.encryptionEntry, EPUBVersion.VERSION_2),
+				encryptionValidator);
+		map.put(new OPSType(OCFData.encryptionEntry, EPUBVersion.VERSION_3),
+				encryptionValidator30);
 
-                // Validate signatures.xml
-                String signatureEntry = "META-INF/signatures.xml";
-                if (ocf.hasEntry(signatureEntry)) {
-                        XMLParser signatureParser = new XMLParser(ocf, signatureEntry,
-                                        report);
-                        OCFHandler signatureHandler = new OCFHandler(signatureParser);
-                        signatureParser.addXMLHandler(signatureHandler);
-                        signatureParser.addValidator(signatureValidator);
-                        signatureParser.process();
-                }
-                // george@oxygenxml.com: Check if we have a rootPath, see issue 95.
-                // There is no need to report the missing root-path because that will be reported by the
-                // validation step on META-INF/container.xml.
-                if (rootPath != null) {
-                	OPFChecker opfChecker = new OPFChecker(ocf, report, rootPath, containerHandler.getContainerEntries());
-                	opfChecker.runChecks();
-                }
-        }
+		map.put(new OPSType(OCFData.signatureEntry, EPUBVersion.VERSION_2),
+				signatureValidator);
+		map.put(new OPSType(OCFData.signatureEntry, EPUBVersion.VERSION_3),
+				signatureValidator30);
 
-        /**
-         * This method processes the rootPath String and returns the base path to
-         * the directory that contains the OPF content file.
-         *
-         * @param rootPath
-         *            path+name of OPF content file
-         * @return String containing path to OPF content file's directory inside ZIP
-         */
-        public String processRootPath(String rootPath) {
-                String rootBase = rootPath;
-                if (rootPath.endsWith(".opf")) {
-                        int slash = rootPath.lastIndexOf("/");
-                        if (slash < rootPath.lastIndexOf("\\"))
-                                slash = rootPath.lastIndexOf("\\");
-                        if (slash >= 0 && (slash + 1) < rootPath.length())
-                                rootBase = rootPath.substring(0, slash + 1);
-                        else
-                                rootBase = rootPath;
-                        return rootBase;
-                } else {
-                        System.out.println("RootPath is not an OPF file");
-                        return null;
-                }
-        }
+		xmlValidatorMap = map;
+	}
+
+	public OCFChecker(OCFPackage ocf, Report report) {
+		this.ocf = ocf;
+		this.report = report;
+	}
+
+	public void runChecks() {
+
+		String rootPath;
+
+		if (!ocf.hasEntry(OCFData.containerEntry)) {
+			report.error(null, 0, 0,
+					"Required META-INF/container.xml resource is missing");
+			return;
+		}
+		report.info(OCFData.containerEntry, FeatureEnum.CREATION_DATE, 
+		        Long.toString(ocf.getTimeEntry(OCFData.containerEntry)));
+		OCFData containerHandler = ocf.getOcfData(report);
+
+		// retrieve rootpath
+		rootPath = containerHandler.getRootPath();
+
+		if (rootPath != null) {
+			if (ocf.hasEntry(rootPath)) {
+				InputStream mimetype = null;
+				try {
+					
+					OPFData opfHandler = ocf.getOpfData(containerHandler,
+							report);
+
+					//System.out.println("Validating against EPUB version " + opfHandler.getVersion());
+
+					// checking mimeType file for trailing spaces
+					mimetype = ocf.getInputStream("mimetype");
+					StringBuilder sb = new StringBuilder(2048);
+					if (ocf.hasEntry("mimetype")
+							&& !CheckUtil.checkTrailingSpaces(
+									mimetype,
+									opfHandler.getVersion(), sb))
+						report.error("mimetype", 0, 0,
+								"Mimetype file should contain only the string \"application/epub+zip\".");
+					if (sb.length() != 0) {
+	                    report.info(null,  FeatureEnum.FORMAT_NAME, sb.toString().trim());
+					}
+					// validate ocf files against the schema definitions
+					validate(opfHandler.getVersion());
+
+					// check the root file itself.
+					OPFChecker opfChecker;
+
+					if (opfHandler.getVersion() == EPUBVersion.VERSION_2)
+						opfChecker = new OPFChecker(ocf, report, rootPath,
+								containerHandler.getContainerEntries(),
+								opfHandler.getVersion());
+					else
+						opfChecker = new OPFChecker30(ocf, report, rootPath,
+								containerHandler.getContainerEntries(),
+								opfHandler.getVersion());
+					opfChecker.runChecks();
+				} catch (InvalidVersionException e) {
+					report.error(rootPath, -1, -1, e.getMessage());
+				} catch (IOException ignore) {
+					// missing file will be reported in OPFChecker
+				}finally{
+					try {
+						mimetype.close();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+				}
+			} else { //ocf.hasEntry(rootPath)
+				report.error(OCFData.containerEntry, -1, -1,
+						"entry " + rootPath + " not found in zip file");
+			}
+		} else {
+			report.error(OCFData.containerEntry, -1, -1,
+					"No rootfiles with media type 'application/oebps-package+xml'");
+		}
+	}
+
+	public boolean validate(EPUBVersion version) {
+		XMLParser parser = null;
+		InputStream in = null;
+		try {
+			
+			// validate container
+			in = ocf.getInputStream(OCFData.containerEntry);
+			parser = new XMLParser(in, OCFData.containerEntry, "xml", report, version);
+			XMLHandler handler = new OCFHandler(parser);
+			parser.addXMLHandler(handler);
+			parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.containerEntry, version)));
+			parser.process();
+			try{ in.close(); } catch (Exception e) {}
+
+			// Validate encryption.xml
+			if (ocf.hasEntry(OCFData.encryptionEntry)) {
+				in = ocf.getInputStream(OCFData.encryptionEntry);
+				parser = new XMLParser(in, OCFData.encryptionEntry, "xml", report, version);
+				handler = new EncryptionHandler(ocf, parser);
+				parser.addXMLHandler(handler);
+				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.encryptionEntry, version)));
+				parser.process();
+				try{ in.close(); } catch (Exception e) {}				
+                report.info(null, FeatureEnum.HAS_ENCRYPTION, OCFData.encryptionEntry);
+			}
+
+			// validate signatures.xml
+			if (ocf.hasEntry(OCFData.signatureEntry)) {
+				in = ocf.getInputStream(OCFData.signatureEntry);
+				parser = new XMLParser(in, OCFData.signatureEntry, "xml", report, version);
+				handler = new OCFHandler(parser);
+				parser.addXMLHandler(handler);
+				parser.addValidator(xmlValidatorMap.get(new OPSType(OCFData.signatureEntry, version)));
+				parser.process();
+				try{ in.close(); } catch (Exception e) {}
+                report.info(null, FeatureEnum.HAS_SIGNATURE, OCFData.signatureEntry);
+			}
+			
+		} catch (Exception ignore) {
+			
+		} finally {
+			try{
+				in.close();
+			} catch (Exception e) {
+				
+			}
+	}
+
+		return false;
+	}
+
+	/**
+	 * This method processes the rootPath String and returns the base path to
+	 * the directory that contains the OPF content file.
+	 * 
+	 * @param rootPath
+	 *            path+name of OPF content file
+	 * @return String containing path to OPF content file's directory inside ZIP
+	 */
+	public String processRootPath(String rootPath) {
+		String rootBase = rootPath;
+		if (rootPath.endsWith(".opf")) {
+			int slash = rootPath.lastIndexOf("/");
+			if (slash < rootPath.lastIndexOf("\\"))
+				slash = rootPath.lastIndexOf("\\");
+			if (slash >= 0 && (slash + 1) < rootPath.length())
+				rootBase = rootPath.substring(0, slash + 1);
+			else
+				rootBase = rootPath;
+			return rootBase;
+		} else {
+		    report.error(null,  0, 0, "RootPath is not an OPF file");
+			//System.out.println("RootPath is not an OPF file");
+			return null;
+		}
+	}
+
 }

@@ -28,7 +28,7 @@ import java.util.TimeZone;
  * 
  * W3C IPR SOFTWARE NOTICE
  * 
- * Copyright © 1995-1998 World Wide Web Consortium, (Massachusetts Institute of
+ * Copyright \u00a9 1995-1998 World Wide Web Consortium, (Massachusetts Institute of
  * Technology, Institut National de Recherche en Informatique et en
  * Automatique, Keio University). All Rights Reserved.
  * http://www.w3.org/Consortium/Legal/
@@ -50,7 +50,7 @@ import java.util.TimeZone;
  *   2. Any pre-existing intellectual property disclaimers, notices, or terms
  *      and conditions. If none exist, a short notice of the following form
  *      (hypertext is preferred, text is permitted) should be used within the
- *      body of any redistributed or derivative code: "Copyright © World Wide
+ *      body of any redistributed or derivative code: "Copyright \u00a9 World Wide
  *      Web Consortium, (Massachusetts Institute of Technology, Institut
  *      National de Recherche en Informatique et en Automatique, Keio
  *      University). All Rights Reserved. http://www.w3.org/Consortium/Legal/"

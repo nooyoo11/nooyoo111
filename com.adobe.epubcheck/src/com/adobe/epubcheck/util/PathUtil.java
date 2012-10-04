@@ -29,34 +29,43 @@ import java.util.StringTokenizer;
 
 public class PathUtil {
 
-        public static String resolveRelativeReference(String base, String ref)
+        public static String resolveRelativeReference(String base, String ref, String baseRewrite)
                         throws IllegalArgumentException {
-                if( ref.startsWith("data:") )
-                        return ref;
-                try {
-                        ref = URLDecoder.decode(ref, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                        throw new InternalError(e.toString()); // UTF-8 is guaranteed to be
-                        // supported
-                }
-                if (ref.startsWith("#")) {
-                        int index = base.indexOf("#");
-                        if (index < 0)
-                                ref = base + ref;
-                        else
-                                ref = base.substring(0, index) + ref;
-                } else {
-                        int index = base.lastIndexOf("/");
-                        ref = base.substring(0, index + 1) + ref;
-                }
-                return normalizePath(ref);
+        	
+        	//baseRewrite is null unless head/base or xml:base is set in the instance
+        	String actualBase = base;
+        	if(baseRewrite != null && baseRewrite.length() > 0 && !baseRewrite.equals(".")) {
+        		
+        		actualBase = baseRewrite;
+        	}
+        	
+            if( ref.startsWith("data:") || ref.startsWith("http:") )
+            	return ref;
+            try {
+            	ref = URLDecoder.decode(ref, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+            	// UTF-8 is guaranteed to be supported    
+            	throw new InternalError(e.toString());                     
+            }
+            
+            if (ref.startsWith("#")) {
+                int index = actualBase.indexOf("#");
+                if (index < 0)
+                        ref = actualBase + ref;
+                else
+                        ref = actualBase.substring(0, index) + ref;
+            } else {
+                int index = actualBase.lastIndexOf("/");
+                ref = actualBase.substring(0, index + 1) + ref;
+            }
+            return normalizePath(ref);
         }
 
         public static String normalizePath(String path)
                         throws IllegalArgumentException {
                 if (path.indexOf("..") < 0)
                         return path;
-                Stack pathSegments = new Stack();
+                Stack<String> pathSegments = new Stack<String>();
                 StringTokenizer tokenizer = new StringTokenizer(path, "/");
                 while (tokenizer.hasMoreTokens()) {
                         String pathSegment = tokenizer.nextToken();

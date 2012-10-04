@@ -22,12 +22,13 @@
 
 package com.adobe.epubcheck.api;
 
+import com.adobe.epubcheck.util.FeatureEnum;
+
 /**
  * Interface that is used to report issues found in epub.
  */
 public interface Report {
 
-	
 	/**
 	 * Called when a violation of the standard is found in epub.
 	 * 
@@ -41,7 +42,7 @@ public interface Report {
 	 * @param message
 	 *            error message.
 	 */
-	public void error(String resource, int line, String message);
+	public void error(String resource, int line, int column, String message);
 
 	/**
 	 * Called when some notable issue is found in epub.
@@ -56,5 +57,26 @@ public interface Report {
 	 * @param message
 	 *            warning message.
 	 */
-	public void warning(String resource, int line, String message);
+	public void warning(String resource, int line, int column, String message);
+
+	public void exception(String resource, Exception e);
+
+	public int getErrorCount();
+
+	public int getWarningCount();
+
+	public int getExceptionCount();
+	
+	/**
+	 * Called when when a feature is found in epub.
+     *
+     * @param resource
+     *            name of the resource in the epub zip container that has this feature
+     *             or null if the feature is on the container level.
+     * @param feature
+     *            a keyword to know what kind of feature has been found
+     * @param value
+     *            value found
+	 */
+	public void info(String resource, FeatureEnum feature, String value);
 }

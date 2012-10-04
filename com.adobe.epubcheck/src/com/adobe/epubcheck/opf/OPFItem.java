@@ -38,19 +38,32 @@ public class OPFItem {
 
 	int lineNumber;
 
+	int columnNumber;
+
 	boolean ncx;
 
 	boolean inSpine;
 
+	boolean nav;
+
+	boolean scripted;
+
+	String properties;
+	
+	boolean linear = true;
+
 	OPFItem(String id, String path, String mimeType, String fallback,
-			String fallbackStyle, String namespace, int lineNumber) {
+			String fallbackStyle, String namespace, String properties,
+			int lineNumber, int columnNumber) {
 		this.fallback = fallback;
 		this.fallbackStyle = fallbackStyle;
 		this.id = id;
 		this.lineNumber = lineNumber;
+		this.columnNumber = columnNumber;
 		this.mimeType = mimeType;
 		this.namespace = namespace;
 		this.path = path;
+		this.properties = properties;
 	}
 
 	public String getFallback() {
@@ -73,12 +86,20 @@ public class OPFItem {
 		return path;
 	}
 
+	public String getProperties() {
+		return properties;
+	}
+
 	public String getNamespace() {
 		return namespace;
 	}
 
 	public int getLineNumber() {
 		return lineNumber;
+	}
+
+	public int getColumnNumber() {
+		return columnNumber;
 	}
 
 	public boolean isNcx() {
@@ -89,11 +110,44 @@ public class OPFItem {
 		this.ncx = ncx;
 	}
 
+	public boolean isScripted() {
+		return scripted;
+	}
+
+	public void setScripted(boolean scripted) {
+		this.scripted = scripted;
+	}
+
+	public boolean isNav() {
+		return nav;
+	}
+
+	public void setNav(boolean nav) {
+		this.nav = nav;
+	}
+
 	public boolean isInSpine() {
 		return inSpine;
 	}
 
 	public void setInSpine(boolean inSpine) {
 		this.inSpine = inSpine;
+	}
+
+	/**
+	 * Reflects the value of spine/itemref/@linear. Only applies to manifest items
+	 * that appear in the spine. 
+	 */
+	public void setSpineLinear(boolean linear) {
+		this.linear = linear;		
+	}
+	
+	/**
+	 * Reflects the value of spine/itemref/@linear. Only applies to manifest items
+	 * that appear in the spine. 
+	 */
+	public boolean getSpineLinear() {
+		if(!inSpine) throw new IllegalStateException("linear");
+		return linear;		
 	}
 }

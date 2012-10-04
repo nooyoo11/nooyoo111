@@ -24,9 +24,12 @@ package com.adobe.epubcheck.opf;
 
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
+import com.adobe.epubcheck.util.EPUBVersion;
 
 public interface ContentCheckerFactory {
 
-	public ContentChecker newInstance( OCFPackage ocf, Report report, String path, String mimeType, XRefChecker xrefChecker );
-	
+	public ContentChecker newInstance(OCFPackage ocf, Report report,
+			String path, String mimeType, String properties,
+			XRefChecker xrefChecker, EPUBVersion version);
+
 }

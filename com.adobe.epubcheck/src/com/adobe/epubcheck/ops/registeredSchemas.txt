@@ -26,6 +26,7 @@ iris.beep:
 iris.xpc:
 iris.xpcs:
 iris.lwz:
+javascript:
 ldap://
 mailto:
 mid:

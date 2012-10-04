@@ -28,6 +28,7 @@ import java.io.InputStream;
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
+import com.adobe.epubcheck.util.CheckUtil;
 
 public class BitmapChecker implements ContentChecker {
 
@@ -38,7 +39,7 @@ public class BitmapChecker implements ContentChecker {
 	String path;
 
 	String mimeType;
-	
+
 	BitmapChecker(OCFPackage ocf, Report report, String path, String mimeType) {
 		this.ocf = ocf;
 		this.report = report;
@@ -46,39 +47,53 @@ public class BitmapChecker implements ContentChecker {
 		this.mimeType = mimeType;
 	}
 
-	private void checkHeader( byte[] header ) {
+	private void checkHeader(byte[] header) {
 		boolean passed;
-		if( mimeType.equals("image/jpeg") ) 
-			passed = header[0] == (byte)0xFF && header[1] == (byte)0xD8;
-		else if( mimeType.equals("image/gif") ) 
-			passed = header[0] == (byte)'G' && header[1] == (byte)'I' && header[2] == (byte)'F' && header[3] == (byte)'8';
-		else if( mimeType.equals("image/png") ) 
-			passed = header[0] == (byte)0x89 && header[1] == (byte)'P' && header[2] == (byte)'N' && header[3] == (byte)'G';
+		if (mimeType.equals("image/jpeg"))
+			passed = header[0] == (byte) 0xFF && header[1] == (byte) 0xD8;
+		else if (mimeType.equals("image/gif"))
+			passed = header[0] == (byte) 'G' && header[1] == (byte) 'I'
+					&& header[2] == (byte) 'F' && header[3] == (byte) '8';
+		else if (mimeType.equals("image/png"))
+			passed = header[0] == (byte) 0x89 && header[1] == (byte) 'P'
+					&& header[2] == (byte) 'N' && header[3] == (byte) 'G';
 		else
 			passed = true;
-		if( ! passed )
-			report.error(null, 0, "The file " + path + " does not appear to be of type " + mimeType );			
+		if (!passed)
+			report.error(null, 0, 0, "The file " + path
+					+ " does not appear to be of type " + mimeType);
 	}
-	
+
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "image file " + path + " is missing");
+			report.error(null, 0, 0, "image file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "image file " + path + " cannot be decrypted");
+			report.error(null, 0, 0, "image file " + path
+					+ " cannot be decrypted");
 		else {
+			InputStream in = null;
 			try {
-				InputStream in = ocf.getInputStream(path);
+				in = ocf.getInputStream(path);
 				byte[] header = new byte[4];
-				if( in.read(header) != header.length ) {
-					report.error(null, 0, "image file " + path + " is too short");					
+				int rd = CheckUtil.readBytes(in, header, 0, 4);
+				if (rd < 4) {
+					report.error(null, 0, 0, "image file " + path
+							+ " is too short");
 				} else {
 					checkHeader(header);
 				}
-				in.close();
 			} catch (IOException e) {
-				report.error(null, 0, "I/O error reading " + path);
+				report.error(null, 0, 0, "I/O error reading " + path);
+			} finally {
+				try {
+					in.close();
+				} catch (Exception e) {
+
+				}
 			}
 		}
 	}
+
+	
 
 }

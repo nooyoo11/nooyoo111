@@ -25,19 +25,88 @@ import com.adobe.epubcheck.api.Report;
 
 public class DefaultReportImpl implements Report {
 
+    private static boolean DEBUG = false;
 	private String ePubName;
-		
-	public DefaultReportImpl( String ePubName ) {
+	private int errorCount, warningCount, exceptionCount;
+
+	public DefaultReportImpl(String ePubName) {
 		this.ePubName = ePubName;
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
-	
-	public void error( String resource, int line, String message ) {
-		System.err.println("ERROR: "+ ePubName + (resource == null ? "" : "/" + resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );		
+
+	public DefaultReportImpl(String ePubName, String info) {
+		this.ePubName = ePubName;
+		warning("", 0, 0, info);
+		errorCount = 0;
+		warningCount = 0;
+		exceptionCount = 0;
 	}
-	
-	public void warning( String resource, int line, String message ) {
-		System.err.println("WARNING: " + ePubName + (resource == null ? "" : "/" + resource) +
-				(line <= 0 ? "" : "(" + line + ")") + ": " + message );
+
+	private String fixMessage(String message) {
+		if (message == null)
+			return "";
+		return message.replaceAll("[\\s]+", " ");
 	}
+
+	public void error(String resource, int line, int column, String message) {
+		errorCount++;
+		message = fixMessage(message);
+		System.err.println("ERROR: "
+				+ ePubName
+				+ (resource == null ? "" : "/" + resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public void warning(String resource, int line, int column, String message) {
+		warningCount++;
+		message = fixMessage(message);
+		System.err.println("WARNING: "
+				+ ePubName
+				+ (resource == null ? "" : "/" + resource)
+				+ (line <= 0 ? "" : "(" + line
+						+ (column <= 0 ? "" : "," + column) + ")") + ": "
+				+ message);
+	}
+
+	public void exception(String resource, Exception e) {
+		exceptionCount++;
+		System.err.println("EXCEPTION: " + ePubName
+				+ (resource == null ? "" : "/" + resource) + e.getMessage());
+	}
+
+	public int getErrorCount() {
+		return errorCount;
+	}
+
+	public int getWarningCount() {
+		return warningCount;
+	}
+
+	public int getExceptionCount() {
+		return exceptionCount;
+	}
+
+    @Override
+    public void info(String resource, FeatureEnum feature, String value) {
+        switch (feature) {
+            case FORMAT_VERSION:
+                System.out.println(String.format(Messages.VALIDATING_VERSION_MESSAGE, value));
+                break;
+            default:
+                if (DEBUG) {
+                    if (resource == null) {
+                        System.out.println("INFO: [" + feature + "]=" + value);
+                    } else {
+                        System.out.println("INFO: [" + feature + " (" + 
+                                resource + ")]=" + value);
+                    }
+                }
+                break;      
+        }
+    }
+
 }

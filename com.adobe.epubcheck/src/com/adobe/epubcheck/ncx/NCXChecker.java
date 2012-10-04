@@ -22,10 +22,14 @@
 
 package com.adobe.epubcheck.ncx;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.adobe.epubcheck.api.Report;
 import com.adobe.epubcheck.ocf.OCFPackage;
 import com.adobe.epubcheck.opf.ContentChecker;
 import com.adobe.epubcheck.opf.XRefChecker;
+import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.xml.XMLParser;
 import com.adobe.epubcheck.xml.XMLValidator;
 
@@ -39,43 +43,74 @@ public class NCXChecker implements ContentChecker {
 
 	XRefChecker xrefChecker;
 
-	static XMLValidator ncxValidator = new XMLValidator("rng/ncx.rng");
+	EPUBVersion version;
 
-	static XMLValidator ncxSchematronValidator = new XMLValidator("sch/ncx.sch");
+	static XMLValidator ncxValidator = new XMLValidator("schema/20/rng/ncx.rng");
+
+	static XMLValidator ncxSchematronValidator = new XMLValidator(
+			"schema/20/sch/ncx.sch");
 
 	public NCXChecker(OCFPackage ocf, Report report, String path,
-			XRefChecker xrefChecker) {
+			XRefChecker xrefChecker, EPUBVersion version) {
 		this.ocf = ocf;
 		this.report = report;
 		this.path = path;
 		this.xrefChecker = xrefChecker;
+		this.version = version;
 	}
 
 	public void runChecks() {
 		if (!ocf.hasEntry(path))
-			report.error(null, 0, "NCX file " + path + " is missing");
+			report.error(null, 0, 0, "NCX file " + path + " is missing");
 		else if (!ocf.canDecrypt(path))
-			report.error(null, 0, "NCX file " + path + " cannot be decrypted");
+			report.error(null, 0, 0, "NCX file " + path
+					+ " cannot be decrypted");
 		else {
 			// relaxng
-			XMLParser ncxParser = new XMLParser(ocf, path, report);
-			ncxParser.addValidator(ncxValidator);
-			NCXHandler ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
-			ncxParser.addXMLHandler(ncxHandler);
-			ncxParser.process();
-
+			XMLParser ncxParser = null;
+			InputStream in = null;
+			NCXHandler ncxHandler = null;
+			try {
+				in = ocf.getInputStream(path);
+				ncxParser = new XMLParser(in, path, "",
+						report, version);			
+				ncxParser.addValidator(ncxValidator);
+				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
+				ncxParser.addXMLHandler(ncxHandler);
+				ncxParser.process();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}finally{
+				try{
+					in.close();
+				}catch (Exception e) {
+					
+				}
+			}
+			
 			// schematron needs to go in a separate step, because of the catch
 			// below
 			// TODO: do it in a single step
 			try {
-				ncxParser = new XMLParser(ocf, path, report);
+				in = ocf.getInputStream(path);
+				ncxParser = new XMLParser(ocf.getInputStream(path), path,
+						"application/x-dtbncx+xml", report, version);
 				ncxParser.addValidator(ncxSchematronValidator);
 				ncxHandler = new NCXHandler(ncxParser, path, xrefChecker);
 				ncxParser.process();
 			} catch (Throwable t) {
-				report.error(path, -1,
+				report.error(
+						path,
+						-1,
+						0,
 						"Failed performing NCX Schematron tests: "
 								+ t.getMessage());
+			}finally{
+				try{
+					in.close();
+				}catch (Exception e) {
+					
+				}
 			}
 		}
 	}
