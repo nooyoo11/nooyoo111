@@ -7,3 +7,28 @@ java -jar epubcheck-3.0.jar file.epub
 }}}
 
 All detected errors are simply printed to stderr.
+
+== Advanced mode ==
+
+EpubCheck can also validates single EPUB internal files or expanded (unzipped) publications:
+
+{{{
+java -jar epubcheck-3.0.jar file -mode MODE -v VERSION
+}}}
+
+where MODE must be one of the following:
+
+ * `opf` for package document validation;
+ * `nav` for navigation document validation (available only for version 3.0);
+ * `mo` for media overlay validation (available only for version 3.0);
+ * `xhtml`;
+ * `svg`;
+ * `exp` for Expanded EPUB validation; 
+
+When using -mode exp, one could add an extra flag -save to save the created archive upon validation.
+
+Additional flags:
+
+	-help displays a help message;
+
+Note that when validating a single file, only a subset of the available tests is run. Also, when validating a full EPUB, both mode and version are ignored.
