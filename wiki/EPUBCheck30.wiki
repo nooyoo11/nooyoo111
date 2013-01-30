@@ -1,8 +1,6 @@
 #labels Featured
 = EPUBCheck 3.0 Information =
 
-Current version: 3.0b5
-
 == About ==
 
 !EpubCheck 3.0 is the continuation of the !EpubCheck 1.2 project, upgraded to support validation of [http://idpf.org/epub/30 EPUB 3.0] content besides the legacy [http://idpf.org/epub/201 EPUB 2.0]. 
@@ -20,7 +18,7 @@ All detected errors are simply printed to stderr.
 
 basic mode:
 {{{
-java -jar epubcheck-3.0b5.jar file.epub
+java -jar epubcheck-3.0.jar file.epub
 }}}
 advanced mode:
 {{{
@@ -36,7 +34,7 @@ where MODE must be one of the following:
  * `exp` for Expanded EPUB validation; 
 
 When using -mode exp, one could add an extra flag -save to save the created archive upon validation:
-	java -jar epubcheck-3.0b5.jar dir -mode exp -save
+	java -jar epubcheck-3.0.jar dir -mode exp -save
 VERSION must be 2.0 or 3.0.
 Additional flags:
 	-help displays a help message;
