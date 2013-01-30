@@ -22,7 +22,7 @@ java -jar epubcheck-3.0.jar file.epub
 }}}
 advanced mode:
 {{{
-java -jar epubcheck-3.0b5.jar file -mode MODE -v VERSION
+java -jar epubcheck-3.0.jar file -mode MODE -v VERSION
 }}}
 where MODE must be one of the following:
 
