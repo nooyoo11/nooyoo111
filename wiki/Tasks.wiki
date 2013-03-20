@@ -3,10 +3,6 @@
 
 This is a list of development tasks to make !EpubCheck better.
 
-== CSS validation ==
-
-Right now !EpubCheck does not try to validate CSS stylesheet. While per CSS rules any sequence of characters is a parsable CSS stylesheet, we want to be stricter.
-
 == Image validation ==
 
 Currently only image signature is checked (to make sure that JPEGs are not mislabeled as GIFs). We can try to load the image to make sure it is not corrupted.
