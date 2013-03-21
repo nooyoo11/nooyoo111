@@ -1,3 +1,5 @@
+#summary How to run EpubCheck from commandline
+
 = Running !EpubCheck =
 
 To run the tool you need java (1.6 or above). Any Operating System should do.
