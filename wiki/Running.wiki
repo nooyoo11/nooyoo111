@@ -42,6 +42,7 @@ java -jar epubcheck-3.0.jar folder/ -mode exp [-save]
 When using expanded mode, there's an optional flag `-save` to save the created archive upon validation.
 
 ===Additional flags===
+ * `-out file.xml` outputs an assessment XML document _(experimental)_
  * `-help` or `-?` displays a help message
 
 ----
