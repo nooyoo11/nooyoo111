@@ -7,3 +7,4 @@
 == Using !EpubCheck in your development ==
 
  * [Library Using EpubCheck as a library]
+ * [Extraction Extraction of information]
