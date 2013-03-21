@@ -14,43 +14,10 @@ Besides supporting both EPUB 2 and 3, another new feature added to !EpubCheck 3.
 
 == Running ==
 
-To run the tool you need java (1.5 or above). Any OS should do. Run it from the command line:
-All detected errors are simply printed to `stderr`.
+To run the tool you need java (1.6 or above). Any Operating System should do.
 
-===Basic mode===
-{{{
-java -jar epubcheck-3.0.jar file.epub
-}}}
+Wiki page [Running Running EpubCheck] provides detailed information about running epubcheck in all its different modes.
 
-===Advanced mode===
-{{{
-java -jar epubcheck-3.0.jar singleFile -mode MODE -v VERSION
-}}}
-
- * *MODE* must be one of the following:
-  * *`opf`* for package document validation;
-  * *`nav`* for navigation document validation (available only for version 3.0);
-  * *`mo`* for media overlay validation (available only for version 3.0);
-  * *`xhtml`*;
-  * *`svg`*;
-  * _*`exp`* for Expanded EPUB validation (see next section)_
-
- * *VERSION* must be one of
-  * `2.0`
-  * `3.0`
-
-_Note that when validating a single file, only a subset of the available tests is run. Also, when validating a full EPUB, both mode and version are ignored._
-
-===Expanded mode===
-{{{
-java -jar epubcheck-3.0.jar folder/ -mode exp [-save]
-}}}
-When using expanded mode, there's an optional flag `-save` to save the created archive upon validation.
-
-===Additional flags===
- * `-help` or `-?` displays a help message
-
-----
 
 == Contributing to !EpubCheck==
 
