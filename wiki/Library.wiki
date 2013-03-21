@@ -13,7 +13,7 @@ EpubCheck epubcheck = new EpubCheck(epubFile);
 Boolean result = epubcheck.validate();
 }}}
 
-*`Report`* is an interface that you can implement to get a list of the errors and warnings reported by the validation engine (instead of the error list being printed out on `stderr`).
+*`Report`* is an interface that you can implement to get a list of the errors and warnings reported by the validation engine (instead of the error list being printed out on `stderr`). You'll find more detailed information about this topic on wiki page [Extraction#Customizing_the_Java_Report]
 
 Regular `.jar` download contains all you need to use !EpubCheck as a library.
 
