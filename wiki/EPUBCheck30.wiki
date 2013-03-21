@@ -56,5 +56,5 @@ When using expanded mode, there's an optional flag `-save` to save the created a
 
 If you'd like to contribute to the epubcheck project, then there's some things you'll probably want to do:
   * Join the [http://groups.google.com/group/epubcheck discussion group] for epubcheck
-  * Check out the [http://code.google.com/p/epubcheck/source/checkout latest developer build]
+  * Check out the [http://code.google.com/p/epubcheck/source/checkout latest source code] from epubcheck SVN repository and start fixing issues
   * [http://code.google.com/p/epubcheck/issues/list Report problems and issues] and submit test cases that expose these problems, either as full `.epub` archives, or as single files.
