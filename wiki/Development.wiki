@@ -1,15 +1,11 @@
-= !EpubCheck Development =
-
-
-== Using !EpubCheck in your development ==
+= Using !EpubCheck in your development =
 The following pages contain useful information about how you can use epubcheck in your development:
 
  * [Library Using EpubCheck as a library]
  * [Extraction Extraction of information]
 
-----
-
-== Developing !EpubCheck ==
+<br/>
+= Developing !EpubCheck =
 If you want to contribute to the project, this information might be useful to setup project environment on your system.
 
 === Tasks ===
