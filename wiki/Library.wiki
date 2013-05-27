@@ -29,6 +29,6 @@ To use it as a library in a Maven-built project, add these lines to your POM dep
 <dependency>
     <groupId>org.idpf</groupId>
     <artifactId>epubcheck</artifactId>
-    <version>3.0</version>
+    <version>3.0.1</version>
 </dependency>
 }}}
