@@ -46,7 +46,7 @@ When using expanded mode, there's an optional flag `-save` to save the created a
 ===Additional flags===
  * `-out file.xml` outputs an assessment XML document
  * `-quiet` or `-q` outputs only if there is any warning or error
- * `-help` or `-?` displays a help message
+ * `-help`, `--help` or `-?` displays a help message
 
 ----
 
