@@ -9,7 +9,7 @@ This extraction is available in two flavors depending whether you only want to u
 
 The new `-out` argument can be used to output a xml file containing some information extracted from the input epub file.
 
-Calling `java -jar epubcheck-3.0.jar -out output.xml file.epub` will generate the file `output.xml` containing information on the `file.epub`.
+Calling `java -jar epubcheck-3.0.1.jar -out output.xml file.epub` will generate the file `output.xml` containing information on the `file.epub`.
 
 The output file uses the _jhove_ schema (available at http://hul.harvard.edu/ois/xml/xsd/jhove/jhove.xsd or see the project http://sourceforge.net/projects/jhove/) in order to display the information so that properties of any type can be output.
 
