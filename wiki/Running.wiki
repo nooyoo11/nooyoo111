@@ -53,7 +53,7 @@ When using expanded mode, there's an optional flag `-save` to save the created a
 == Third-party apps with GUI ==
 
 There are a bunch of third-party apps which offer a graphical user interface (_GUI_) for epubcheck. You don't need any commandline or 'developer' knowledge to use them...
- * [http://www.pagina-online.de/software/epub-checker/ pagina EPUB-Checker]
+ * [http://www.pagina-online.de/produkte/epub-checker/ pagina EPUB-Checker]
  * [http://www.rainwater-soft.com/epubchecker/ Rainwater Soft ePubChecker] _(seems to be deprecated)_
 
 If you know of more, just let us know...
