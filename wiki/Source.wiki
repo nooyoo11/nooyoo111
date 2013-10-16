@@ -1,0 +1,7 @@
+#summary The source repository has moved
+
+= The Source Repository Has Moved =
+
+The !EpubCheck source code has [https://github.com/IDPF/epubcheck moved to GitHub].
+
+If you really want to, you can still access the [http://code.google.com/p/epubcheck/source/browse/ deprecated subversion repository].
