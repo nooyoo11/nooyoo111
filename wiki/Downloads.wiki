@@ -1,6 +1,6 @@
-#summary This downloads have moved
+#summary The downloads have moved
 
-= This Downloads Have Moved =
+= The Downloads Have Moved =
 
 The !EpubCheck downloads have [https://github.com/IDPF/epubcheck/releases moved to GitHub].
 
