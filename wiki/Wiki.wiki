@@ -3,3 +3,5 @@
 = This Wiki Has Moved =
 
 The !EpubCheck wiki has [https://github.com/IDPF/epubcheck/wiki moved to GitHub].
+
+If you really want to, you can still access the [http://code.google.com/p/epubcheck/w/list deprecated wiki].
