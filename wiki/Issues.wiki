@@ -1,0 +1,7 @@
+#summary This issues have moved
+
+= This Issues Have Moved =
+
+The !EpubCheck issue tracker has [https://github.com/IDPF/epubcheck/issues moved to GitHub].
+
+If you really want to, you can still access the [http://code.google.com/p/epubcheck/issues/list deprecated issue tracker].
