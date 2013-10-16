@@ -2,4 +2,4 @@
 
 = This Wiki Has Moved =
 
-The !EpubCheck wiki has [https://github.com/IDPF/epubcheck/wiki moved to !GitHub].
+The !EpubCheck wiki has [https://github.com/IDPF/epubcheck/wiki moved to GitHub].
