@@ -1,0 +1,5 @@
+#summary This wiki has moved
+
+= This Wiki Has Moved =
+
+The !EpubCheck wiki has [https://github.com/IDPF/epubcheck/wiki moved to !GitHub].
