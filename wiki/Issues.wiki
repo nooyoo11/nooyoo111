@@ -1,6 +1,6 @@
-#summary This issues have moved
+#summary The issues have moved
 
-= This Issues Have Moved =
+= The Issues Have Moved =
 
 The !EpubCheck issue tracker has [https://github.com/IDPF/epubcheck/issues moved to GitHub].
 
