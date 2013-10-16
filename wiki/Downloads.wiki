@@ -1,0 +1,7 @@
+#summary This downloads have moved
+
+= This Downloads Have Moved =
+
+The !EpubCheck downloads have [https://github.com/IDPF/epubcheck/releases moved to GitHub].
+
+If you really want to, you can still access the [http://code.google.com/p/epubcheck/downloads/list previous releases].
